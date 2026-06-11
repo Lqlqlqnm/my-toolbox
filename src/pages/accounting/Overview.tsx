@@ -157,14 +157,25 @@ export default function Overview() {
       </div>
 
       {/* Asset Card */}
-      <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-5 text-white mb-4">
-        <p className="text-xs opacity-60">净资产</p>
-        <p className="text-3xl font-bold mt-1">{formatAmount(totalAssets)}</p>
-        <div className="flex justify-between mt-4 text-xs">
-          <div><p className="opacity-60">本月收入</p><p className="text-green-400 font-medium mt-0.5">+{hideAmount ? '****' : monthIncome.toFixed(2)}</p></div>
-          <div><p className="opacity-60">本月支出</p><p className="text-red-400 font-medium mt-0.5">-{hideAmount ? '****' : monthExpense.toFixed(2)}</p></div>
-          <div><p className="opacity-60">结余</p><p className="text-amber-400 font-medium mt-0.5">{hideAmount ? '****' : (monthIncome - monthExpense).toFixed(2)}</p></div>
+      <div className="rounded-xl p-4 mb-4 bg-white dark:bg-[#141416] border border-gray-100 dark:border-white/[0.06] shadow-sm relative overflow-hidden">
+        {/* Light: left gradient bar */}
+        <div className="absolute left-0 top-0 bottom-0 w-1 rounded-l-xl dark:hidden" style={{ background: 'linear-gradient(180deg, #f59e0b, #ef4444)' }} />
+        <div className="flex justify-between text-xs text-gray-400 dark:text-gray-500 mb-2">
+          <span>净资产</span>
+          <span>{new Date().getFullYear()}年{new Date().getMonth() + 1}月</span>
         </div>
+        <p className="text-2xl font-bold text-gray-900 dark:text-white">{formatAmount(totalAssets)}</p>
+        <div className="flex justify-between mt-3 text-xs">
+          <div><p className="text-gray-400 dark:text-gray-500">收入</p><p className="text-green-600 dark:text-green-400 font-medium mt-0.5">+{hideAmount ? '****' : monthIncome.toFixed(2)}</p></div>
+          <div><p className="text-gray-400 dark:text-gray-500">支出</p><p className="text-red-500 dark:text-red-400 font-medium mt-0.5">-{hideAmount ? '****' : monthExpense.toFixed(2)}</p></div>
+          <div><p className="text-gray-400 dark:text-gray-500">结余</p><p className="text-gray-700 dark:text-amber-400 font-medium mt-0.5">{hideAmount ? '****' : (monthIncome - monthExpense).toFixed(2)}</p></div>
+        </div>
+        {/* Budget progress bar */}
+        {budgetStatus.length > 0 && (
+          <div className="mt-3 h-1.5 bg-gray-100 dark:bg-white/5 rounded-full">
+            <div className="h-1.5 rounded-full" style={{ width: `${Math.min(100, (monthExpense / (budgetStatus.reduce((s, b) => s + b.amount, 0) || 1)) * 100)}%`, background: 'linear-gradient(90deg, #f59e0b, #ef4444)' }} />
+          </div>
+        )}
       </div>
 
       {/* Budget Warning */}
@@ -283,22 +294,30 @@ export default function Overview() {
       {recent.length === 0 ? (
         <p className="text-gray-400 text-center py-8 text-sm">暂无记录</p>
       ) : (
-        <div className="bg-white dark:bg-[#141416] rounded-xl border border-gray-100 dark:border-white/[0.06] divide-y divide-gray-50 dark:divide-gray-700">
+        <div className="space-y-2">
           {recent.map(t => {
             const cat = t.category_id ? categories.get(t.category_id) : null
             const displayName = t.type === 'transfer' ? '转账' : cat?.name || '未分类'
             const systemNotePattern = /^分期\s?\d+\/\d+/
             const displayNote = t.note && !systemNotePattern.test(t.note) ? t.note : ''
+            const iconBgMap: Record<string, string> = { expense: 'bg-red-500/10', income: 'bg-green-500/10', transfer: 'bg-blue-500/10' }
+            const barColorMap: Record<string, string> = { expense: 'bg-red-400', income: 'bg-green-400', transfer: 'bg-blue-400' }
+            const textColorMap: Record<string, string> = { expense: 'text-red-500 dark:text-red-400', income: 'text-green-500 dark:text-green-400', transfer: 'text-blue-500 dark:text-blue-400' }
             return (
-            <Link key={t.id} to={`/accounting/edit/${t.id}`} className="flex items-center px-3 py-3">
-              <span className="text-xl mr-3">{t.type === 'transfer' ? '🔄' : (cat?.icon || '📌')}</span>
+            <Link key={t.id} to={`/accounting/edit/${t.id}`}
+              className="flex items-center gap-3 p-3 rounded-xl bg-white dark:bg-[#141416] border border-gray-100 dark:border-white/[0.06] shadow-sm relative overflow-hidden"
+            >
+              <div className={`absolute left-0 top-0 bottom-0 w-0.5 ${barColorMap[t.type]} dark:hidden`} />
+              <div className={`w-8 h-8 rounded-lg ${iconBgMap[t.type]} flex items-center justify-center`}>
+                <span className="text-sm">{t.type === 'transfer' ? '🔄' : (cat?.icon || '📌')}</span>
+              </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm text-gray-800 dark:text-gray-100 truncate">
+                <p className="text-sm text-gray-900 dark:text-white truncate">
                   {displayName}{displayNote ? ` - ${displayNote}` : ''}
                 </p>
-                <p className="text-xs text-gray-400">{t.date}</p>
+                <p className="text-[10px] text-gray-400 dark:text-gray-600">{t.date}</p>
               </div>
-              <span className={`text-sm font-medium ${t.type === 'income' ? 'text-green-500' : t.type === 'expense' ? 'text-red-500' : 'text-blue-500'}`}>
+              <span className={`text-sm font-medium ${textColorMap[t.type]}`}>
                 {t.type === 'income' ? '+' : t.type === 'expense' ? '-' : ''}{hideAmount ? '****' : t.amount.toFixed(2)}
               </span>
             </Link>
