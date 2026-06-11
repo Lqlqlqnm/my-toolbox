@@ -1,11 +1,12 @@
 import { Link } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { ChevronUp, ChevronDown } from 'lucide-react'
-import { db, type Account } from '../../lib/db'
+import { db, type Account, getPendingInstallmentSummary } from '../../lib/db'
 import CategoryIcon, { accountIconKeys } from '../../components/CategoryIcon'
 
 export default function Accounts() {
   const [accounts, setAccounts] = useState<Account[]>([])
+  const [pendingMap, setPendingMap] = useState<Map<number, { total: number; count: number }>>(new Map())
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState<number | null>(null)
   const [form, setForm] = useState({ name: '', type: 'debit' as Account['type'], icon: 'debit', balance: '0', credit_limit: '', billing_day: '', payment_day: '' })
@@ -15,6 +16,8 @@ export default function Accounts() {
   async function loadAccounts() {
     const accts = await db.accounts.orderBy('sort_order').toArray()
     setAccounts(accts)
+    const pending = await getPendingInstallmentSummary()
+    setPendingMap(pending)
   }
 
   function openAdd() {
@@ -137,9 +140,16 @@ export default function Accounts() {
                   )}
                 </p>
               </div>
-              <span className={`text-sm font-medium mr-3 ${a.balance >= 0 ? 'text-gray-700 dark:text-gray-200' : 'text-red-500'}`}>
-                ¥{a.balance.toFixed(2)}
-              </span>
+              <div className="text-right mr-3">
+                <span className={`text-sm font-medium ${a.balance >= 0 ? 'text-gray-700 dark:text-gray-200' : 'text-red-500'}`}>
+                  ¥{a.balance.toFixed(2)}
+                </span>
+                {a.id && pendingMap.has(a.id) && (
+                  <p className="text-[10px] text-amber-500">
+                    待还 ¥{pendingMap.get(a.id)!.total.toFixed(2)} ({pendingMap.get(a.id)!.count}期)
+                  </p>
+                )}
+              </div>
               {sortMode ? (
                 <div className="flex items-center gap-1">
                   <button onClick={() => a.id && moveAccount(a.id, -1)} disabled={i === 0} className="p-1 text-gray-400 hover:text-gray-600 disabled:opacity-30">

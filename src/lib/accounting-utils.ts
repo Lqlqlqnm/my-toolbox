@@ -172,6 +172,7 @@ export async function importParsedRows(rows: ParsedRow[], accountId: number | nu
       book_id: null,
       is_excluded: false,
       is_reconciled: false,
+      is_pending: false,
       currency: 'CNY',
       exchange_rate: 1,
       reimbursement: null,

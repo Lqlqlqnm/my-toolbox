@@ -143,6 +143,7 @@ export default function AddTransaction() {
           book_id: bookId,
           is_excluded: isExcluded,
           is_reconciled: false,
+          is_pending: false,
           currency: 'CNY',
           exchange_rate: 1,
           reimbursement: reimbursement || null,
@@ -178,6 +179,7 @@ export default function AddTransaction() {
         d.setMonth(d.getMonth() + i)
         const dateStr = d.toISOString().slice(0, 10)
         const feeNote = feePerPeriod > 0 ? ` (含手续费¥${feePerPeriod})` : ''
+        const isFirstPeriod = i === 0
         const txData: Omit<Transaction, 'id'> = {
           type: txType,
           amount: totalPeriodAmount,
@@ -190,6 +192,7 @@ export default function AddTransaction() {
           book_id: bookId,
           is_excluded: isExcluded,
           is_reconciled: false,
+          is_pending: !isFirstPeriod, // 只有首期立即扣款，后续期标记为待扣
           currency: 'CNY',
           exchange_rate: 1,
           reimbursement: reimbursement || null,
@@ -198,7 +201,10 @@ export default function AddTransaction() {
           updated_at: now,
         }
         await db.transactions.add(txData)
-        await applyBalance(txData)
+        // 只有首期扣减余额
+        if (isFirstPeriod) {
+          await applyBalance(txData)
+        }
       }
       navigate('/accounting')
       return
@@ -217,6 +223,7 @@ export default function AddTransaction() {
       book_id: bookId,
       is_excluded: isExcluded,
       is_reconciled: false,
+      is_pending: false,
       currency: 'CNY',
       exchange_rate: 1,
       reimbursement: reimbursement || null,
@@ -248,6 +255,7 @@ export default function AddTransaction() {
           book_id: bookId,
           is_excluded: false,
           is_reconciled: false,
+          is_pending: false,
           currency: 'CNY',
           exchange_rate: 1,
           reimbursement: null,

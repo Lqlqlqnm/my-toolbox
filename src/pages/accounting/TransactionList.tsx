@@ -143,6 +143,7 @@ export default function TransactionList() {
       book_id: tx.book_id,
       is_excluded: false,
       is_reconciled: false,
+      is_pending: false,
       currency: tx.currency,
       exchange_rate: 1,
       reimbursement: null,

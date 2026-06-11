@@ -55,8 +55,8 @@ export default function Stats() {
     if (selectedBookId !== 'all') {
       txns = txns.filter(t => t.book_id === selectedBookId)
     }
-    // Exclude is_excluded
-    txns = txns.filter(t => !t.is_excluded)
+    // Exclude is_excluded and is_pending
+    txns = txns.filter(t => !t.is_excluded && !t.is_pending)
 
     const cats = await db.categories.toArray()
     const bks = await db.books.filter(b => !b.is_archived).toArray()
@@ -188,7 +188,7 @@ export default function Stats() {
     const startDate = `${prevYear}-${String(prevMonth).padStart(2, '0')}-01`
     const endDate = `${year}-${String(month).padStart(2, '0')}-01`
     db.transactions.where('date').between(startDate, endDate, true, false).toArray().then(txns => {
-      let filtered = txns.filter(t => !t.is_excluded)
+      let filtered = txns.filter(t => !t.is_excluded && !t.is_pending)
       if (selectedBookId !== 'all') filtered = filtered.filter(t => t.book_id === selectedBookId)
       setLastMonthTxns(filtered)
     })
@@ -244,7 +244,7 @@ export default function Stats() {
       const endYear = month === 12 ? year + 1 : year
       const endDate = `${endYear}-${String(endMonth).padStart(2, '0')}-01`
       let txns = await db.transactions.where('date').between(startDate, endDate, true, false).toArray()
-      txns = txns.filter(t => !t.is_excluded)
+      txns = txns.filter(t => !t.is_excluded && !t.is_pending)
       if (selectedBookId !== 'all') txns = txns.filter(t => t.book_id === selectedBookId)
       const income = txns.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0)
       const expense = txns.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0)

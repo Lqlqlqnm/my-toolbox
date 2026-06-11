@@ -38,6 +38,7 @@ export interface Transaction {
   book_id: number | null
   is_excluded: boolean
   is_reconciled: boolean
+  is_pending: boolean // 分期未到期，余额未扣减
   currency: string
   exchange_rate: number
   reimbursement: string | null
@@ -285,6 +286,10 @@ class ToolboxDB extends Dexie {
     this.version(3).stores({
       travelChecklists: '++id, template_id, is_archived',
     })
+
+    this.version(4).stores({
+      transactions: '++id, type, date, category_id, account_id, book_id, is_reconciled, is_pending',
+    })
   }
 }
 
@@ -373,4 +378,47 @@ export async function initDefaultData() {
       created_at: new Date().toISOString(),
     },
   ])
+}
+
+// ===== 检查到期分期，自动扣减余额 =====
+export async function processPendingInstallments() {
+  const today = new Date().toISOString().slice(0, 10)
+  // 查找所有到期但未扣款的分期记录
+  const pending = await db.transactions
+    .where('is_pending').equals(1) // Dexie stores boolean as 0/1
+    .filter(t => t.date <= today)
+    .toArray()
+
+  for (const tx of pending) {
+    // 扣减余额
+    if (tx.type === 'expense' && tx.account_id) {
+      await db.accounts.where('id').equals(tx.account_id).modify(a => { a.balance -= tx.amount })
+    } else if (tx.type === 'income' && tx.account_id) {
+      await db.accounts.where('id').equals(tx.account_id).modify(a => { a.balance += tx.amount })
+    } else if (tx.type === 'transfer') {
+      if (tx.account_id) await db.accounts.where('id').equals(tx.account_id).modify(a => { a.balance -= tx.amount })
+      if (tx.to_account_id) await db.accounts.where('id').equals(tx.to_account_id).modify(a => { a.balance += tx.amount })
+    }
+    // 标记为已扣款
+    await db.transactions.update(tx.id!, { is_pending: false })
+  }
+  return pending.length
+}
+
+// ===== 查询待还分期汇总（按账户） =====
+export async function getPendingInstallmentSummary(): Promise<Map<number, { total: number; count: number }>> {
+  const pending = await db.transactions
+    .where('is_pending').equals(1)
+    .toArray()
+
+  const map = new Map<number, { total: number; count: number }>()
+  for (const tx of pending) {
+    const accId = tx.account_id
+    if (!accId) continue
+    const curr = map.get(accId) || { total: 0, count: 0 }
+    curr.total += tx.amount
+    curr.count++
+    map.set(accId, curr)
+  }
+  return map
 }

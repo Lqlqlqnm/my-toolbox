@@ -1,6 +1,6 @@
 import { Routes, Route } from 'react-router-dom'
 import { useEffect, useState } from 'react'
-import { initDefaultData } from './lib/db'
+import { initDefaultData, processPendingInstallments } from './lib/db'
 import { shouldRemindBackup, shareBackup } from './lib/backup'
 import { initTheme } from './lib/theme'
 import Home from './pages/Home'
@@ -15,6 +15,7 @@ export default function App() {
   useEffect(() => {
     initDefaultData()
     initTheme()
+    processPendingInstallments()
     if (shouldRemindBackup()) setShowBackupReminder(true)
   }, [])
 
