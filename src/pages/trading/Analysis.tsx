@@ -70,52 +70,60 @@ export default function Analysis() {
               value={article}
               onChange={e => updateArticle(i, e.target.value)}
               placeholder={`粘贴文章${i + 1}正文（支持 HTML，自动清洗）`}
-              className="w-full h-32 px-3 py-2 text-sm border border-gray-200 dark:border-white/[0.06] rounded-lg bg-white dark:bg-[#141416] resize-none"
+              className="w-full h-32 px-3 py-2 text-sm border border-gray-200 dark:border-white/[0.06] rounded-xl bg-white dark:bg-[#141416] resize-none shadow-sm"
             />
             {articles.length > 1 && (
               <button onClick={() => removeArticle(i)} className="absolute top-2 right-2 text-gray-400 hover:text-red-500 text-xs">删除</button>
             )}
           </div>
         ))}
-        <button onClick={addArticle} className="text-sm text-blue-500 hover:text-blue-600">+ 添加文章</button>
+        <button onClick={addArticle} className="text-xs text-blue-500 dark:text-blue-400">+ 添加文章</button>
       </div>
 
-      <button onClick={handleAnalyze} disabled={loading} className="w-full py-2.5 bg-blue-500 text-white rounded-lg text-sm font-medium disabled:opacity-50">
+      <button onClick={handleAnalyze} disabled={loading} className="w-full py-2.5 bg-blue-500 text-white rounded-xl text-sm font-medium disabled:opacity-50">
         {loading ? 'AI 分析中...' : 'AI 分析'}
       </button>
 
       {error && <p className="text-red-500 text-sm">{error}</p>}
 
       {result && (
-        <div className="space-y-3 bg-white dark:bg-[#141416] rounded-lg p-4 border border-gray-200 dark:border-white/[0.06]">
-          <div>
-            <h3 className="text-xs font-medium text-gray-500 mb-1">大盘观点</h3>
-            <p className="text-sm text-gray-800 dark:text-gray-200">{result.market_view}</p>
+        <div className="space-y-3">
+          {/* Market View */}
+          <div className="rounded-xl p-4 bg-white dark:bg-[#141416] border border-gray-100 dark:border-white/[0.06] shadow-sm relative overflow-hidden">
+            <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-blue-400 dark:hidden" />
+            <p className="text-[10px] text-gray-400 dark:text-gray-600 mb-1">大盘观点</p>
+            <p className="text-sm text-gray-900 dark:text-white">{result.market_view}</p>
           </div>
-          <div>
-            <h3 className="text-xs font-medium text-gray-500 mb-1">主线方向</h3>
-            <div className="flex flex-wrap gap-1">
+          {/* Sectors */}
+          <div className="rounded-xl p-4 bg-white dark:bg-[#141416] border border-gray-100 dark:border-white/[0.06] shadow-sm relative overflow-hidden">
+            <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-purple-400 dark:hidden" />
+            <p className="text-[10px] text-gray-400 dark:text-gray-600 mb-2">主线方向</p>
+            <div className="flex flex-wrap gap-1.5">
               {result.main_sectors.map((s, i) => (
-                <span key={i} className="px-2 py-0.5 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-xs rounded">{s}</span>
+                <span key={i} className="px-2 py-0.5 bg-blue-500/10 text-blue-600 dark:text-blue-400 text-xs rounded-full">{s}</span>
               ))}
             </div>
           </div>
-          <div>
-            <h3 className="text-xs font-medium text-gray-500 mb-1">核心逻辑</h3>
+          {/* Core Logic */}
+          <div className="rounded-xl p-4 bg-white dark:bg-[#141416] border border-gray-100 dark:border-white/[0.06] shadow-sm relative overflow-hidden">
+            <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-amber-400 dark:hidden" />
+            <p className="text-[10px] text-gray-400 dark:text-gray-600 mb-1">核心逻辑</p>
             <p className="text-sm text-gray-700 dark:text-gray-300">{result.core_logic}</p>
           </div>
+          {/* Orders */}
           {result.orders.length > 0 && (
             <div>
-              <h3 className="text-xs font-medium text-gray-500 mb-2">条件单（已自动创建）</h3>
+              <p className="text-[11px] text-gray-400 dark:text-gray-600 mb-2">条件单（已自动创建）</p>
               <div className="space-y-2">
                 {result.orders.map((order, i) => (
-                  <div key={i} className="p-2 bg-gray-50 dark:bg-[#0c0c0d] rounded text-xs space-y-1">
-                    <div className="flex justify-between">
-                      <span className="font-medium text-gray-800 dark:text-gray-200">{order.name}({order.code})</span>
-                      <span className="text-green-600">买入 @{order.trigger_price}</span>
+                  <div key={i} className="rounded-xl p-3 bg-white dark:bg-[#141416] border border-gray-100 dark:border-white/[0.06] shadow-sm relative overflow-hidden">
+                    <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-green-400 dark:hidden" />
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium text-gray-900 dark:text-white">{order.name}({order.code})</span>
+                      <span className="text-[10px] px-2 py-0.5 bg-green-500/10 text-green-600 dark:text-green-400 rounded-full">买入 @{order.trigger_price}</span>
                     </div>
-                    <div className="text-gray-500">仓位{order.position_pct}% | 止损{order.stop_loss_pct}% | 止盈回撤{order.trailing_pct}% | 最长{order.max_hold_days}天</div>
-                    <div className="text-gray-500">{order.reason}</div>
+                    <div className="text-[10px] text-gray-400 dark:text-gray-600 mt-1">仓位{order.position_pct}% | 止损{order.stop_loss_pct}% | 止盈回撤{order.trailing_pct}% | 最长{order.max_hold_days}天</div>
+                    <div className="text-[10px] text-gray-400 dark:text-gray-600 mt-0.5">{order.reason}</div>
                   </div>
                 ))}
               </div>
@@ -125,21 +133,22 @@ export default function Analysis() {
       )}
 
       <div>
-        <button onClick={() => setShowHistory(!showHistory)} className="text-sm text-gray-500 hover:text-gray-700">
+        <button onClick={() => setShowHistory(!showHistory)} className="text-xs text-gray-400 dark:text-gray-600 hover:text-gray-600">
           {showHistory ? '收起历史' : `历史分析 (${history.length})`}
         </button>
         {showHistory && history.length > 0 && (
           <div className="mt-2 space-y-2">
             {history.map((record: any) => (
-              <div key={record.id} className="p-3 bg-white dark:bg-[#141416] rounded-lg border border-gray-100 dark:border-white/[0.06] text-xs">
+              <div key={record.id} className="rounded-xl p-3 bg-white dark:bg-[#141416] border border-gray-100 dark:border-white/[0.06] shadow-sm relative overflow-hidden text-xs">
+                <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-gray-300 dark:hidden" />
                 <div className="flex justify-between mb-1">
-                  <span className="text-gray-500">{record.created_at?.split('T')[0]}</span>
+                  <span className="text-gray-400 dark:text-gray-600">{record.created_at?.split('T')[0]}</span>
                   <span className="text-gray-400">{JSON.parse(record.orders || '[]').length} 个条件单</span>
                 </div>
-                <p className="text-gray-700 dark:text-gray-300">{record.market_view}</p>
+                <p className="text-gray-900 dark:text-white">{record.market_view}</p>
                 <div className="flex flex-wrap gap-1 mt-1">
                   {JSON.parse(record.main_sectors || '[]').map((s: string, i: number) => (
-                    <span key={i} className="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded text-xs">{s}</span>
+                    <span key={i} className="px-1.5 py-0.5 bg-gray-500/10 text-gray-600 dark:text-gray-400 rounded-full text-[10px]">{s}</span>
                   ))}
                 </div>
               </div>
