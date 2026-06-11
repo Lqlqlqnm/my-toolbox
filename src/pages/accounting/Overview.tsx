@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { Eye, EyeOff, AlertTriangle, Crown, CreditCard, PieChart, Repeat, Handshake, Target, Calendar, TrendingUp, Zap, Settings, ChevronUp, ChevronDown, EyeOff as EyeOffIcon, Eye as EyeIcon } from 'lucide-react'
 import { db, type Account, type Transaction, type Budget, type Category } from '../../lib/db'
+import CategoryIcon from '../../components/CategoryIcon'
 
 interface ModuleItem {
   key: string
@@ -306,7 +307,7 @@ export default function Overview() {
             >
               <div className={`absolute left-0 top-0 bottom-0 w-0.5 ${barColorMap[t.type]} dark:hidden`} />
               <div className={`w-8 h-8 rounded-lg ${iconBgMap[t.type]} flex items-center justify-center`}>
-                <span className="text-sm">{t.type === 'transfer' ? '🔄' : (cat?.icon || '📌')}</span>
+                <span className="text-sm">{t.type === 'transfer' ? '🔄' : <CategoryIcon icon={cat?.icon || 'pin'} size={18} />}</span>
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm text-gray-900 dark:text-white truncate">
