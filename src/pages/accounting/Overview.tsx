@@ -111,11 +111,6 @@ export default function Overview() {
           <div><p className="opacity-60">支出</p><p className="text-red-400 font-medium mt-0.5">-{hideAmount ? '****' : monthExpense.toFixed(2)}</p></div>
           <div><p className="opacity-60">结余</p><p className="text-amber-400 font-medium mt-0.5">{hideAmount ? '****' : (monthIncome - monthExpense).toFixed(2)}</p></div>
         </div>
-        {budgetStatus.length > 0 && (
-          <div className="mt-3 h-1.5 bg-white/10 rounded-full">
-            <div className="h-1.5 rounded-full" style={{ width: `${Math.min(100, (monthExpense / (budgetStatus.reduce((s, b) => s + b.amount, 0) || 1)) * 100)}%`, background: 'linear-gradient(90deg, #f59e0b, #ef4444)' }} />
-          </div>
-        )}
       </div>
 
       {/* Budget Warning */}
