@@ -73,14 +73,15 @@ export default function Overview() {
   const monthIncome = useMemo(() => transactions.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0), [transactions])
   const monthExpense = useMemo(() => transactions.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0), [transactions])
 
-  // Budget usage
+  // Budget usage - all budgets for expandable view
   const budgetStatus = useMemo(() => {
-    return budgets.slice(0, 3).map(b => {
+    return budgets.map(b => {
       const spent = transactions.filter(t => t.type === 'expense' && t.category_id === b.category_id).reduce((s, t) => s + t.amount, 0)
       const pct = b.amount > 0 ? Math.min(100, (spent / b.amount) * 100) : 0
-      return { ...b, spent, pct }
+      const cat = b.category_id ? categories.get(b.category_id) : null
+      return { ...b, spent, pct, catName: cat?.name || '总预算', catIcon: cat?.icon || '' }
     })
-  }, [budgets, transactions])
+  }, [budgets, transactions, categories])
 
   // Recent 5 transactions
   const recent = useMemo(() => {
@@ -121,6 +122,7 @@ export default function Overview() {
 
   const visibleModules = modules.filter(m => m.visible)
   const [editingModules, setEditingModules] = useState(false)
+  const [budgetExpanded, setBudgetExpanded] = useState(false)
 
   function saveModules(updated: ModuleItem[]) {
     setModules(updated)
@@ -186,16 +188,16 @@ export default function Overview() {
         </div>
       )}
 
-      {/* Quick Tools Grid / Edit Mode */}
+      {/* Quick Tools - horizontal scroll pills */}
       {editingModules ? (
         <div className="mb-5 bg-white dark:bg-[#141416] rounded-xl border border-gray-100 dark:border-white/[0.06] p-4">
           <div className="flex items-center justify-between mb-3">
-            <p className="text-sm font-medium text-gray-800 dark:text-gray-100">编辑模块</p>
+            <p className="text-sm font-medium text-gray-900 dark:text-white">编辑模块</p>
             <button onClick={() => setEditingModules(false)} className="text-xs text-amber-500 font-medium">完成</button>
           </div>
           <div className="space-y-2">
             {modules.map((m, idx) => (
-              <div key={m.key} className="flex items-center gap-3 py-2 px-2 rounded-lg bg-gray-50 dark:bg-gray-700/50">
+              <div key={m.key} className="flex items-center gap-3 py-2 px-2 rounded-lg bg-gray-50 dark:bg-white/[0.03]">
                 {m.icon}
                 <span className="flex-1 text-sm text-gray-700 dark:text-gray-200">{m.label}</span>
                 <button onClick={() => moveModule(m.key, -1)} disabled={idx === 0} className="p-1 text-gray-400 hover:text-gray-600 disabled:opacity-30">
@@ -212,13 +214,64 @@ export default function Overview() {
           </div>
         </div>
       ) : (
-        <div className="grid grid-cols-4 gap-3 mb-5">
-          {visibleModules.map(m => (
-            <Link key={m.key} to={m.to} className={`flex flex-col items-center gap-1.5 py-3 ${m.color} dark:bg-[#141416] rounded-xl border border-gray-100 dark:border-white/[0.06] shadow-sm hover:shadow-md transition-shadow`}>
+        <div className="mb-5 flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-hide">
+          {visibleModules.filter(m => m.key !== 'budget').map(m => (
+            <Link key={m.key} to={m.to} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white dark:bg-[#141416] border border-gray-100 dark:border-white/[0.06] shadow-sm whitespace-nowrap shrink-0">
               {m.icon}
-              <span className="text-[11px] text-gray-600 dark:text-gray-300">{m.label}</span>
+              <span className="text-xs text-gray-600 dark:text-gray-300">{m.label}</span>
             </Link>
           ))}
+        </div>
+      )}
+
+      {/* Budget Card - expandable */}
+      {budgetStatus.length > 0 && (
+        <div className="mb-5">
+          {/* Summary row */}
+          <button onClick={() => setBudgetExpanded(!budgetExpanded)} className="w-full rounded-xl p-4 bg-white dark:bg-[#141416] border border-gray-100 dark:border-white/[0.06] shadow-sm relative overflow-hidden text-left">
+            <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-amber-400 dark:hidden" />
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-sm font-medium text-gray-900 dark:text-white">本月预算</p>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-gray-400 dark:text-gray-600">
+                  {hideAmount ? '****' : `¥${budgetStatus.reduce((s, b) => s + b.spent, 0).toFixed(0)}`} / ¥{budgetStatus.reduce((s, b) => s + b.amount, 0).toFixed(0)}
+                </span>
+                <svg className={`w-3.5 h-3.5 text-gray-400 transition-transform ${budgetExpanded ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7"/></svg>
+              </div>
+            </div>
+            <div className="h-2 bg-gray-100 dark:bg-white/5 rounded-full">
+              <div className="h-2 rounded-full" style={{ width: `${Math.min(100, (budgetStatus.reduce((s, b) => s + b.spent, 0) / (budgetStatus.reduce((s, b) => s + b.amount, 0) || 1)) * 100)}%`, background: 'linear-gradient(90deg, #f59e0b, #ef4444)' }} />
+            </div>
+            <p className="text-[10px] text-gray-400 dark:text-gray-600 mt-1.5">
+              剩余 ¥{hideAmount ? '****' : (budgetStatus.reduce((s, b) => s + b.amount, 0) - budgetStatus.reduce((s, b) => s + b.spent, 0)).toFixed(0)}
+            </p>
+          </button>
+
+          {/* Expanded: per-category breakdown */}
+          {budgetExpanded && (
+            <div className="mt-2 space-y-2">
+              {budgetStatus.map(b => (
+                <div key={b.id} className="rounded-xl p-3 bg-white dark:bg-[#141416] border border-gray-100 dark:border-white/[0.06] shadow-sm relative overflow-hidden">
+                  <div className={`absolute left-0 top-0 bottom-0 w-0.5 ${b.pct >= 80 ? 'bg-red-400' : b.pct >= 50 ? 'bg-amber-400' : 'bg-green-400'} dark:hidden`} />
+                  <div className="flex justify-between items-center mb-1.5">
+                    <span className="text-sm text-gray-900 dark:text-white flex items-center gap-1.5">
+                      <CategoryIcon icon={b.catIcon || 'pin'} size={16} />
+                      {b.catName}
+                    </span>
+                    <span className={`text-xs font-medium ${b.pct >= 80 ? 'text-red-500 dark:text-red-400' : 'text-gray-400 dark:text-gray-600'}`}>
+                      {hideAmount ? '****' : `¥${b.spent.toFixed(0)}`} / ¥{b.amount}
+                    </span>
+                  </div>
+                  <div className="h-1.5 bg-gray-100 dark:bg-white/5 rounded-full">
+                    <div className={`h-1.5 rounded-full ${b.pct >= 80 ? 'bg-red-400' : b.pct >= 50 ? 'bg-amber-400' : 'bg-green-400'}`} style={{ width: `${b.pct}%` }} />
+                  </div>
+                  <p className="text-[10px] text-gray-400 dark:text-gray-600 mt-1">
+                    剩余 ¥{hideAmount ? '****' : (b.amount - b.spent).toFixed(0)} · 已用 {b.pct.toFixed(0)}%
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
@@ -255,31 +308,6 @@ export default function Overview() {
                 </div>
               ))}
             </div>
-          </div>
-        </div>
-      )}
-
-      {/* Budget Overview */}
-      {budgetStatus.length > 0 && (
-        <div className="mb-5">
-          <div className="flex items-center justify-between mb-2">
-            <p className="text-sm font-medium text-gray-800 dark:text-gray-100">本月预算</p>
-            <Link to="/accounting/budgets" className="text-xs text-amber-500">详情 →</Link>
-          </div>
-          <div className="bg-white dark:bg-[#141416] rounded-xl border border-gray-100 dark:border-white/[0.06] p-4 space-y-3">
-            {budgetStatus.map(b => (
-              <div key={b.id}>
-                <div className="flex justify-between text-xs mb-1">
-                  <span className="text-gray-600 dark:text-gray-300">预算 #{b.id}</span>
-                  <span className={b.pct >= 80 ? 'text-red-500 font-medium' : 'text-gray-400'}>
-                    {hideAmount ? '****' : `¥${b.spent.toFixed(0)}`} / ¥{b.amount}
-                  </span>
-                </div>
-                <div className="h-2 bg-gray-100 dark:bg-gray-700 rounded-full">
-                  <div className={`h-2 rounded-full ${b.pct >= 80 ? 'bg-red-400' : b.pct >= 50 ? 'bg-amber-400' : 'bg-green-400'}`} style={{ width: `${b.pct}%` }} />
-                </div>
-              </div>
-            ))}
           </div>
         </div>
       )}
