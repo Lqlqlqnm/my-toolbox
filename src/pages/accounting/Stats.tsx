@@ -273,12 +273,12 @@ export default function Stats() {
             <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
           </svg>
         </Link>
-        <h1 className="text-lg font-bold text-gray-800 dark:text-gray-100">统计</h1>
+        <h1 className="text-lg font-bold text-gray-800 dark:text-white">统计</h1>
         <div className="w-5" />
       </div>
 
       {/* View Mode Tabs */}
-      <div className="flex bg-gray-100 dark:bg-gray-800 rounded-lg p-0.5 mb-4">
+      <div className="flex bg-gray-100 dark:bg-[#141416] rounded-lg p-0.5 mb-4">
         {([['monthly', '月度'], ['yearly', '年度'], ['custom', '自定义']] as [ViewMode, string][]).map(([mode, label]) => (
           <button key={mode} onClick={() => setViewMode(mode)}
             className={`flex-1 py-1.5 text-xs rounded-md font-medium ${viewMode === mode ? 'bg-white dark:bg-gray-700 shadow-sm text-amber-600' : 'text-gray-500'}`}>
@@ -290,10 +290,10 @@ export default function Stats() {
       {/* Book Filter */}
       {books.length > 0 && (
         <div className="flex gap-2 mb-3 overflow-x-auto pb-1">
-          <button onClick={() => setSelectedBookId('all')} className={`px-3 py-1 rounded-full text-xs whitespace-nowrap ${selectedBookId === 'all' ? 'bg-amber-500 text-white' : 'bg-white dark:bg-gray-800 text-gray-500 border border-gray-200 dark:border-gray-700'}`}>全部</button>
-          <button onClick={() => setSelectedBookId(null)} className={`px-3 py-1 rounded-full text-xs whitespace-nowrap ${selectedBookId === null ? 'bg-amber-500 text-white' : 'bg-white dark:bg-gray-800 text-gray-500 border border-gray-200 dark:border-gray-700'}`}>默认</button>
+          <button onClick={() => setSelectedBookId('all')} className={`px-3 py-1 rounded-full text-xs whitespace-nowrap ${selectedBookId === 'all' ? 'bg-amber-500 text-white' : 'bg-white dark:bg-[#141416] text-gray-500 border border-gray-200 dark:border-white/[0.06]'}`}>全部</button>
+          <button onClick={() => setSelectedBookId(null)} className={`px-3 py-1 rounded-full text-xs whitespace-nowrap ${selectedBookId === null ? 'bg-amber-500 text-white' : 'bg-white dark:bg-[#141416] text-gray-500 border border-gray-200 dark:border-white/[0.06]'}`}>默认</button>
           {books.map(b => (
-            <button key={b.id} onClick={() => setSelectedBookId(b.id!)} className={`px-3 py-1 rounded-full text-xs whitespace-nowrap ${selectedBookId === b.id ? 'bg-amber-500 text-white' : 'bg-white dark:bg-gray-800 text-gray-500 border border-gray-200 dark:border-gray-700'}`}>{b.name}</button>
+            <button key={b.id} onClick={() => setSelectedBookId(b.id!)} className={`px-3 py-1 rounded-full text-xs whitespace-nowrap ${selectedBookId === b.id ? 'bg-amber-500 text-white' : 'bg-white dark:bg-[#141416] text-gray-500 border border-gray-200 dark:border-white/[0.06]'}`}>{b.name}</button>
           ))}
         </div>
       )}
@@ -327,7 +327,7 @@ export default function Stats() {
             </div>
           )}
         </div>
-        <div className="flex bg-gray-100 dark:bg-gray-800 rounded-md p-0.5">
+        <div className="flex bg-gray-100 dark:bg-[#141416] rounded-md p-0.5">
           <button
             onClick={() => setViewType('expense')}
             className={`px-3 py-1 text-xs rounded ${viewType === 'expense' ? 'bg-white dark:bg-gray-700 shadow-sm text-red-500' : 'text-gray-500'}`}
@@ -344,12 +344,12 @@ export default function Stats() {
       </div>
 
       {/* Total + Overview */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl p-4 mb-4 shadow-sm border border-gray-100 dark:border-gray-700">
+      <div className="bg-white dark:bg-[#141416] rounded-xl p-4 mb-4 shadow-sm border border-gray-100 dark:border-white/[0.06]">
         <p className="text-xs text-gray-400 mb-1">总{viewType === 'expense' ? '支出' : '收入'}</p>
         <p className={`text-2xl font-bold ${viewType === 'expense' ? 'text-red-500' : 'text-green-500'}`}>
           ¥{breakdown.total.toFixed(2)}
         </p>
-        <div className="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
+        <div className="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-gray-100 dark:border-white/[0.06]">
           <div>
             <p className="text-[10px] text-gray-400">日均</p>
             <p className="text-sm font-medium text-gray-700 dark:text-gray-200">¥{overview.dailyAvg.toFixed(0)}</p>
@@ -366,7 +366,7 @@ export default function Stats() {
       </div>
 
       {/* Trend Bar Chart */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl p-4 mb-4 shadow-sm border border-gray-100 dark:border-gray-700">
+      <div className="bg-white dark:bg-[#141416] rounded-xl p-4 mb-4 shadow-sm border border-gray-100 dark:border-white/[0.06]">
         <p className="text-xs text-gray-400 mb-3">{viewMode === 'yearly' ? '月度趋势' : '每日趋势'}</p>
         <div className="flex items-end gap-px h-20">
           {trendData.map((val, i) => (
@@ -386,7 +386,7 @@ export default function Stats() {
       </div>
 
       {/* Category Breakdown */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-gray-700">
+      <div className="bg-white dark:bg-[#141416] rounded-xl p-4 shadow-sm border border-gray-100 dark:border-white/[0.06]">
         <p className="text-xs text-gray-400 mb-3">分类占比</p>
         {breakdown.items.length === 0 ? (
           <p className="text-gray-300 text-sm text-center py-4">暂无数据</p>
@@ -415,7 +415,7 @@ export default function Stats() {
 
       {/* Tag Analysis */}
       {tagBreakdown.length > 0 && (
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 mt-4 shadow-sm border border-gray-100 dark:border-gray-700">
+        <div className="bg-white dark:bg-[#141416] rounded-xl p-4 mt-4 shadow-sm border border-gray-100 dark:border-white/[0.06]">
           <p className="text-xs text-gray-400 mb-3">标签/成员分析</p>
           <div className="space-y-2">
             {tagBreakdown.slice(0, 8).map(item => (
@@ -433,7 +433,7 @@ export default function Stats() {
 
       {/* Account Analysis */}
       {accountBreakdown.length > 0 && (
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 mt-4 shadow-sm border border-gray-100 dark:border-gray-700">
+        <div className="bg-white dark:bg-[#141416] rounded-xl p-4 mt-4 shadow-sm border border-gray-100 dark:border-white/[0.06]">
           <p className="text-xs text-gray-400 mb-3">账户/支付方式分布</p>
           <div className="space-y-2">
             {accountBreakdown.slice(0, 6).map((item, i) => (
@@ -452,7 +452,7 @@ export default function Stats() {
 
       {/* Month Comparison */}
       {viewMode === 'monthly' && monthComparison.length > 0 && (
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 mt-4 shadow-sm border border-gray-100 dark:border-gray-700">
+        <div className="bg-white dark:bg-[#141416] rounded-xl p-4 mt-4 shadow-sm border border-gray-100 dark:border-white/[0.06]">
           <p className="text-xs text-gray-400 mb-3">vs 上月对比</p>
           <div className="space-y-2">
             {monthComparison.slice(0, 8).map((item, i) => (
@@ -477,7 +477,7 @@ export default function Stats() {
 
       {/* Top Expenses */}
       {topExpenses.length > 0 && (
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 mt-4 shadow-sm border border-gray-100 dark:border-gray-700">
+        <div className="bg-white dark:bg-[#141416] rounded-xl p-4 mt-4 shadow-sm border border-gray-100 dark:border-white/[0.06]">
           <p className="text-xs text-gray-400 mb-3">Top {viewType === 'expense' ? '支出' : '收入'}</p>
           <div className="space-y-2">
             {topExpenses.map((t, i) => {
@@ -505,7 +505,7 @@ export default function Stats() {
 
       {/* Balance Trend (6 months) */}
       {balanceTrend.length > 0 && (
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 mt-4 shadow-sm border border-gray-100 dark:border-gray-700">
+        <div className="bg-white dark:bg-[#141416] rounded-xl p-4 mt-4 shadow-sm border border-gray-100 dark:border-white/[0.06]">
           <p className="text-xs text-gray-400 mb-3">近 6 月收支结余</p>
           <div className="space-y-2">
             {balanceTrend.map((m, i) => (

@@ -26,7 +26,7 @@ export default function Tools() {
       <div className="grid grid-cols-4 gap-4 mb-6">
         {accountingTools.map(t => (
           <Link key={t.label} to={t.to} className="flex flex-col items-center gap-1.5">
-            <div className={`w-12 h-12 ${t.bg} dark:bg-gray-800 rounded-xl flex items-center justify-center shadow-sm`}>{t.icon}</div>
+            <div className={`w-12 h-12 ${t.bg} dark:bg-[#141416] rounded-xl flex items-center justify-center shadow-sm`}>{t.icon}</div>
             <span className="text-[11px] text-gray-600 dark:text-gray-300">{t.label}</span>
           </Link>
         ))}
@@ -36,7 +36,7 @@ export default function Tools() {
       <div className="grid grid-cols-4 gap-4">
         {dataTools.map(t => (
           <Link key={t.label} to={t.to} className="flex flex-col items-center gap-1.5">
-            <div className={`w-12 h-12 ${t.bg} dark:bg-gray-800 rounded-xl flex items-center justify-center shadow-sm`}>{t.icon}</div>
+            <div className={`w-12 h-12 ${t.bg} dark:bg-[#141416] rounded-xl flex items-center justify-center shadow-sm`}>{t.icon}</div>
             <span className="text-[11px] text-gray-600 dark:text-gray-300">{t.label}</span>
           </Link>
         ))}

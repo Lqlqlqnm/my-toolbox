@@ -46,7 +46,7 @@ export default function Templates() {
               <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
             </svg>
           </Link>
-          <h1 className="text-lg font-bold text-gray-800 dark:text-gray-100">常用模板</h1>
+          <h1 className="text-lg font-bold text-gray-800 dark:text-white">常用模板</h1>
         </div>
         <Link to="/accounting/add" className="text-xs text-amber-500">去记账时保存模板</Link>
       </div>
@@ -59,7 +59,7 @@ export default function Templates() {
       ) : (
         <div className="space-y-2">
           {templates.map(tpl => (
-            <div key={tpl.id} className="p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700 flex items-center justify-between">
+            <div key={tpl.id} className="p-3 bg-white dark:bg-[#141416] rounded-lg border border-gray-100 dark:border-white/[0.06] flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <span className="text-lg">{tpl.category_id && categories?.get(tpl.category_id)?.icon || '📌'}</span>
                 <div>

@@ -70,13 +70,13 @@ export default function SavingsGoals() {
             <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
           </svg>
         </Link>
-        <h1 className="text-lg font-bold text-gray-800 dark:text-gray-100">攒钱目标</h1>
+        <h1 className="text-lg font-bold text-gray-800 dark:text-white">攒钱目标</h1>
         <button onClick={openAdd} className="text-amber-500 hover:text-amber-600 text-sm font-medium">添加</button>
       </div>
 
       {/* Overall Progress */}
       {goals.length > 0 && (
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 mb-4 shadow-sm border border-gray-100 dark:border-gray-700 text-center">
+        <div className="bg-white dark:bg-[#141416] rounded-xl p-4 mb-4 shadow-sm border border-gray-100 dark:border-white/[0.06] text-center">
           <p className="text-xs text-gray-400 mb-1">总进度</p>
           <p className="text-xl font-bold text-amber-500">¥{totalSaved.toFixed(0)} <span className="text-sm text-gray-400 font-normal">/ ¥{totalTarget.toFixed(0)}</span></p>
           <div className="mt-2 h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
@@ -94,12 +94,12 @@ export default function SavingsGoals() {
             const percent = g.target > 0 ? (g.current / g.target) * 100 : 0
             const isComplete = percent >= 100
             return (
-              <div key={g.id} className={`bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border ${isComplete ? 'border-green-200 dark:border-green-800' : 'border-gray-100 dark:border-gray-700'}`}>
+              <div key={g.id} className={`bg-white dark:bg-[#141416] rounded-xl p-4 shadow-sm border ${isComplete ? 'border-green-200 dark:border-green-800' : 'border-gray-100 dark:border-white/[0.06]'}`}>
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
                     <span className="text-gray-600 dark:text-gray-300"><CategoryIcon icon={g.icon} size={26} /></span>
                     <div>
-                      <p className="text-sm font-medium text-gray-800 dark:text-gray-100">{g.name}</p>
+                      <p className="text-sm font-medium text-gray-800 dark:text-white">{g.name}</p>
                       {g.deadline && (
                         <p className="text-[11px] text-gray-400">截止 {g.deadline}</p>
                       )}
@@ -146,8 +146,8 @@ export default function SavingsGoals() {
       {/* Add/Edit Form Modal */}
       {showForm && (
         <div className="fixed inset-0 bg-black/50 flex items-end justify-center z-50" onClick={() => setShowForm(false)}>
-          <div className="bg-white dark:bg-gray-800 w-full max-w-lg rounded-t-2xl p-6" onClick={e => e.stopPropagation()}>
-            <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-4">
+          <div className="bg-white dark:bg-[#141416] w-full max-w-lg rounded-t-2xl p-6" onClick={e => e.stopPropagation()}>
+            <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-4">
               {editingId ? '编辑目标' : '添加攒钱目标'}
             </h3>
             <div className="space-y-4">

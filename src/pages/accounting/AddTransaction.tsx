@@ -280,7 +280,7 @@ export default function AddTransaction() {
             <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
           </svg>
         </Link>
-        <h1 className="text-lg font-bold text-gray-800 dark:text-gray-100">
+        <h1 className="text-lg font-bold text-gray-800 dark:text-white">
           {isEditing ? '编辑记录' : '记一笔'}
         </h1>
         <button onClick={() => setShowTemplates(!showTemplates)} className="text-gray-400 hover:text-amber-500 text-xs">
@@ -290,7 +290,7 @@ export default function AddTransaction() {
 
       {/* Quick Templates */}
       {showTemplates && templates.length > 0 && (
-        <div className="mb-4 bg-white dark:bg-gray-800 rounded-xl p-3 border border-gray-100 dark:border-gray-700">
+        <div className="mb-4 bg-white dark:bg-[#141416] rounded-xl p-3 border border-gray-100 dark:border-white/[0.06]">
           <p className="text-xs text-gray-400 mb-2">快捷模板</p>
           <div className="flex flex-wrap gap-2">
             {templates.map(tpl => (
@@ -304,7 +304,7 @@ export default function AddTransaction() {
       )}
 
       {/* Type Tabs */}
-      <div className="flex bg-gray-100 dark:bg-gray-800 rounded-lg p-1 mb-6">
+      <div className="flex bg-gray-100 dark:bg-[#141416] rounded-lg p-1 mb-6">
         {(['expense', 'income', 'transfer'] as TxType[]).map(t => (
           <button
             key={t}
@@ -332,7 +332,7 @@ export default function AddTransaction() {
             value={amount}
             onChange={e => setAmount(e.target.value)}
             placeholder="0.00"
-            className="text-4xl font-bold text-center text-gray-800 dark:text-gray-100 bg-transparent outline-none w-48"
+            className="text-4xl font-bold text-center text-gray-800 dark:text-white bg-transparent outline-none w-48"
             autoFocus
           />
         </div>
@@ -350,7 +350,7 @@ export default function AddTransaction() {
                 className={`flex flex-col items-center py-2 rounded-lg text-xs transition-colors ${
                   categoryId === c.id
                     ? 'bg-amber-50 dark:bg-amber-900/30 ring-1 ring-amber-400'
-                    : 'bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700'
+                    : 'bg-gray-50 dark:bg-[#141416] hover:bg-gray-100 dark:hover:bg-gray-700'
                 }`}
               >
                 <span className="mb-0.5 text-gray-600 dark:text-gray-300"><CategoryIcon icon={c.icon} size={20} /></span>
@@ -372,7 +372,7 @@ export default function AddTransaction() {
               className={`px-3 py-1.5 rounded-full text-sm transition-colors ${
                 accountId === a.id
                   ? 'bg-amber-500 text-white'
-                  : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300'
+                  : 'bg-gray-100 dark:bg-[#141416] text-gray-600 dark:text-gray-300'
               }`}
             >
               <span className="inline-flex items-center gap-1"><CategoryIcon icon={a.icon} size={14} /> {a.name}</span>
@@ -393,7 +393,7 @@ export default function AddTransaction() {
                 className={`px-3 py-1.5 rounded-full text-sm transition-colors ${
                   toAccountId === a.id
                     ? 'bg-blue-500 text-white'
-                    : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300'
+                    : 'bg-gray-100 dark:bg-[#141416] text-gray-600 dark:text-gray-300'
                 }`}
               >
                 <span className="inline-flex items-center gap-1"><CategoryIcon icon={a.icon} size={14} /> {a.name}</span>
@@ -417,7 +417,7 @@ export default function AddTransaction() {
           type="date"
           value={date}
           onChange={e => setDate(e.target.value)}
-          className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 rounded-lg text-sm text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700"
+          className="w-full px-3 py-2 bg-gray-50 dark:bg-[#141416] rounded-lg text-sm text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-white/[0.06]"
         />
       </div>
 
@@ -429,7 +429,7 @@ export default function AddTransaction() {
           value={note}
           onChange={e => handleNoteChange(e.target.value)}
           placeholder="输入备注自动推荐分类"
-          className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 rounded-lg text-sm text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700"
+          className="w-full px-3 py-2 bg-gray-50 dark:bg-[#141416] rounded-lg text-sm text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-white/[0.06]"
         />
       </div>
 
@@ -457,7 +457,7 @@ export default function AddTransaction() {
               }
             }}
             placeholder="输入后回车添加"
-            className="flex-1 px-3 py-1.5 bg-gray-50 dark:bg-gray-800 rounded-lg text-xs text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700"
+            className="flex-1 px-3 py-1.5 bg-gray-50 dark:bg-[#141416] rounded-lg text-xs text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-white/[0.06]"
           />
           <button
             type="button"
@@ -476,7 +476,7 @@ export default function AddTransaction() {
           <div className="flex flex-wrap gap-2">
             <button
               onClick={() => setBookId(null)}
-              className={`px-3 py-1.5 rounded-full text-sm transition-colors ${bookId === null ? 'bg-amber-500 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300'}`}
+              className={`px-3 py-1.5 rounded-full text-sm transition-colors ${bookId === null ? 'bg-amber-500 text-white' : 'bg-gray-100 dark:bg-[#141416] text-gray-600 dark:text-gray-300'}`}
             >
               默认
             </button>
@@ -484,7 +484,7 @@ export default function AddTransaction() {
               <button
                 key={b.id}
                 onClick={() => setBookId(b.id!)}
-                className={`px-3 py-1.5 rounded-full text-sm transition-colors ${bookId === b.id ? 'bg-amber-500 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300'}`}
+                className={`px-3 py-1.5 rounded-full text-sm transition-colors ${bookId === b.id ? 'bg-amber-500 text-white' : 'bg-gray-100 dark:bg-[#141416] text-gray-600 dark:text-gray-300'}`}
               >
                 {b.name}
               </button>
@@ -501,7 +501,7 @@ export default function AddTransaction() {
       </div>
 
       {showAdvanced && (
-        <div className="space-y-4 mb-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl p-4 border border-gray-100 dark:border-gray-700">
+        <div className="space-y-4 mb-4 bg-gray-50 dark:bg-[#141416]/50 rounded-xl p-4 border border-gray-100 dark:border-white/[0.06]">
           {/* Exclude from stats */}
           <label className="flex items-center justify-between">
             <span className="text-sm text-gray-600 dark:text-gray-300">排除统计</span>

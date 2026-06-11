@@ -121,20 +121,20 @@ export default function AssetTrend() {
             <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
           </svg>
         </Link>
-        <h1 className="text-lg font-bold text-gray-800 dark:text-gray-100">资产趋势</h1>
+        <h1 className="text-lg font-bold text-gray-800 dark:text-white">资产趋势</h1>
         <div className="w-5" />
       </div>
 
       {/* Current Net Worth */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl p-4 mb-4 shadow-sm border border-gray-100 dark:border-gray-700 text-center">
+      <div className="bg-white dark:bg-[#141416] rounded-xl p-4 mb-4 shadow-sm border border-gray-100 dark:border-white/[0.06] text-center">
         <p className="text-xs text-gray-400 mb-1">当前净资产</p>
-        <p className="text-2xl font-bold text-gray-800 dark:text-gray-100">
+        <p className="text-2xl font-bold text-gray-800 dark:text-white">
           ¥{accounts.reduce((s, a) => s + a.balance, 0).toFixed(2)}
         </p>
       </div>
 
       {/* Time Range Selector */}
-      <div className="flex bg-gray-100 dark:bg-gray-800 rounded-lg p-0.5 mb-4">
+      <div className="flex bg-gray-100 dark:bg-[#141416] rounded-lg p-0.5 mb-4">
         {([['30d', '近30天'], ['6m', '近6月'], ['1y', '近1年']] as [TimeRange, string][]).map(([range, label]) => (
           <button key={range} onClick={() => setTimeRange(range)}
             className={`flex-1 py-1.5 text-xs rounded-md font-medium ${timeRange === range ? 'bg-white dark:bg-gray-700 shadow-sm text-amber-600' : 'text-gray-500'}`}>
@@ -144,7 +144,7 @@ export default function AssetTrend() {
       </div>
 
       {/* SVG Chart */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-gray-700">
+      <div className="bg-white dark:bg-[#141416] rounded-xl p-4 shadow-sm border border-gray-100 dark:border-white/[0.06]">
         {chartData.points.length < 2 ? (
           <p className="text-gray-400 text-sm text-center py-8">数据不足，至少需要两个时间点</p>
         ) : (

@@ -80,18 +80,18 @@ export default function Books() {
             <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
           </svg>
         </Link>
-        <h1 className="text-lg font-bold text-gray-800 dark:text-gray-100">账本管理</h1>
+        <h1 className="text-lg font-bold text-gray-800 dark:text-white">账本管理</h1>
         <button onClick={openAdd} className="text-amber-500 hover:text-amber-600 text-sm font-medium">新建</button>
       </div>
 
       <p className="text-xs text-gray-400 mb-4">账本用于分组管理不同场景的记账（如个人、家庭、旅行等）。默认账本包含未指定账本的所有记录。</p>
 
       {/* Default Book */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl p-4 mb-3 shadow-sm border border-amber-200 dark:border-amber-800">
+      <div className="bg-white dark:bg-[#141416] rounded-xl p-4 mb-3 shadow-sm border border-amber-200 dark:border-amber-800">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="text-lg">📒</span>
-            <span className="text-sm font-medium text-gray-800 dark:text-gray-100">默认账本</span>
+            <span className="text-sm font-medium text-gray-800 dark:text-white">默认账本</span>
           </div>
           <span className="text-xs text-gray-400">系统内置</span>
         </div>
@@ -101,12 +101,12 @@ export default function Books() {
       {activeBooks.length > 0 && (
         <div className="space-y-3 mb-4">
           {activeBooks.map(b => (
-            <div key={b.id} className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-gray-700">
+            <div key={b.id} className="bg-white dark:bg-[#141416] rounded-xl p-4 shadow-sm border border-gray-100 dark:border-white/[0.06]">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span className="text-lg">📗</span>
                   <div>
-                    <span className="text-sm font-medium text-gray-800 dark:text-gray-100">{b.name}</span>
+                    <span className="text-sm font-medium text-gray-800 dark:text-white">{b.name}</span>
                     <span className="text-xs text-gray-400 ml-2">{txCounts[b.id!] || 0} 条</span>
                   </div>
                 </div>
@@ -135,7 +135,7 @@ export default function Books() {
           <p className="text-xs text-gray-400 mb-2">已归档</p>
           <div className="space-y-2">
             {archivedBooks.map(b => (
-              <div key={b.id} className="bg-white dark:bg-gray-800 rounded-xl p-3 shadow-sm border border-gray-100 dark:border-gray-700 opacity-60">
+              <div key={b.id} className="bg-white dark:bg-[#141416] rounded-xl p-3 shadow-sm border border-gray-100 dark:border-white/[0.06] opacity-60">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <span>📕</span>
@@ -159,8 +159,8 @@ export default function Books() {
       {/* Form Modal */}
       {showForm && (
         <div className="fixed inset-0 bg-black/50 flex items-end justify-center z-50" onClick={() => setShowForm(false)}>
-          <div className="bg-white dark:bg-gray-800 w-full max-w-lg rounded-t-2xl p-6" onClick={e => e.stopPropagation()}>
-            <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-4">
+          <div className="bg-white dark:bg-[#141416] w-full max-w-lg rounded-t-2xl p-6" onClick={e => e.stopPropagation()}>
+            <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-4">
               {editingId ? '编辑账本' : '新建账本'}
             </h3>
             <div className="space-y-4">

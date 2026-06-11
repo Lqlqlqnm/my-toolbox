@@ -74,7 +74,7 @@ export default function Checklist({ checklistId, onBack }: Props) {
               <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
             </svg>
           </button>
-          <h1 className="text-lg font-bold text-gray-800 dark:text-gray-100">{checklist.icon} {checklist.name}</h1>
+          <h1 className="text-lg font-bold text-gray-800 dark:text-white">{checklist.icon} {checklist.name}</h1>
         </div>
         <span className="text-sm text-gray-500">{checked}/{total}</span>
       </div>
@@ -95,7 +95,7 @@ export default function Checklist({ checklistId, onBack }: Props) {
                 <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">{cat.icon} {cat.name}</h3>
                 <span className="text-xs text-gray-400">{catChecked}/{cat.items.length}</span>
               </div>
-              <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700 divide-y divide-gray-50 dark:divide-gray-700">
+              <div className="bg-white dark:bg-[#141416] rounded-lg border border-gray-100 dark:border-white/[0.06] divide-y divide-gray-50 dark:divide-gray-700">
                 {cat.items.map((item, itemIndex) => (
                   <button
                     key={itemIndex}
@@ -126,7 +126,7 @@ export default function Checklist({ checklistId, onBack }: Props) {
 
       {/* Actions */}
       <div className="flex gap-3 mt-6">
-        <button onClick={resetAll} className="flex-1 py-2 text-sm text-gray-500 border border-gray-200 dark:border-gray-700 rounded-lg">
+        <button onClick={resetAll} className="flex-1 py-2 text-sm text-gray-500 border border-gray-200 dark:border-white/[0.06] rounded-lg">
           全部重置
         </button>
         {!checklist.is_archived && (

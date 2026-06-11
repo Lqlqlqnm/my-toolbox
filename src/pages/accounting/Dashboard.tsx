@@ -242,7 +242,7 @@ export default function Dashboard() {
             <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
           </svg>
         </Link>
-        <h1 className="text-xl font-bold text-gray-800 dark:text-gray-100">记账本</h1>
+        <h1 className="text-xl font-bold text-gray-800 dark:text-white">记账本</h1>
         <div className="flex gap-2 items-center">
           <button onClick={() => setShowFilter(!showFilter)} className={`text-gray-400 hover:text-amber-500 ${showFilter ? 'text-amber-500' : ''}`}>
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -268,7 +268,7 @@ export default function Dashboard() {
 
       {/* Search & Filter Bar */}
       {showFilter && (
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-3 mb-4 shadow-sm border border-gray-100 dark:border-gray-700 space-y-2">
+        <div className="bg-white dark:bg-[#141416] rounded-xl p-3 mb-4 shadow-sm border border-gray-100 dark:border-white/[0.06] space-y-2">
           <input
             type="text"
             value={searchKeyword}
@@ -302,7 +302,7 @@ export default function Dashboard() {
       )}
 
       {/* Month Selector + Summary */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl p-4 mb-4 shadow-sm border border-gray-100 dark:border-gray-700">
+      <div className="bg-white dark:bg-[#141416] rounded-xl p-4 mb-4 shadow-sm border border-gray-100 dark:border-white/[0.06]">
         <div className="flex items-center justify-between mb-3">
           <button onClick={prevMonth} className="text-gray-400 hover:text-gray-600 p-1">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
@@ -341,13 +341,13 @@ export default function Dashboard() {
         <div className="flex gap-2 mb-3 overflow-x-auto pb-1">
           <button
             onClick={() => setSelectedBookId('all')}
-            className={`px-3 py-1 rounded-full text-xs whitespace-nowrap ${selectedBookId === 'all' ? 'bg-amber-500 text-white' : 'bg-white dark:bg-gray-800 text-gray-500 border border-gray-200 dark:border-gray-700'}`}
+            className={`px-3 py-1 rounded-full text-xs whitespace-nowrap ${selectedBookId === 'all' ? 'bg-amber-500 text-white' : 'bg-white dark:bg-[#141416] text-gray-500 border border-gray-200 dark:border-white/[0.06]'}`}
           >
             全部
           </button>
           <button
             onClick={() => setSelectedBookId(null)}
-            className={`px-3 py-1 rounded-full text-xs whitespace-nowrap ${selectedBookId === null ? 'bg-amber-500 text-white' : 'bg-white dark:bg-gray-800 text-gray-500 border border-gray-200 dark:border-gray-700'}`}
+            className={`px-3 py-1 rounded-full text-xs whitespace-nowrap ${selectedBookId === null ? 'bg-amber-500 text-white' : 'bg-white dark:bg-[#141416] text-gray-500 border border-gray-200 dark:border-white/[0.06]'}`}
           >
             默认账本
           </button>
@@ -355,7 +355,7 @@ export default function Dashboard() {
             <button
               key={b.id}
               onClick={() => setSelectedBookId(b.id!)}
-              className={`px-3 py-1 rounded-full text-xs whitespace-nowrap ${selectedBookId === b.id ? 'bg-amber-500 text-white' : 'bg-white dark:bg-gray-800 text-gray-500 border border-gray-200 dark:border-gray-700'}`}
+              className={`px-3 py-1 rounded-full text-xs whitespace-nowrap ${selectedBookId === b.id ? 'bg-amber-500 text-white' : 'bg-white dark:bg-[#141416] text-gray-500 border border-gray-200 dark:border-white/[0.06]'}`}
             >
               {b.name}
             </button>
@@ -375,7 +375,7 @@ export default function Dashboard() {
           { to: '/accounting/data', icon: '📥', label: '导入导出' },
           { to: '/accounting/trend', icon: '📈', label: '趋势' },
         ].map(item => (
-          <Link key={item.to} to={item.to} className="flex flex-col items-center px-3 py-2 bg-white dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700 min-w-[56px] hover:border-amber-300">
+          <Link key={item.to} to={item.to} className="flex flex-col items-center px-3 py-2 bg-white dark:bg-[#141416] rounded-lg border border-gray-100 dark:border-white/[0.06] min-w-[56px] hover:border-amber-300">
             <span className="text-lg">{item.icon}</span>
             <span className="text-[10px] text-gray-500 mt-0.5">{item.label}</span>
           </Link>
@@ -405,14 +405,14 @@ export default function Dashboard() {
                   })()}
                 </span>
               </div>
-              <div className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-sm border border-gray-100 dark:border-gray-700">
+              <div className="bg-white dark:bg-[#141416] rounded-xl overflow-hidden shadow-sm border border-gray-100 dark:border-white/[0.06]">
                 {group.items.map((t, idx) => {
                   const cat = t.category_id ? categoryMap.get(t.category_id) : null
                   const acct = t.account_id ? accountMap.get(t.account_id) : null
                   return (
                     <div
                       key={t.id}
-                      className={`flex items-center px-4 py-3 ${idx > 0 ? 'border-t border-gray-50 dark:border-gray-700' : ''}`}
+                      className={`flex items-center px-4 py-3 ${idx > 0 ? 'border-t border-gray-50 dark:border-white/[0.06]' : ''}`}
                     >
                       {/* Batch checkbox */}
                       {batchMode && (
@@ -427,7 +427,7 @@ export default function Dashboard() {
                         {t.type === 'transfer' ? '🔄' : <CategoryIcon icon={cat?.icon || 'pin'} size={22} />}
                       </span>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm text-gray-800 dark:text-gray-100 truncate">
+                        <p className="text-sm text-gray-800 dark:text-white truncate">
                           {t.type === 'transfer' ? '转账' : cat?.name || '未分类'}
                           {t.note && <span className="text-gray-400 ml-1">- {t.note}</span>}
                           {t.tags && t.tags.length > 0 && (
@@ -478,7 +478,7 @@ export default function Dashboard() {
 
           {/* Load More */}
           {hasMore && (
-            <button onClick={loadMore} className="w-full py-3 text-sm text-amber-500 hover:text-amber-600 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700">
+            <button onClick={loadMore} className="w-full py-3 text-sm text-amber-500 hover:text-amber-600 bg-white dark:bg-[#141416] rounded-xl border border-gray-100 dark:border-white/[0.06]">
               加载更多...
             </button>
           )}
@@ -497,8 +497,8 @@ export default function Dashboard() {
       {/* Inline Edit Modal */}
       {editingTx && (
         <div className="fixed inset-0 bg-black/50 flex items-end justify-center z-50" onClick={() => setEditingTx(null)}>
-          <div className="bg-white dark:bg-gray-800 w-full max-w-lg rounded-t-2xl p-6" onClick={e => e.stopPropagation()}>
-            <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-4">快速编辑</h3>
+          <div className="bg-white dark:bg-[#141416] w-full max-w-lg rounded-t-2xl p-6" onClick={e => e.stopPropagation()}>
+            <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-4">快速编辑</h3>
             <div className="space-y-3">
               <div>
                 <label className="text-xs text-gray-400">金额</label>

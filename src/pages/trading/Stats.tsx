@@ -12,7 +12,7 @@ export default function Stats() {
 
   return (
     <div className="space-y-4">
-      <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+      <div className="bg-white dark:bg-[#141416] rounded-lg p-4 border border-gray-200 dark:border-white/[0.06]">
         <div className="grid grid-cols-2 gap-3">
           <StatItem label="总交易" value={`${stats.totalTrades} 笔`} />
           <StatItem label="胜率" value={`${stats.winRate.toFixed(1)}%`} highlight={stats.winRate >= 50} />
@@ -25,7 +25,7 @@ export default function Stats() {
         </div>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+      <div className="bg-white dark:bg-[#141416] rounded-lg p-4 border border-gray-200 dark:border-white/[0.06]">
         <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">卖出原因分布</h3>
         <div className="space-y-2">
           {Object.entries(stats.reasonBreakdown || {}).map(([reason, data]: [string, any]) => (

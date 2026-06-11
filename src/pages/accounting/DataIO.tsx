@@ -73,13 +73,13 @@ export default function DataIO() {
             <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
           </svg>
         </Link>
-        <h1 className="text-lg font-bold text-gray-800 dark:text-gray-100">导入导出</h1>
+        <h1 className="text-lg font-bold text-gray-800 dark:text-white">导入导出</h1>
         <div className="w-5" />
       </div>
 
       {/* Export Section */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl p-4 mb-4 shadow-sm border border-gray-100 dark:border-gray-700">
-        <h2 className="text-sm font-semibold text-gray-800 dark:text-gray-100 mb-3">CSV 导出</h2>
+      <div className="bg-white dark:bg-[#141416] rounded-xl p-4 mb-4 shadow-sm border border-gray-100 dark:border-white/[0.06]">
+        <h2 className="text-sm font-semibold text-gray-800 dark:text-white mb-3">CSV 导出</h2>
         <div className="flex items-center gap-2 mb-3">
           <input type="date" value={exportStart} onChange={e => setExportStart(e.target.value)}
             className="flex-1 px-3 py-2 bg-gray-50 dark:bg-gray-700 rounded-lg text-sm border border-gray-200 dark:border-gray-600" />
@@ -93,8 +93,8 @@ export default function DataIO() {
       </div>
 
       {/* Import Section */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-gray-700">
-        <h2 className="text-sm font-semibold text-gray-800 dark:text-gray-100 mb-3">CSV 导入</h2>
+      <div className="bg-white dark:bg-[#141416] rounded-xl p-4 shadow-sm border border-gray-100 dark:border-white/[0.06]">
+        <h2 className="text-sm font-semibold text-gray-800 dark:text-white mb-3">CSV 导入</h2>
         <p className="text-xs text-gray-400 mb-3">支持微信支付、支付宝账单 CSV 格式</p>
 
         <div className="mb-3">

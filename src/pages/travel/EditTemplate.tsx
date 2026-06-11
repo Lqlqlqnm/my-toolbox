@@ -82,7 +82,7 @@ export default function EditTemplate({ templateId, onBack }: Props) {
               <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
             </svg>
           </button>
-          <h1 className="text-xl font-bold text-gray-800 dark:text-gray-100">
+          <h1 className="text-xl font-bold text-gray-800 dark:text-white">
             {templateId ? '编辑模板' : '新建模板'}
           </h1>
         </div>
@@ -95,14 +95,14 @@ export default function EditTemplate({ templateId, onBack }: Props) {
           value={name}
           onChange={e => setName(e.target.value)}
           placeholder="模板名称（如：出差3天）"
-          className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800"
+          className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-white/[0.06] rounded-lg bg-white dark:bg-[#141416]"
         />
         <div>
           <p className="text-xs text-gray-500 mb-1">选择图标</p>
           <div className="flex gap-2 flex-wrap">
             {ICONS.map(i => (
               <button key={i} onClick={() => setIcon(i)}
-                className={`w-9 h-9 rounded-lg text-xl flex items-center justify-center ${icon === i ? 'bg-emerald-100 dark:bg-emerald-900 ring-2 ring-emerald-500' : 'bg-gray-100 dark:bg-gray-800'}`}>
+                className={`w-9 h-9 rounded-lg text-xl flex items-center justify-center ${icon === i ? 'bg-emerald-100 dark:bg-emerald-900 ring-2 ring-emerald-500' : 'bg-gray-100 dark:bg-[#141416]'}`}>
                 {i}
               </button>
             ))}
@@ -113,7 +113,7 @@ export default function EditTemplate({ templateId, onBack }: Props) {
       {/* 分类列表 */}
       <div className="space-y-4">
         {categories.map((cat, catIndex) => (
-          <div key={catIndex} className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-3">
+          <div key={catIndex} className="bg-white dark:bg-[#141416] rounded-lg border border-gray-200 dark:border-white/[0.06] p-3">
             <div className="flex justify-between items-center mb-2">
               <span className="text-sm font-medium text-gray-800 dark:text-gray-200">{cat.icon} {cat.name}</span>
               <div className="flex gap-2">
@@ -127,7 +127,7 @@ export default function EditTemplate({ templateId, onBack }: Props) {
             {editingCat === catIndex ? (
               <div className="space-y-1">
                 {cat.items.map((item, itemIndex) => (
-                  <div key={itemIndex} className="flex justify-between items-center py-1 px-2 bg-gray-50 dark:bg-gray-900 rounded text-xs">
+                  <div key={itemIndex} className="flex justify-between items-center py-1 px-2 bg-gray-50 dark:bg-[#0c0c0d] rounded text-xs">
                     <span className="text-gray-700 dark:text-gray-300">{item}</span>
                     <button onClick={() => removeItem(catIndex, itemIndex)} className="text-red-400 hover:text-red-500">x</button>
                   </div>
@@ -138,7 +138,7 @@ export default function EditTemplate({ templateId, onBack }: Props) {
                     onChange={e => setNewItemText(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && addItem(catIndex)}
                     placeholder="添加物品"
-                    className="flex-1 px-2 py-1 text-xs border border-gray-200 dark:border-gray-700 rounded bg-white dark:bg-gray-900"
+                    className="flex-1 px-2 py-1 text-xs border border-gray-200 dark:border-white/[0.06] rounded bg-white dark:bg-[#0c0c0d]"
                   />
                   <button onClick={() => addItem(catIndex)} className="px-2 py-1 text-xs bg-emerald-500 text-white rounded">添加</button>
                 </div>

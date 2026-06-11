@@ -214,13 +214,13 @@ export default function TransactionList() {
 
       {/* Calendar View */}
       {showCalendar && (
-        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-3 mb-4">
+        <div className="bg-white dark:bg-[#141416] rounded-xl border border-gray-100 dark:border-white/[0.06] p-3 mb-4">
           <div className="grid grid-cols-7 text-center text-xs text-gray-400 mb-2">
             {['日','一','二','三','四','五','六'].map(d => <span key={d}>{d}</span>)}
           </div>
           <div className="grid grid-cols-7 gap-y-1">{renderCalendar()}</div>
           {selectedDate && (
-            <div className="mt-2 pt-2 border-t border-gray-100 dark:border-gray-700 flex items-center justify-between">
+            <div className="mt-2 pt-2 border-t border-gray-100 dark:border-white/[0.06] flex items-center justify-between">
               <span className="text-xs text-gray-500">{formatDate(selectedDate)}</span>
               <button onClick={() => setSelectedDate(null)} className="text-xs text-amber-500 flex items-center gap-1"><X className="w-3 h-3" />清除筛选</button>
             </div>
@@ -230,7 +230,7 @@ export default function TransactionList() {
 
       {/* Filter Bar */}
       {showFilter && (
-        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-3 mb-4 space-y-2">
+        <div className="bg-white dark:bg-[#141416] rounded-xl border border-gray-100 dark:border-white/[0.06] p-3 mb-4 space-y-2">
           <input type="text" value={searchKeyword} onChange={e => setSearchKeyword(e.target.value)} placeholder="搜索备注或标签..." className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-700 rounded-lg text-sm border border-gray-200 dark:border-gray-600" />
           <div className="flex gap-2">
             {(['all','expense','income','transfer'] as const).map(t => (
@@ -243,7 +243,7 @@ export default function TransactionList() {
       )}
 
       {/* Summary */}
-      <div className="grid grid-cols-3 text-center py-3 bg-white dark:bg-gray-800 rounded-xl mb-4 border border-gray-100 dark:border-gray-700">
+      <div className="grid grid-cols-3 text-center py-3 bg-white dark:bg-[#141416] rounded-xl mb-4 border border-gray-100 dark:border-white/[0.06]">
         <div><p className="text-xs text-gray-400">收入</p><p className="text-sm font-semibold text-green-500">+{summary.income.toFixed(2)}</p></div>
         <div><p className="text-xs text-gray-400">支出</p><p className="text-sm font-semibold text-red-500">-{summary.expense.toFixed(2)}</p></div>
         <div><p className="text-xs text-gray-400">结余</p><p className={`text-sm font-semibold ${summary.balance >= 0 ? 'text-gray-700 dark:text-gray-200' : 'text-red-500'}`}>{summary.balance.toFixed(2)}</p></div>
@@ -262,15 +262,15 @@ export default function TransactionList() {
                   {(() => { let e = 0, i = 0; group.items.forEach(t => { if (t.type === 'expense') e += t.amount; else if (t.type === 'income') i += t.amount }); const p: string[] = []; if (e) p.push(`支 ${e.toFixed(0)}`); if (i) p.push(`收 ${i.toFixed(0)}`); return p.join(' | ') })()}
                 </span>
               </div>
-              <div className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden border border-gray-100 dark:border-gray-700">
+              <div className="bg-white dark:bg-[#141416] rounded-xl overflow-hidden border border-gray-100 dark:border-white/[0.06]">
                 {group.items.map((t, idx) => {
                   const cat = t.category_id ? categoryMap.get(t.category_id) : null
                   const acct = t.account_id ? accountMap.get(t.account_id) : null
                   return (
-                    <div key={t.id} className={`flex items-center px-4 py-3 ${idx > 0 ? 'border-t border-gray-50 dark:border-gray-700' : ''}`}>
+                    <div key={t.id} className={`flex items-center px-4 py-3 ${idx > 0 ? 'border-t border-gray-50 dark:border-white/[0.06]' : ''}`}>
                       <span className="text-gray-600 dark:text-gray-300 mr-3">{t.type === 'transfer' ? '🔄' : <CategoryIcon icon={cat?.icon || 'pin'} size={22} />}</span>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm text-gray-800 dark:text-gray-100 truncate">
+                        <p className="text-sm text-gray-800 dark:text-white truncate">
                           {t.type === 'transfer' ? '转账' : cat?.name || '未分类'}
                           {t.note && <span className="text-gray-400 ml-1">- {t.note}</span>}
                         </p>
@@ -302,7 +302,7 @@ export default function TransactionList() {
             </div>
           ))}
           {hasMore && (
-            <button onClick={() => { const next = page + 1; setPage(next); loadData(next) }} className="w-full py-3 text-sm text-amber-500 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700">
+            <button onClick={() => { const next = page + 1; setPage(next); loadData(next) }} className="w-full py-3 text-sm text-amber-500 bg-white dark:bg-[#141416] rounded-xl border border-gray-100 dark:border-white/[0.06]">
               加载更多...
             </button>
           )}

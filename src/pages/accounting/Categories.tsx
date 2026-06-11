@@ -97,12 +97,12 @@ export default function Categories() {
             <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
           </svg>
         </Link>
-        <h1 className="text-lg font-bold text-gray-800 dark:text-gray-100">分类管理</h1>
+        <h1 className="text-lg font-bold text-gray-800 dark:text-white">分类管理</h1>
         <button onClick={() => openAdd()} className="text-amber-500 hover:text-amber-600 text-sm font-medium">添加</button>
       </div>
 
       {/* Type Switch */}
-      <div className="flex bg-gray-100 dark:bg-gray-800 rounded-lg p-1 mb-4">
+      <div className="flex bg-gray-100 dark:bg-[#141416] rounded-lg p-1 mb-4">
         <button
           onClick={() => setViewType('expense')}
           className={`flex-1 py-1.5 text-sm rounded-md font-medium ${viewType === 'expense' ? 'bg-white dark:bg-gray-700 shadow-sm text-red-500' : 'text-gray-500'}`}
@@ -118,7 +118,7 @@ export default function Categories() {
       </div>
 
       {/* Category List */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-sm border border-gray-100 dark:border-gray-700">
+      <div className="bg-white dark:bg-[#141416] rounded-xl overflow-hidden shadow-sm border border-gray-100 dark:border-white/[0.06]">
         {topLevel.length === 0 ? (
           <p className="text-gray-400 text-center py-8 text-sm">暂无分类</p>
         ) : (
@@ -127,7 +127,7 @@ export default function Categories() {
             const isExpanded = expandedIds.has(c.id!)
             return (
               <div key={c.id}>
-                <div className={`flex items-center px-4 py-3 ${idx > 0 ? 'border-t border-gray-50 dark:border-gray-700' : ''}`}>
+                <div className={`flex items-center px-4 py-3 ${idx > 0 ? 'border-t border-gray-50 dark:border-white/[0.06]' : ''}`}>
                   {children.length > 0 ? (
                     <button onClick={() => toggleExpand(c.id!)} className="text-gray-400 mr-1 w-5 h-5 flex items-center justify-center">
                       <svg xmlns="http://www.w3.org/2000/svg" className={`h-3 w-3 transition-transform ${isExpanded ? 'rotate-90' : ''}`} viewBox="0 0 20 20" fill="currentColor">
@@ -136,7 +136,7 @@ export default function Categories() {
                     </button>
                   ) : <span className="w-5 mr-1" />}
                   <span className="mr-3 text-gray-600 dark:text-gray-300"><CategoryIcon icon={c.icon} size={22} /></span>
-                  <span className="flex-1 text-sm text-gray-800 dark:text-gray-100">{c.name}</span>
+                  <span className="flex-1 text-sm text-gray-800 dark:text-white">{c.name}</span>
                   <div className="flex items-center gap-1.5">
                     <button onClick={() => openAdd(c.id!)} className="text-gray-300 hover:text-green-500" title="添加子分类">
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
@@ -167,7 +167,7 @@ export default function Categories() {
                 </div>
                 {/* Children */}
                 {isExpanded && children.map((child, cidx) => (
-                  <div key={child.id} className="flex items-center px-4 py-2.5 pl-12 bg-gray-50/50 dark:bg-gray-750 border-t border-gray-50 dark:border-gray-700">
+                  <div key={child.id} className="flex items-center px-4 py-2.5 pl-12 bg-gray-50/50 dark:bg-gray-750 border-t border-gray-50 dark:border-white/[0.06]">
                     <span className="mr-3 text-gray-500 dark:text-gray-400"><CategoryIcon icon={child.icon} size={18} /></span>
                     <span className="flex-1 text-sm text-gray-600 dark:text-gray-300">{child.name}</span>
                     <div className="flex items-center gap-1.5">
@@ -193,8 +193,8 @@ export default function Categories() {
       {/* Form Modal */}
       {showForm && (
         <div className="fixed inset-0 bg-black/50 flex items-end justify-center z-50" onClick={() => setShowForm(false)}>
-          <div className="bg-white dark:bg-gray-800 w-full max-w-lg rounded-t-2xl p-6" onClick={e => e.stopPropagation()}>
-            <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-4">
+          <div className="bg-white dark:bg-[#141416] w-full max-w-lg rounded-t-2xl p-6" onClick={e => e.stopPropagation()}>
+            <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-4">
               {editingId ? '编辑分类' : form.parent_id ? '添加子分类' : '添加分类'}
             </h3>
             <div className="space-y-4">

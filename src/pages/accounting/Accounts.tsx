@@ -106,7 +106,7 @@ export default function Accounts() {
             <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
           </svg>
         </Link>
-        <h1 className="text-lg font-bold text-gray-800 dark:text-gray-100">账户管理</h1>
+        <h1 className="text-lg font-bold text-gray-800 dark:text-white">账户管理</h1>
         <div className="flex items-center gap-2">
           <button onClick={() => setSortMode(!sortMode)} className={`text-xs px-2 py-1 rounded ${sortMode ? 'bg-amber-100 text-amber-600' : 'text-gray-400 hover:text-amber-500'}`}>
             {sortMode ? '完成' : '排序'}
@@ -116,23 +116,23 @@ export default function Accounts() {
       </div>
 
       {/* Net Worth */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl p-4 mb-4 shadow-sm border border-gray-100 dark:border-gray-700 text-center">
+      <div className="bg-white dark:bg-[#141416] rounded-xl p-4 mb-4 shadow-sm border border-gray-100 dark:border-white/[0.06] text-center">
         <p className="text-xs text-gray-400 mb-1">净资产</p>
-        <p className={`text-2xl font-bold ${totalBalance >= 0 ? 'text-gray-800 dark:text-gray-100' : 'text-red-500'}`}>
+        <p className={`text-2xl font-bold ${totalBalance >= 0 ? 'text-gray-800 dark:text-white' : 'text-red-500'}`}>
           ¥{totalBalance.toFixed(2)}
         </p>
       </div>
 
       {/* Account List */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-sm border border-gray-100 dark:border-gray-700">
+      <div className="bg-white dark:bg-[#141416] rounded-xl overflow-hidden shadow-sm border border-gray-100 dark:border-white/[0.06]">
         {accounts.length === 0 ? (
           <p className="text-gray-400 text-center py-8 text-sm">暂无账户</p>
         ) : (
           accounts.map((a, i) => (
-            <div key={a.id} className={`flex items-center px-4 py-3 ${i > 0 ? 'border-t border-gray-50 dark:border-gray-700' : ''} ${a.is_hidden ? 'opacity-40' : ''}`}>
+            <div key={a.id} className={`flex items-center px-4 py-3 ${i > 0 ? 'border-t border-gray-50 dark:border-white/[0.06]' : ''} ${a.is_hidden ? 'opacity-40' : ''}`}>
               <span className="mr-3 text-gray-600 dark:text-gray-300"><CategoryIcon icon={a.icon} size={22} /></span>
               <div className="flex-1">
-                <p className="text-sm text-gray-800 dark:text-gray-100">{a.name}</p>
+                <p className="text-sm text-gray-800 dark:text-white">{a.name}</p>
                 <p className="text-xs text-gray-400">
                   {typeLabels[a.type]}
                   {a.type === 'credit' && a.billing_day && a.payment_day && (
@@ -184,8 +184,8 @@ export default function Accounts() {
       {/* Add/Edit Form Modal */}
       {showForm && (
         <div className="fixed inset-0 bg-black/50 flex items-end justify-center z-50" onClick={() => setShowForm(false)}>
-          <div className="bg-white dark:bg-gray-800 w-full max-w-lg rounded-t-2xl p-6" onClick={e => e.stopPropagation()}>
-            <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-4">
+          <div className="bg-white dark:bg-[#141416] w-full max-w-lg rounded-t-2xl p-6" onClick={e => e.stopPropagation()}>
+            <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-4">
               {editingId ? '编辑账户' : '添加账户'}
             </h3>
 

@@ -49,7 +49,7 @@ export default function CreditCards() {
         <Link to="/accounting" className="text-gray-400 hover:text-gray-600">
           <ArrowLeft className="w-5 h-5" />
         </Link>
-        <h1 className="text-xl font-bold text-gray-800 dark:text-gray-100">信用卡管理</h1>
+        <h1 className="text-xl font-bold text-gray-800 dark:text-white">信用卡管理</h1>
       </div>
 
       {/* Best Card Highlight */}
@@ -59,7 +59,7 @@ export default function CreditCards() {
             <Crown className="w-4 h-4 text-amber-500" />
             <p className="text-xs font-medium text-amber-700 dark:text-amber-400">今日最优刷卡推荐</p>
           </div>
-          <p className="text-lg font-bold text-gray-800 dark:text-gray-100">{bestCard.name}</p>
+          <p className="text-lg font-bold text-gray-800 dark:text-white">{bestCard.name}</p>
           <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
             免息 <span className="text-amber-600 font-bold text-lg">{bestCard.interestFreeDays}</span> 天 · 还款日还有 {bestCard.daysUntilPayment} 天
           </p>
@@ -70,12 +70,12 @@ export default function CreditCards() {
       {/* All Cards */}
       <div className="space-y-3">
         {cardsWithDays.map(card => (
-          <div key={card.id} className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-4">
+          <div key={card.id} className="bg-white dark:bg-[#141416] rounded-xl border border-gray-100 dark:border-white/[0.06] p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <CreditCard className="w-5 h-5 text-gray-500" />
                 <div>
-                  <p className="text-sm font-medium text-gray-800 dark:text-gray-100">{card.name}</p>
+                  <p className="text-sm font-medium text-gray-800 dark:text-white">{card.name}</p>
                   <p className="text-xs text-gray-400">账单日 {card.billing_day}号 · 还款日 {card.payment_day}号</p>
                 </div>
               </div>
@@ -86,7 +86,7 @@ export default function CreditCards() {
                 <p className="text-[10px] text-gray-400">免息期</p>
               </div>
             </div>
-            <div className="mt-3 pt-3 border-t border-gray-50 dark:border-gray-700 flex justify-between text-xs text-gray-400">
+            <div className="mt-3 pt-3 border-t border-gray-50 dark:border-white/[0.06] flex justify-between text-xs text-gray-400">
               <span>额度: ¥{card.credit_limit?.toLocaleString() || '未设置'}</span>
               <span>已用: ¥{Math.abs(card.balance).toLocaleString()}</span>
               <span>还款倒计时: {card.daysUntilPayment}天</span>

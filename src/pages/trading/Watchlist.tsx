@@ -51,10 +51,10 @@ export default function Watchlist() {
       <button onClick={() => setShowAdd(!showAdd)} className="text-sm text-blue-500 hover:text-blue-600">+ 添加自选</button>
 
       {showAdd && (
-        <div className="p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 space-y-2">
-          <input value={code} onChange={e => setCode(e.target.value)} placeholder="ETF代码（6位，如510300）" className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900" />
-          <input value={name} onChange={e => setName(e.target.value)} placeholder="名称（可选）" className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900" />
-          <input value={reason} onChange={e => setReason(e.target.value)} placeholder="关注原因（可选）" className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900" />
+        <div className="p-3 bg-white dark:bg-[#141416] rounded-lg border border-gray-200 dark:border-white/[0.06] space-y-2">
+          <input value={code} onChange={e => setCode(e.target.value)} placeholder="ETF代码（6位，如510300）" className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-white/[0.06] rounded-lg bg-white dark:bg-[#0c0c0d]" />
+          <input value={name} onChange={e => setName(e.target.value)} placeholder="名称（可选）" className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-white/[0.06] rounded-lg bg-white dark:bg-[#0c0c0d]" />
+          <input value={reason} onChange={e => setReason(e.target.value)} placeholder="关注原因（可选）" className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-white/[0.06] rounded-lg bg-white dark:bg-[#0c0c0d]" />
           <button onClick={handleAdd} className="w-full py-2 bg-blue-500 text-white rounded-lg text-sm">添加</button>
         </div>
       )}
@@ -66,7 +66,7 @@ export default function Watchlist() {
           {items.map((item: any) => {
             const q = quotes[item.code]
             return (
-              <div key={item.id} className="p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700 flex justify-between items-center">
+              <div key={item.id} className="p-3 bg-white dark:bg-[#141416] rounded-lg border border-gray-100 dark:border-white/[0.06] flex justify-between items-center">
                 <div>
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-medium text-gray-800 dark:text-gray-200">{q?.name || item.name}</span>

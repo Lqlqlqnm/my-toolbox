@@ -50,7 +50,7 @@ export default function Settings() {
             <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
           </svg>
         </Link>
-        <h1 className="text-xl font-bold text-gray-800 dark:text-gray-100">设置</h1>
+        <h1 className="text-xl font-bold text-gray-800 dark:text-white">设置</h1>
       </div>
 
       {/* Theme */}
@@ -64,7 +64,7 @@ export default function Settings() {
               className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
                 theme === value
                   ? 'bg-gray-900 dark:bg-white text-white dark:text-gray-900'
-                  : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
+                  : 'bg-gray-100 dark:bg-[#141416] text-gray-600 dark:text-gray-400'
               }`}
             >
               {label}
@@ -82,21 +82,21 @@ export default function Settings() {
             value={aiConfig.apiKey}
             onChange={e => setAiConfig(c => ({ ...c, apiKey: e.target.value }))}
             placeholder="API Key"
-            className="w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm"
+            className="w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-white/[0.06] bg-white dark:bg-[#141416] text-sm"
           />
           <input
             type="url"
             value={aiConfig.baseUrl}
             onChange={e => setAiConfig(c => ({ ...c, baseUrl: e.target.value }))}
             placeholder="Base URL"
-            className="w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm"
+            className="w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-white/[0.06] bg-white dark:bg-[#141416] text-sm"
           />
           <input
             type="text"
             value={aiConfig.model}
             onChange={e => setAiConfig(c => ({ ...c, model: e.target.value }))}
             placeholder="模型名称 (如 gpt-4o-mini)"
-            className="w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm"
+            className="w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-white/[0.06] bg-white dark:bg-[#141416] text-sm"
           />
           <button onClick={handleSaveAI} className="w-full py-2 bg-amber-500 text-white rounded-lg text-sm">保存 AI 配置</button>
         </div>
@@ -107,7 +107,7 @@ export default function Settings() {
         <h2 className="text-sm font-medium text-gray-700 dark:text-gray-200 mb-3">数据管理</h2>
         <div className="space-y-2">
           <button onClick={handleBackup} className="w-full py-2.5 bg-blue-500 text-white rounded-lg text-sm">一键备份 (分享/下载 JSON)</button>
-          <label className="block w-full py-2.5 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 rounded-lg text-sm text-center cursor-pointer">
+          <label className="block w-full py-2.5 bg-gray-100 dark:bg-[#141416] text-gray-600 dark:text-gray-300 rounded-lg text-sm text-center cursor-pointer">
             导入恢复
             <input type="file" accept=".json" onChange={handleImport} className="hidden" />
           </label>
@@ -121,7 +121,7 @@ export default function Settings() {
           <select
             value={backupInterval}
             onChange={e => setBackupInterval(e.target.value)}
-            className="flex-1 px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm"
+            className="flex-1 px-3 py-2 rounded-lg border border-gray-200 dark:border-white/[0.06] bg-white dark:bg-[#141416] text-sm"
           >
             <option value="7">每 7 天提醒</option>
             <option value="14">每 14 天提醒</option>

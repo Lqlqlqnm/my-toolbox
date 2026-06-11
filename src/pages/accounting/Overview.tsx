@@ -179,7 +179,7 @@ export default function Overview() {
 
       {/* Quick Tools Grid / Edit Mode */}
       {editingModules ? (
-        <div className="mb-5 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-4">
+        <div className="mb-5 bg-white dark:bg-[#141416] rounded-xl border border-gray-100 dark:border-white/[0.06] p-4">
           <div className="flex items-center justify-between mb-3">
             <p className="text-sm font-medium text-gray-800 dark:text-gray-100">编辑模块</p>
             <button onClick={() => setEditingModules(false)} className="text-xs text-amber-500 font-medium">完成</button>
@@ -205,7 +205,7 @@ export default function Overview() {
       ) : (
         <div className="grid grid-cols-4 gap-3 mb-5">
           {visibleModules.map(m => (
-            <Link key={m.key} to={m.to} className={`flex flex-col items-center gap-1.5 py-3 ${m.color} dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow`}>
+            <Link key={m.key} to={m.to} className={`flex flex-col items-center gap-1.5 py-3 ${m.color} dark:bg-[#141416] rounded-xl border border-gray-100 dark:border-white/[0.06] shadow-sm hover:shadow-md transition-shadow`}>
               {m.icon}
               <span className="text-[11px] text-gray-600 dark:text-gray-300">{m.label}</span>
             </Link>
@@ -220,7 +220,7 @@ export default function Overview() {
             <p className="text-sm font-medium text-gray-800 dark:text-gray-100">信用卡免息</p>
             <Link to="/accounting/credit-cards" className="text-xs text-amber-500">管理 →</Link>
           </div>
-          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-4">
+          <div className="bg-white dark:bg-[#141416] rounded-xl border border-gray-100 dark:border-white/[0.06] p-4">
             {/* Best card */}
             {creditCards[0] && (
               <div className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border border-amber-200 dark:border-amber-700 rounded-lg px-3 py-2.5 mb-3 flex items-center gap-3">
@@ -257,7 +257,7 @@ export default function Overview() {
             <p className="text-sm font-medium text-gray-800 dark:text-gray-100">本月预算</p>
             <Link to="/accounting/budgets" className="text-xs text-amber-500">详情 →</Link>
           </div>
-          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-4 space-y-3">
+          <div className="bg-white dark:bg-[#141416] rounded-xl border border-gray-100 dark:border-white/[0.06] p-4 space-y-3">
             {budgetStatus.map(b => (
               <div key={b.id}>
                 <div className="flex justify-between text-xs mb-1">
@@ -283,7 +283,7 @@ export default function Overview() {
       {recent.length === 0 ? (
         <p className="text-gray-400 text-center py-8 text-sm">暂无记录</p>
       ) : (
-        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 divide-y divide-gray-50 dark:divide-gray-700">
+        <div className="bg-white dark:bg-[#141416] rounded-xl border border-gray-100 dark:border-white/[0.06] divide-y divide-gray-50 dark:divide-gray-700">
           {recent.map(t => {
             const cat = t.category_id ? categories.get(t.category_id) : null
             const displayName = t.type === 'transfer' ? '转账' : cat?.name || '未分类'

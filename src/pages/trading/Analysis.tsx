@@ -70,7 +70,7 @@ export default function Analysis() {
               value={article}
               onChange={e => updateArticle(i, e.target.value)}
               placeholder={`粘贴文章${i + 1}正文（支持 HTML，自动清洗）`}
-              className="w-full h-32 px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 resize-none"
+              className="w-full h-32 px-3 py-2 text-sm border border-gray-200 dark:border-white/[0.06] rounded-lg bg-white dark:bg-[#141416] resize-none"
             />
             {articles.length > 1 && (
               <button onClick={() => removeArticle(i)} className="absolute top-2 right-2 text-gray-400 hover:text-red-500 text-xs">删除</button>
@@ -87,7 +87,7 @@ export default function Analysis() {
       {error && <p className="text-red-500 text-sm">{error}</p>}
 
       {result && (
-        <div className="space-y-3 bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+        <div className="space-y-3 bg-white dark:bg-[#141416] rounded-lg p-4 border border-gray-200 dark:border-white/[0.06]">
           <div>
             <h3 className="text-xs font-medium text-gray-500 mb-1">大盘观点</h3>
             <p className="text-sm text-gray-800 dark:text-gray-200">{result.market_view}</p>
@@ -109,7 +109,7 @@ export default function Analysis() {
               <h3 className="text-xs font-medium text-gray-500 mb-2">条件单（已自动创建）</h3>
               <div className="space-y-2">
                 {result.orders.map((order, i) => (
-                  <div key={i} className="p-2 bg-gray-50 dark:bg-gray-900 rounded text-xs space-y-1">
+                  <div key={i} className="p-2 bg-gray-50 dark:bg-[#0c0c0d] rounded text-xs space-y-1">
                     <div className="flex justify-between">
                       <span className="font-medium text-gray-800 dark:text-gray-200">{order.name}({order.code})</span>
                       <span className="text-green-600">买入 @{order.trigger_price}</span>
@@ -131,7 +131,7 @@ export default function Analysis() {
         {showHistory && history.length > 0 && (
           <div className="mt-2 space-y-2">
             {history.map((record: any) => (
-              <div key={record.id} className="p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700 text-xs">
+              <div key={record.id} className="p-3 bg-white dark:bg-[#141416] rounded-lg border border-gray-100 dark:border-white/[0.06] text-xs">
                 <div className="flex justify-between mb-1">
                   <span className="text-gray-500">{record.created_at?.split('T')[0]}</span>
                   <span className="text-gray-400">{JSON.parse(record.orders || '[]').length} 个条件单</span>

@@ -94,16 +94,16 @@ export default function Budgets() {
             <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
           </svg>
         </Link>
-        <h1 className="text-lg font-bold text-gray-800 dark:text-gray-100">预算管理</h1>
+        <h1 className="text-lg font-bold text-gray-800 dark:text-white">预算管理</h1>
         <button onClick={openAdd} className="text-amber-500 hover:text-amber-600 text-sm font-medium">添加</button>
       </div>
 
       {/* Overview */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl p-4 mb-4 shadow-sm border border-gray-100 dark:border-gray-700">
+      <div className="bg-white dark:bg-[#141416] rounded-xl p-4 mb-4 shadow-sm border border-gray-100 dark:border-white/[0.06]">
         <div className="flex justify-between items-end mb-2">
           <div>
             <p className="text-xs text-gray-400">本月总预算</p>
-            <p className="text-xl font-bold text-gray-800 dark:text-gray-100">¥{totalBudget.toFixed(0)}</p>
+            <p className="text-xl font-bold text-gray-800 dark:text-white">¥{totalBudget.toFixed(0)}</p>
           </div>
           <div className="text-right">
             <p className="text-xs text-gray-400">已花费</p>
@@ -138,11 +138,11 @@ export default function Budgets() {
             const percent = b.amount > 0 ? (spent / b.amount) * 100 : 0
             const isOver = percent > 100
             return (
-              <div key={b.id} className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-gray-700">
+              <div key={b.id} className="bg-white dark:bg-[#141416] rounded-xl p-4 shadow-sm border border-gray-100 dark:border-white/[0.06]">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
                     <span className="text-gray-600 dark:text-gray-300"><CategoryIcon icon={cat?.icon || 'pin'} size={20} /></span>
-                    <span className="text-sm font-medium text-gray-800 dark:text-gray-100">
+                    <span className="text-sm font-medium text-gray-800 dark:text-white">
                       {cat?.name || '总预算'}
                     </span>
                     <span className="text-xs text-gray-400">{b.period === 'monthly' ? '月' : '年'}</span>
@@ -179,8 +179,8 @@ export default function Budgets() {
       {/* Add/Edit Form Modal */}
       {showForm && (
         <div className="fixed inset-0 bg-black/50 flex items-end justify-center z-50" onClick={() => setShowForm(false)}>
-          <div className="bg-white dark:bg-gray-800 w-full max-w-lg rounded-t-2xl p-6" onClick={e => e.stopPropagation()}>
-            <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-4">
+          <div className="bg-white dark:bg-[#141416] w-full max-w-lg rounded-t-2xl p-6" onClick={e => e.stopPropagation()}>
+            <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-4">
               {editingId ? '编辑预算' : '添加预算'}
             </h3>
             <div className="space-y-4">

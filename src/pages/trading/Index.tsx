@@ -40,10 +40,10 @@ export default function TradingIndex() {
             <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
           </svg>
         </Link>
-        <h1 className="text-xl font-bold text-gray-800 dark:text-gray-100">ETF 策略助手</h1>
+        <h1 className="text-xl font-bold text-gray-800 dark:text-white">ETF 策略助手</h1>
       </div>
 
-      <div className="flex border-b border-gray-200 dark:border-gray-700 mb-4 overflow-x-auto">
+      <div className="flex border-b border-gray-200 dark:border-white/[0.06] mb-4 overflow-x-auto">
         {tabs.map(tab => (
           <button
             key={tab}

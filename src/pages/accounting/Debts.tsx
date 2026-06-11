@@ -120,29 +120,29 @@ export default function Debts() {
             <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
           </svg>
         </Link>
-        <h1 className="text-lg font-bold text-gray-800 dark:text-gray-100">借还款</h1>
+        <h1 className="text-lg font-bold text-gray-800 dark:text-white">借还款</h1>
         <button onClick={openAdd} className="text-amber-500 hover:text-amber-600 text-sm font-medium">添加</button>
       </div>
 
       {/* Summary */}
       <div className="grid grid-cols-2 gap-3 mb-4">
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-3 shadow-sm border border-gray-100 dark:border-gray-700 text-center">
+        <div className="bg-white dark:bg-[#141416] rounded-xl p-3 shadow-sm border border-gray-100 dark:border-white/[0.06] text-center">
           <p className="text-xs text-gray-400">我借入的</p>
           <p className="text-lg font-bold text-red-500">¥{totalBorrowed.toFixed(0)}</p>
         </div>
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-3 shadow-sm border border-gray-100 dark:border-gray-700 text-center">
+        <div className="bg-white dark:bg-[#141416] rounded-xl p-3 shadow-sm border border-gray-100 dark:border-white/[0.06] text-center">
           <p className="text-xs text-gray-400">我借出的</p>
           <p className="text-lg font-bold text-green-500">¥{totalLent.toFixed(0)}</p>
         </div>
       </div>
 
       {/* Filter */}
-      <div className="flex bg-gray-100 dark:bg-gray-800 rounded-lg p-1 mb-4">
+      <div className="flex bg-gray-100 dark:bg-[#141416] rounded-lg p-1 mb-4">
         {([['all', '全部'], ['borrow', '借入'], ['lend', '借出']] as const).map(([key, label]) => (
           <button
             key={key}
             onClick={() => setFilter(key)}
-            className={`flex-1 py-1.5 text-xs rounded-md font-medium ${filter === key ? 'bg-white dark:bg-gray-700 shadow-sm text-gray-800 dark:text-gray-100' : 'text-gray-500'}`}
+            className={`flex-1 py-1.5 text-xs rounded-md font-medium ${filter === key ? 'bg-white dark:bg-gray-700 shadow-sm text-gray-800 dark:text-white' : 'text-gray-500'}`}
           >
             {label}
           </button>
@@ -157,11 +157,11 @@ export default function Debts() {
           {active.length > 0 && (
             <div className="space-y-3 mb-6">
               {active.map(d => (
-                <div key={d.id} className={`bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border ${isOverdue(d) ? 'border-red-200 dark:border-red-800' : 'border-gray-100 dark:border-gray-700'}`}>
+                <div key={d.id} className={`bg-white dark:bg-[#141416] rounded-xl p-4 shadow-sm border ${isOverdue(d) ? 'border-red-200 dark:border-red-800' : 'border-gray-100 dark:border-white/[0.06]'}`}>
                   <div className="flex items-center justify-between mb-1">
                     <div className="flex items-center gap-2">
                       <span className="text-lg">{d.type === 'borrow' ? '📥' : '📤'}</span>
-                      <span className="text-sm font-medium text-gray-800 dark:text-gray-100">{d.counterparty}</span>
+                      <span className="text-sm font-medium text-gray-800 dark:text-white">{d.counterparty}</span>
                       {isOverdue(d) && <span className="text-[10px] px-1.5 py-0.5 bg-red-100 text-red-600 rounded">已逾期</span>}
                     </div>
                     <span className={`text-sm font-semibold ${d.type === 'borrow' ? 'text-red-500' : 'text-green-500'}`}>
@@ -206,7 +206,7 @@ export default function Debts() {
               <p className="text-xs text-gray-400 mb-2">已结清</p>
               <div className="space-y-2">
                 {settled.map(d => (
-                  <div key={d.id} className="bg-white dark:bg-gray-800 rounded-xl p-3 shadow-sm border border-gray-100 dark:border-gray-700 opacity-60">
+                  <div key={d.id} className="bg-white dark:bg-[#141416] rounded-xl p-3 shadow-sm border border-gray-100 dark:border-white/[0.06] opacity-60">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <span>{d.type === 'borrow' ? '📥' : '📤'}</span>
@@ -233,8 +233,8 @@ export default function Debts() {
       {/* Add/Edit Form Modal */}
       {showForm && (
         <div className="fixed inset-0 bg-black/50 flex items-end justify-center z-50" onClick={() => setShowForm(false)}>
-          <div className="bg-white dark:bg-gray-800 w-full max-w-lg rounded-t-2xl p-6" onClick={e => e.stopPropagation()}>
-            <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-4">
+          <div className="bg-white dark:bg-[#141416] w-full max-w-lg rounded-t-2xl p-6" onClick={e => e.stopPropagation()}>
+            <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-4">
               {editingId ? '编辑' : '添加借还'}
             </h3>
             <div className="space-y-4">

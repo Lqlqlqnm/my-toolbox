@@ -29,7 +29,7 @@ export default function Orders() {
             key={f}
             onClick={() => setFilter(f)}
             className={`px-3 py-1 text-xs rounded-full ${
-              filter === f ? 'bg-blue-500 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
+              filter === f ? 'bg-blue-500 text-white' : 'bg-gray-100 dark:bg-[#141416] text-gray-600 dark:text-gray-400'
             }`}
           >
             {f === 'all' ? '全部' : f === 'pending' ? '等待中' : f === 'executed' ? '已成交' : '已取消'}
@@ -43,7 +43,7 @@ export default function Orders() {
       ) : (
         <div className="space-y-2">
           {filtered.map((order: any) => (
-            <div key={order.id} className="p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700">
+            <div key={order.id} className="p-3 bg-white dark:bg-[#141416] rounded-lg border border-gray-100 dark:border-white/[0.06]">
               <div className="flex justify-between items-center mb-1">
                 <span className="text-sm font-medium text-gray-800 dark:text-gray-200">{order.name}({order.code})</span>
                 <StatusBadge status={order.status} cancelReason={order.cancel_reason} />

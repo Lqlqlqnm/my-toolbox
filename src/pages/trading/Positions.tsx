@@ -46,7 +46,7 @@ export default function Positions() {
 
   return (
     <div className="space-y-4">
-      <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+      <div className="bg-white dark:bg-[#141416] rounded-lg p-4 border border-gray-200 dark:border-white/[0.06]">
         <div className="grid grid-cols-3 gap-2 text-center">
           <div>
             <p className="text-xs text-gray-500">总资产</p>
@@ -80,7 +80,7 @@ export default function Positions() {
               const trailingActive = highProfitPct >= pos.activation_pct
 
               return (
-                <div key={pos.id} className="p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700">
+                <div key={pos.id} className="p-3 bg-white dark:bg-[#141416] rounded-lg border border-gray-100 dark:border-white/[0.06]">
                   <div className="flex justify-between items-center mb-1">
                     <span className="text-sm font-medium text-gray-800 dark:text-gray-200">{pos.name}</span>
                     <span className={`text-sm font-medium ${pnlPct >= 0 ? 'text-red-500' : 'text-green-500'}`}>
@@ -114,7 +114,7 @@ export default function Positions() {
         {showClosed && closed.length > 0 && (
           <div className="mt-2 space-y-2">
             {closed.map((pos: any) => (
-              <div key={pos.id} className="p-2 bg-gray-50 dark:bg-gray-900 rounded text-xs">
+              <div key={pos.id} className="p-2 bg-gray-50 dark:bg-[#0c0c0d] rounded text-xs">
                 <div className="flex justify-between">
                   <span className="text-gray-700 dark:text-gray-300">{pos.name}({pos.code})</span>
                   <span className={pos.pnl_pct >= 0 ? 'text-red-500' : 'text-green-500'}>
