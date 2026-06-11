@@ -13,7 +13,7 @@ export default function TravelIndex() {
   const [archivedChecklists, setArchivedChecklists] = useState<TravelChecklist[]>([])
   const [view, setView] = useState<View>({ type: 'list' })
   const [showHistory, setShowHistory] = useState(false)
-  const { showConfirm, showPrompt } = useModal()
+  const { showConfirm, showForm } = useModal()
 
   useEffect(() => { loadData() }, [view])
 
@@ -26,20 +26,22 @@ export default function TravelIndex() {
   }
 
   async function createChecklist(template: TravelTemplate) {
-    const name = await showPrompt('行程名称', { defaultValue: `${template.name} - ${new Date().toLocaleDateString()}` })
-    if (!name) return
-    const tripDate = await showPrompt('出发日期', { defaultValue: new Date().toISOString().split('T')[0], placeholder: '如 2026-06-15', inputType: 'date' })
+    const result = await showForm('新建行程', [
+      { key: 'name', label: '行程名称', defaultValue: `${template.name} - ${new Date().toLocaleDateString()}`, required: true },
+      { key: 'tripDate', label: '出发日期', type: 'date', defaultValue: new Date().toISOString().split('T')[0], placeholder: '如 2026-06-15' },
+    ])
+    if (!result || !result.name) return
 
     const id = await db.travelChecklists.add({
       template_id: template.id!,
-      name,
+      name: result.name,
       icon: template.icon,
       categories: template.categories.map(cat => ({
         name: cat.name,
         icon: cat.icon,
         items: cat.items.map(text => ({ text, checked: false })),
       })),
-      trip_date: tripDate || null,
+      trip_date: result.tripDate || null,
       is_archived: false,
       created_at: new Date().toISOString(),
     })

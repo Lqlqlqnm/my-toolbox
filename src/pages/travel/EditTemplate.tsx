@@ -15,7 +15,7 @@ export default function EditTemplate({ templateId, onBack }: Props) {
   const [categories, setCategories] = useState<TemplateCategory[]>([])
   const [editingCat, setEditingCat] = useState<number | null>(null)
   const [newItemText, setNewItemText] = useState('')
-  const { showConfirm, showPrompt } = useModal()
+  const { showConfirm, showForm } = useModal()
 
   useEffect(() => {
     if (templateId) loadTemplate()
@@ -47,10 +47,12 @@ export default function EditTemplate({ templateId, onBack }: Props) {
   }
 
   async function addCategory() {
-    const catName = await showPrompt('分类名称', { placeholder: '如：衣物、洗漱、证件' })
-    if (!catName) return
-    const catIcon = await showPrompt('分类图标', { defaultValue: '📦', placeholder: '一个emoji' }) || '📦'
-    setCategories([...categories, { name: catName, icon: catIcon, items: [] }])
+    const result = await showForm('添加分类', [
+      { key: 'name', label: '分类名称', placeholder: '如：衣物、洗漱、证件', required: true },
+      { key: 'icon', label: '图标 (emoji)', defaultValue: '📦', placeholder: '一个emoji' },
+    ])
+    if (!result || !result.name) return
+    setCategories([...categories, { name: result.name, icon: result.icon || '📦', items: [] }])
   }
 
   async function removeCategory(index: number) {

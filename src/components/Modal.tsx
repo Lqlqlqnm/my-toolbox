@@ -4,16 +4,26 @@ import { useState, useEffect, useCallback, createContext, useContext } from 'rea
 interface ModalOptions {
   title: string
   message?: string
-  type: 'alert' | 'confirm' | 'prompt'
+  type: 'alert' | 'confirm' | 'prompt' | 'form'
   defaultValue?: string
   placeholder?: string
   confirmText?: string
   cancelText?: string
   inputType?: string
+  fields?: FormField[]
+}
+
+export interface FormField {
+  key: string
+  label: string
+  type?: string // text, date, emoji, etc.
+  defaultValue?: string
+  placeholder?: string
+  required?: boolean
 }
 
 interface ModalState extends ModalOptions {
-  resolve: (value: string | boolean | null) => void
+  resolve: (value: any) => void
 }
 
 // ===== Context =====
@@ -21,6 +31,7 @@ const ModalContext = createContext<{
   showAlert: (title: string, message?: string) => Promise<void>
   showConfirm: (title: string, message?: string) => Promise<boolean>
   showPrompt: (title: string, options?: { defaultValue?: string; placeholder?: string; inputType?: string }) => Promise<string | null>
+  showForm: (title: string, fields: FormField[]) => Promise<Record<string, string> | null>
 } | null>(null)
 
 export function useModal() {
@@ -33,10 +44,16 @@ export function useModal() {
 export function ModalProvider({ children }: { children: React.ReactNode }) {
   const [modal, setModal] = useState<ModalState | null>(null)
   const [inputValue, setInputValue] = useState('')
+  const [formValues, setFormValues] = useState<Record<string, string>>({})
 
   useEffect(() => {
     if (modal?.type === 'prompt') {
       setInputValue(modal.defaultValue || '')
+    }
+    if (modal?.type === 'form' && modal.fields) {
+      const defaults: Record<string, string> = {}
+      modal.fields.forEach(f => { defaults[f.key] = f.defaultValue || '' })
+      setFormValues(defaults)
     }
   }, [modal])
 
@@ -67,11 +84,25 @@ export function ModalProvider({ children }: { children: React.ReactNode }) {
     })
   }, [])
 
+  const showForm = useCallback((title: string, fields: FormField[]): Promise<Record<string, string> | null> => {
+    return new Promise(resolve => {
+      setModal({
+        title,
+        type: 'form',
+        fields,
+        resolve: (v) => resolve(v as Record<string, string> | null),
+        confirmText: '确定',
+        cancelText: '取消',
+      })
+    })
+  }, [])
+
   function handleConfirm() {
     if (!modal) return
     if (modal.type === 'alert') modal.resolve(true)
     else if (modal.type === 'confirm') modal.resolve(true)
     else if (modal.type === 'prompt') modal.resolve(inputValue)
+    else if (modal.type === 'form') modal.resolve(formValues)
     setModal(null)
   }
 
@@ -79,11 +110,12 @@ export function ModalProvider({ children }: { children: React.ReactNode }) {
     if (!modal) return
     if (modal.type === 'confirm') modal.resolve(false)
     else if (modal.type === 'prompt') modal.resolve(null)
+    else if (modal.type === 'form') modal.resolve(null)
     setModal(null)
   }
 
   return (
-    <ModalContext.Provider value={{ showAlert, showConfirm, showPrompt }}>
+    <ModalContext.Provider value={{ showAlert, showConfirm, showPrompt, showForm }}>
       {children}
       {modal && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center px-6">
@@ -104,6 +136,25 @@ export function ModalProvider({ children }: { children: React.ReactNode }) {
                 placeholder={modal.placeholder}
                 className="w-full px-3 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-sm text-gray-800 dark:text-gray-200 outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 mb-4"
               />
+            )}
+
+            {modal.type === 'form' && modal.fields && (
+              <div className="space-y-3 mb-4">
+                {modal.fields.map((field, idx) => (
+                  <div key={field.key}>
+                    <label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">{field.label}{field.required && <span className="text-red-400">*</span>}</label>
+                    <input
+                      autoFocus={idx === 0}
+                      type={field.type || 'text'}
+                      value={formValues[field.key] || ''}
+                      onChange={e => setFormValues(v => ({ ...v, [field.key]: e.target.value }))}
+                      onKeyDown={e => e.key === 'Enter' && idx === (modal.fields!.length - 1) && handleConfirm()}
+                      placeholder={field.placeholder}
+                      className="w-full px-3 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-sm text-gray-800 dark:text-gray-200 outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400"
+                    />
+                  </div>
+                ))}
+              </div>
             )}
 
             <div className="flex gap-3 mt-4">
