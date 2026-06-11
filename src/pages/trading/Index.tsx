@@ -1,6 +1,37 @@
+import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
+import { getNotifications } from '../../lib/api'
+import { requestNotificationPermission, sendNotification } from '../../lib/notify'
+import Analysis from './Analysis'
+import Positions from './Positions'
+import Orders from './Orders'
+import Watchlist from './Watchlist'
+import Stats from './Stats'
+
+const tabs = ['分析', '持仓', '条件单', '自选', '统计'] as const
+type Tab = typeof tabs[number]
 
 export default function TradingIndex() {
+  const [activeTab, setActiveTab] = useState<Tab>('分析')
+  const lastNotifyCheck = useRef(new Date().toISOString())
+
+  useEffect(() => {
+    requestNotificationPermission()
+    // 轮询通知（每 30s 检查一次服务端是否有新通知）
+    const interval = setInterval(async () => {
+      try {
+        const notifications = await getNotifications(lastNotifyCheck.current)
+        if (notifications && notifications.length > 0) {
+          lastNotifyCheck.current = notifications[0].created_at
+          for (const n of notifications) {
+            sendNotification(n.title, n.body)
+          }
+        }
+      } catch {}
+    }, 30000)
+    return () => clearInterval(interval)
+  }, [])
+
   return (
     <main className="max-w-lg mx-auto px-4 py-4">
       <div className="flex items-center gap-3 mb-4">
@@ -11,7 +42,28 @@ export default function TradingIndex() {
         </Link>
         <h1 className="text-xl font-bold text-gray-800 dark:text-gray-100">ETF 策略助手</h1>
       </div>
-      <p className="text-gray-400 text-center py-20">ETF 模块开发中...</p>
+
+      <div className="flex border-b border-gray-200 dark:border-gray-700 mb-4 overflow-x-auto">
+        {tabs.map(tab => (
+          <button
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            className={`px-4 py-2 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
+              activeTab === tab
+                ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400'
+            }`}
+          >
+            {tab}
+          </button>
+        ))}
+      </div>
+
+      {activeTab === '分析' && <Analysis />}
+      {activeTab === '持仓' && <Positions />}
+      {activeTab === '条件单' && <Orders />}
+      {activeTab === '自选' && <Watchlist />}
+      {activeTab === '统计' && <Stats />}
     </main>
   )
 }

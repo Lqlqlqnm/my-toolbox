@@ -2,6 +2,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useState, useEffect, useCallback } from 'react'
 import { db, type Category, type Account, type Book, type Transaction } from '../../lib/db'
 import { suggestCategory, getTemplates, type QuickTemplate } from '../../lib/accounting-utils'
+import CategoryIcon from '../../components/CategoryIcon'
 
 type TxType = 'expense' | 'income' | 'transfer'
 
@@ -31,6 +32,8 @@ export default function AddTransaction() {
   // Installment (分期)
   const [showInstallment, setShowInstallment] = useState(false)
   const [installmentCount, setInstallmentCount] = useState('3')
+  const [installmentAdjust, setInstallmentAdjust] = useState<'last' | 'first'>('last')
+  const [installmentFeeRate, setInstallmentFeeRate] = useState('') // 每期费率%，如0.6
   // Split (拆分)
   const [showSplit, setShowSplit] = useState(false)
   const [splitItems, setSplitItems] = useState<{amount: string; note: string; category_id: number | null}[]>([])
@@ -153,19 +156,32 @@ export default function AddTransaction() {
     // Installment mode: create N future transactions
     if (showInstallment) {
       const n = parseInt(installmentCount) || 1
-      const perAmount = Math.round(numAmount / n * 100) / 100
+      const feeRate = parseFloat(installmentFeeRate) || 0
+      const feePerPeriod = Math.round(numAmount * feeRate / 100 * 100) / 100
+      // 计算每期本金（避免精度丢失）
+      const baseAmount = Math.floor(numAmount / n * 100) / 100
+      const remainder = Math.round((numAmount - baseAmount * n) * 100) / 100
+
       for (let i = 0; i < n; i++) {
+        let periodAmount = baseAmount
+        // 调整差额到首期或末期
+        if (installmentAdjust === 'first' && i === 0) periodAmount += remainder
+        if (installmentAdjust === 'last' && i === n - 1) periodAmount += remainder
+        // 加上手续费
+        const totalPeriodAmount = Math.round((periodAmount + feePerPeriod) * 100) / 100
+
         const d = new Date(date)
         d.setMonth(d.getMonth() + i)
         const dateStr = d.toISOString().slice(0, 10)
+        const feeNote = feePerPeriod > 0 ? ` (含手续费¥${feePerPeriod})` : ''
         const txData: Omit<Transaction, 'id'> = {
           type: txType,
-          amount: perAmount,
+          amount: totalPeriodAmount,
           category_id: txType === 'transfer' ? null : categoryId,
           account_id: accountId,
           to_account_id: txType === 'transfer' ? toAccountId : null,
           tags: [...tags, `分期${i + 1}/${n}`],
-          note: note ? `${note} (${i + 1}/${n})` : `分期 ${i + 1}/${n}`,
+          note: note ? `${note} (${i + 1}/${n})${feeNote}` : `分期 ${i + 1}/${n}${feeNote}`,
           date: dateStr,
           book_id: bookId,
           is_excluded: isExcluded,
@@ -301,7 +317,7 @@ export default function AddTransaction() {
                     : 'bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700'
                 }`}
               >
-                <span className="text-lg mb-0.5">{c.icon}</span>
+                <span className="mb-0.5 text-gray-600 dark:text-gray-300"><CategoryIcon icon={c.icon} size={20} /></span>
                 <span className="text-gray-600 dark:text-gray-300">{c.name}</span>
               </button>
             ))}
@@ -323,7 +339,7 @@ export default function AddTransaction() {
                   : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300'
               }`}
             >
-              {a.icon} {a.name}
+              <span className="inline-flex items-center gap-1"><CategoryIcon icon={a.icon} size={14} /> {a.name}</span>
             </button>
           ))}
         </div>
@@ -344,7 +360,7 @@ export default function AddTransaction() {
                     : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300'
                 }`}
               >
-                {a.icon} {a.name}
+                <span className="inline-flex items-center gap-1"><CategoryIcon icon={a.icon} size={14} /> {a.name}</span>
               </button>
             ))}
           </div>
@@ -467,11 +483,27 @@ export default function AddTransaction() {
                   className="w-4 h-4 text-amber-500 rounded" />
               </label>
               {showInstallment && (
-                <div className="mt-2 flex items-center gap-2">
-                  <span className="text-xs text-gray-500">分</span>
-                  <input type="number" value={installmentCount} onChange={e => setInstallmentCount(e.target.value)}
-                    className="w-16 px-2 py-1 bg-white dark:bg-gray-700 rounded text-sm border border-gray-200 dark:border-gray-600 text-center" min="2" max="60" />
-                  <span className="text-xs text-gray-500">期，每期 ¥{amount ? (parseFloat(amount) / (parseInt(installmentCount) || 1)).toFixed(2) : '0.00'}</span>
+                <div className="mt-2 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-gray-500">分</span>
+                    <input type="number" value={installmentCount} onChange={e => setInstallmentCount(e.target.value)}
+                      className="w-16 px-2 py-1 bg-white dark:bg-gray-700 rounded text-sm border border-gray-200 dark:border-gray-600 text-center" min="2" max="60" />
+                    <span className="text-xs text-gray-500">期，每期 ¥{amount ? (Math.floor(parseFloat(amount) / (parseInt(installmentCount) || 1) * 100) / 100).toFixed(2) : '0.00'}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-gray-500">调整:</span>
+                    <button onClick={() => setInstallmentAdjust('last')}
+                      className={`px-2 py-0.5 text-xs rounded ${installmentAdjust === 'last' ? 'bg-amber-500 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-500'}`}>末期</button>
+                    <button onClick={() => setInstallmentAdjust('first')}
+                      className={`px-2 py-0.5 text-xs rounded ${installmentAdjust === 'first' ? 'bg-amber-500 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-500'}`}>首期</button>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-gray-500">手续费率:</span>
+                    <input type="number" value={installmentFeeRate} onChange={e => setInstallmentFeeRate(e.target.value)}
+                      placeholder="0" step="0.1"
+                      className="w-16 px-2 py-1 bg-white dark:bg-gray-700 rounded text-sm border border-gray-200 dark:border-gray-600 text-center" />
+                    <span className="text-xs text-gray-500">%/期 {installmentFeeRate && amount ? `(每期+¥${(parseFloat(amount) * parseFloat(installmentFeeRate) / 100).toFixed(2)})` : '(可选)'}</span>
+                  </div>
                 </div>
               )}
             </div>

@@ -1,12 +1,14 @@
 import { Link } from 'react-router-dom'
 import { useState, useEffect } from 'react'
+import { ChevronUp, ChevronDown } from 'lucide-react'
 import { db, type Account } from '../../lib/db'
+import CategoryIcon, { accountIconKeys } from '../../components/CategoryIcon'
 
 export default function Accounts() {
   const [accounts, setAccounts] = useState<Account[]>([])
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState<number | null>(null)
-  const [form, setForm] = useState({ name: '', type: 'debit' as Account['type'], icon: '💳', balance: '0', credit_limit: '', billing_day: '', payment_day: '' })
+  const [form, setForm] = useState({ name: '', type: 'debit' as Account['type'], icon: 'debit', balance: '0', credit_limit: '', billing_day: '', payment_day: '' })
 
   useEffect(() => { loadAccounts() }, [])
 
@@ -16,7 +18,7 @@ export default function Accounts() {
   }
 
   function openAdd() {
-    setForm({ name: '', type: 'debit', icon: '💳', balance: '0', credit_limit: '', billing_day: '', payment_day: '' })
+    setForm({ name: '', type: 'debit', icon: 'debit', balance: '0', credit_limit: '', billing_day: '', payment_day: '' })
     setEditingId(null)
     setShowForm(true)
   }
@@ -72,10 +74,24 @@ export default function Accounts() {
     loadAccounts()
   }
 
+  const [sortMode, setSortMode] = useState(false)
+
+  async function moveAccount(id: number, dir: -1 | 1) {
+    const idx = accounts.findIndex(a => a.id === id)
+    if (idx < 0) return
+    const targetIdx = idx + dir
+    if (targetIdx < 0 || targetIdx >= accounts.length) return
+    const current = accounts[idx]
+    const target = accounts[targetIdx]
+    await db.accounts.update(current.id!, { sort_order: target.sort_order })
+    await db.accounts.update(target.id!, { sort_order: current.sort_order })
+    loadAccounts()
+  }
+
   const totalBalance = accounts.filter(a => !a.is_hidden).reduce((s, a) => s + a.balance, 0)
 
   const typeLabels: Record<Account['type'], string> = { cash: '现金', debit: '储蓄卡', credit: '信用卡', ewallet: '电子钱包' }
-  const typeIcons = ['💵', '💳', '💸', '📱']
+  const typeIcons = accountIconKeys
   const typeOptions: Account['type'][] = ['cash', 'debit', 'credit', 'ewallet']
 
   return (
@@ -88,7 +104,12 @@ export default function Accounts() {
           </svg>
         </Link>
         <h1 className="text-lg font-bold text-gray-800 dark:text-gray-100">账户管理</h1>
-        <button onClick={openAdd} className="text-amber-500 hover:text-amber-600 text-sm font-medium">添加</button>
+        <div className="flex items-center gap-2">
+          <button onClick={() => setSortMode(!sortMode)} className={`text-xs px-2 py-1 rounded ${sortMode ? 'bg-amber-100 text-amber-600' : 'text-gray-400 hover:text-amber-500'}`}>
+            {sortMode ? '完成' : '排序'}
+          </button>
+          <button onClick={openAdd} className="text-amber-500 hover:text-amber-600 text-sm font-medium">添加</button>
+        </div>
       </div>
 
       {/* Net Worth */}
@@ -106,7 +127,7 @@ export default function Accounts() {
         ) : (
           accounts.map((a, i) => (
             <div key={a.id} className={`flex items-center px-4 py-3 ${i > 0 ? 'border-t border-gray-50 dark:border-gray-700' : ''} ${a.is_hidden ? 'opacity-40' : ''}`}>
-              <span className="text-xl mr-3">{a.icon}</span>
+              <span className="mr-3 text-gray-600 dark:text-gray-300"><CategoryIcon icon={a.icon} size={22} /></span>
               <div className="flex-1">
                 <p className="text-sm text-gray-800 dark:text-gray-100">{a.name}</p>
                 <p className="text-xs text-gray-400">
@@ -119,7 +140,18 @@ export default function Accounts() {
               <span className={`text-sm font-medium mr-3 ${a.balance >= 0 ? 'text-gray-700 dark:text-gray-200' : 'text-red-500'}`}>
                 ¥{a.balance.toFixed(2)}
               </span>
-              <button onClick={() => openEdit(a)} className="text-gray-300 hover:text-amber-500 mr-2">
+              {sortMode ? (
+                <div className="flex items-center gap-1">
+                  <button onClick={() => a.id && moveAccount(a.id, -1)} disabled={i === 0} className="p-1 text-gray-400 hover:text-gray-600 disabled:opacity-30">
+                    <ChevronUp className="w-4 h-4" />
+                  </button>
+                  <button onClick={() => a.id && moveAccount(a.id, 1)} disabled={i === accounts.length - 1} className="p-1 text-gray-400 hover:text-gray-600 disabled:opacity-30">
+                    <ChevronDown className="w-4 h-4" />
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <button onClick={() => openEdit(a)} className="text-gray-300 hover:text-amber-500 mr-2">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                   <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
                 </svg>
@@ -132,6 +164,8 @@ export default function Accounts() {
                   <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
                 </svg>
               </button>
+                </>
+              )}
             </div>
           ))
         )}
@@ -164,9 +198,9 @@ export default function Accounts() {
                     <button
                       key={t}
                       onClick={() => setForm({ ...form, type: t, icon: typeIcons[idx] })}
-                      className={`flex-1 py-2 text-xs rounded-lg ${form.type === t ? 'bg-amber-50 dark:bg-amber-900/30 ring-1 ring-amber-400' : 'bg-gray-50 dark:bg-gray-700'}`}
+                      className={`flex-1 py-2 text-xs rounded-lg flex items-center justify-center gap-1 ${form.type === t ? 'bg-amber-50 dark:bg-amber-900/30 ring-1 ring-amber-400' : 'bg-gray-50 dark:bg-gray-700'}`}
                     >
-                      {typeIcons[idx]} {typeLabels[t]}
+                      <CategoryIcon icon={typeIcons[idx]} size={14} /> {typeLabels[t]}
                     </button>
                   ))}
                 </div>

@@ -1,0 +1,80 @@
+import { useState, useEffect } from 'react'
+import { getOrders, cancelOrder } from '../../lib/api'
+
+export default function Orders() {
+  const [orders, setOrders] = useState<any[]>([])
+  const [filter, setFilter] = useState<'all' | 'pending' | 'executed' | 'cancelled'>('all')
+
+  useEffect(() => { loadOrders() }, [])
+
+  async function loadOrders() {
+    try {
+      const all = await getOrders('all')
+      setOrders(all || [])
+    } catch {}
+  }
+
+  async function handleCancel(id: number) {
+    await cancelOrder(id)
+    await loadOrders()
+  }
+
+  const filtered = filter === 'all' ? orders : orders.filter(o => o.status === filter)
+
+  return (
+    <div className="space-y-4">
+      <div className="flex gap-2">
+        {(['all', 'pending', 'executed', 'cancelled'] as const).map(f => (
+          <button
+            key={f}
+            onClick={() => setFilter(f)}
+            className={`px-3 py-1 text-xs rounded-full ${
+              filter === f ? 'bg-blue-500 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
+            }`}
+          >
+            {f === 'all' ? '全部' : f === 'pending' ? '等待中' : f === 'executed' ? '已成交' : '已取消'}
+            {f !== 'all' && ` (${orders.filter(o => o.status === f).length})`}
+          </button>
+        ))}
+      </div>
+
+      {filtered.length === 0 ? (
+        <p className="text-xs text-gray-400 text-center py-6">暂无条件单</p>
+      ) : (
+        <div className="space-y-2">
+          {filtered.map((order: any) => (
+            <div key={order.id} className="p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700">
+              <div className="flex justify-between items-center mb-1">
+                <span className="text-sm font-medium text-gray-800 dark:text-gray-200">{order.name}({order.code})</span>
+                <StatusBadge status={order.status} cancelReason={order.cancel_reason} />
+              </div>
+              <div className="text-xs text-gray-500 space-y-0.5">
+                <div className="flex justify-between">
+                  <span>触发价 {order.trigger_price.toFixed(3)} | 仓位 {order.position_pct}%</span>
+                  <span>{order.created_at?.split('T')[0]}</span>
+                </div>
+                <div>止损{order.stop_loss_pct}% | 回撤{order.trailing_pct}% | 激活{order.activation_pct}% | {order.max_hold_days}天</div>
+                {order.reason && <div className="text-gray-400">{order.reason}</div>}
+                {order.status === 'executed' && order.executed_price && (
+                  <div className="text-blue-500">
+                    成交 {order.executed_shares}股 @ {order.executed_price.toFixed(3)} ({order.executed_at?.split('T')[0]})
+                  </div>
+                )}
+              </div>
+              {order.status === 'pending' && (
+                <button onClick={() => handleCancel(order.id)} className="mt-2 text-xs text-red-500 hover:text-red-600">取消</button>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function StatusBadge({ status, cancelReason }: { status: string; cancelReason: string | null }) {
+  if (status === 'pending') return <span className="px-2 py-0.5 bg-amber-100 text-amber-700 text-xs rounded">等待触发</span>
+  if (status === 'executed') return <span className="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded">已成交</span>
+  if (cancelReason === 'superseded') return <span className="px-2 py-0.5 bg-gray-100 text-gray-500 text-xs rounded">已替换</span>
+  return <span className="px-2 py-0.5 bg-gray-100 text-gray-500 text-xs rounded">已取消</span>
+}

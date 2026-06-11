@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { useState, useEffect, useMemo } from 'react'
-import { db, type Transaction, type Category, type Book } from '../../lib/db'
+import { db, type Transaction, type Category, type Book, type Account } from '../../lib/db'
+import CategoryIcon from '../../components/CategoryIcon'
 
 type ViewMode = 'monthly' | 'yearly' | 'custom'
 
@@ -8,6 +9,7 @@ export default function Stats() {
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [categories, setCategories] = useState<Category[]>([])
   const [books, setBooks] = useState<Book[]>([])
+  const [accounts, setAccounts] = useState<Account[]>([])
   const [selectedBookId, setSelectedBookId] = useState<number | null | 'all'>('all')
   const [currentMonth, setCurrentMonth] = useState(() => {
     const now = new Date()
@@ -58,9 +60,11 @@ export default function Stats() {
 
     const cats = await db.categories.toArray()
     const bks = await db.books.filter(b => !b.is_archived).toArray()
+    const accs = await db.accounts.toArray()
     setTransactions(txns)
     setCategories(cats)
     setBooks(bks)
+    setAccounts(accs)
   }
 
   const categoryMap = useMemo(() => {
@@ -122,6 +126,130 @@ export default function Stats() {
   }, [transactions, currentMonth, viewType, viewMode, customStart, customEnd])
 
   const maxTrend = Math.max(...trendData, 1)
+
+  // Step 1: Overview stats
+  const overview = useMemo(() => {
+    const filtered = transactions.filter(t => t.type === viewType)
+    const count = filtered.length
+    const maxSingle = count > 0 ? Math.max(...filtered.map(t => t.amount)) : 0
+    const days = trendData.length || 1
+    const dailyAvg = breakdown.total / days
+    return { count, maxSingle, dailyAvg }
+  }, [transactions, viewType, breakdown.total, trendData.length])
+
+  // Step 2: Tag analysis
+  const tagBreakdown = useMemo(() => {
+    const map = new Map<string, number>()
+    let total = 0
+    for (const t of transactions) {
+      if (t.type !== viewType) continue
+      total += t.amount
+      if (t.tags && t.tags.length > 0) {
+        for (const tag of t.tags) {
+          map.set(tag, (map.get(tag) || 0) + t.amount)
+        }
+      } else {
+        map.set('无标签', (map.get('无标签') || 0) + t.amount)
+      }
+    }
+    return Array.from(map.entries())
+      .map(([tag, amt]) => ({ tag, amount: amt, percent: total > 0 ? (amt / total) * 100 : 0 }))
+      .sort((a, b) => b.amount - a.amount)
+  }, [transactions, viewType])
+
+  // Step 2: Account analysis
+  const accountBreakdown = useMemo(() => {
+    const map = new Map<number | null, number>()
+    let total = 0
+    for (const t of transactions) {
+      if (t.type !== viewType) continue
+      total += t.amount
+      map.set(t.account_id, (map.get(t.account_id) || 0) + t.amount)
+    }
+    const accountMap = new Map(accounts.map(a => [a.id!, a]))
+    return Array.from(map.entries())
+      .map(([accId, amt]) => ({
+        account: accId ? accountMap.get(accId) : null,
+        amount: amt,
+        percent: total > 0 ? (amt / total) * 100 : 0,
+      }))
+      .sort((a, b) => b.amount - a.amount)
+  }, [transactions, viewType, accounts])
+
+  // Step 3: Month-over-month comparison (only in monthly mode)
+  const [lastMonthTxns, setLastMonthTxns] = useState<Transaction[]>([])
+  useEffect(() => {
+    if (viewMode !== 'monthly') return
+    const [year, month] = currentMonth.split('-').map(Number)
+    const prevMonth = month === 1 ? 12 : month - 1
+    const prevYear = month === 1 ? year - 1 : year
+    const startDate = `${prevYear}-${String(prevMonth).padStart(2, '0')}-01`
+    const endDate = `${year}-${String(month).padStart(2, '0')}-01`
+    db.transactions.where('date').between(startDate, endDate, true, false).toArray().then(txns => {
+      let filtered = txns.filter(t => !t.is_excluded)
+      if (selectedBookId !== 'all') filtered = filtered.filter(t => t.book_id === selectedBookId)
+      setLastMonthTxns(filtered)
+    })
+  }, [viewMode, currentMonth, selectedBookId])
+
+  const monthComparison = useMemo(() => {
+    if (viewMode !== 'monthly') return []
+    const thisMap = new Map<number, number>()
+    const lastMap = new Map<number, number>()
+    for (const t of transactions) {
+      if (t.type !== viewType || !t.category_id) continue
+      thisMap.set(t.category_id, (thisMap.get(t.category_id) || 0) + t.amount)
+    }
+    for (const t of lastMonthTxns) {
+      if (t.type !== viewType || !t.category_id) continue
+      lastMap.set(t.category_id, (lastMap.get(t.category_id) || 0) + t.amount)
+    }
+    const allCatIds = new Set([...thisMap.keys(), ...lastMap.keys()])
+    return Array.from(allCatIds)
+      .map(catId => {
+        const thisAmt = thisMap.get(catId) || 0
+        const lastAmt = lastMap.get(catId) || 0
+        const change = lastAmt > 0 ? ((thisAmt - lastAmt) / lastAmt) * 100 : (thisAmt > 0 ? 100 : 0)
+        return { category: categoryMap.get(catId), thisAmt, lastAmt, change }
+      })
+      .filter(item => item.thisAmt > 0 || item.lastAmt > 0)
+      .sort((a, b) => b.thisAmt - a.thisAmt)
+  }, [transactions, lastMonthTxns, viewType, viewMode, categoryMap])
+
+  // Step 4: Top expenses
+  const topExpenses = useMemo(() => {
+    return transactions
+      .filter(t => t.type === viewType)
+      .sort((a, b) => b.amount - a.amount)
+      .slice(0, 8)
+  }, [transactions, viewType])
+
+  // Step 4: Monthly balance trend (last 6 months)
+  const [balanceTrend, setBalanceTrend] = useState<Array<{ month: string; income: number; expense: number; balance: number }>>([])
+  useEffect(() => {
+    loadBalanceTrend()
+  }, [selectedBookId])
+
+  async function loadBalanceTrend() {
+    const now = new Date()
+    const months: Array<{ month: string; income: number; expense: number; balance: number }> = []
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
+      const year = d.getFullYear()
+      const month = d.getMonth() + 1
+      const startDate = `${year}-${String(month).padStart(2, '0')}-01`
+      const endMonth = month === 12 ? 1 : month + 1
+      const endYear = month === 12 ? year + 1 : year
+      const endDate = `${endYear}-${String(endMonth).padStart(2, '0')}-01`
+      let txns = await db.transactions.where('date').between(startDate, endDate, true, false).toArray()
+      txns = txns.filter(t => !t.is_excluded)
+      if (selectedBookId !== 'all') txns = txns.filter(t => t.book_id === selectedBookId)
+      const income = txns.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0)
+      const expense = txns.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0)
+      months.push({ month: `${month}月`, income, expense, balance: income - expense })
+    }
+    setBalanceTrend(months)
+  }
 
   function prevMonth() {
     const [y, m] = currentMonth.split('-').map(Number)
@@ -213,12 +341,26 @@ export default function Stats() {
         </div>
       </div>
 
-      {/* Total */}
+      {/* Total + Overview */}
       <div className="bg-white dark:bg-gray-800 rounded-xl p-4 mb-4 shadow-sm border border-gray-100 dark:border-gray-700">
         <p className="text-xs text-gray-400 mb-1">总{viewType === 'expense' ? '支出' : '收入'}</p>
         <p className={`text-2xl font-bold ${viewType === 'expense' ? 'text-red-500' : 'text-green-500'}`}>
           ¥{breakdown.total.toFixed(2)}
         </p>
+        <div className="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
+          <div>
+            <p className="text-[10px] text-gray-400">日均</p>
+            <p className="text-sm font-medium text-gray-700 dark:text-gray-200">¥{overview.dailyAvg.toFixed(0)}</p>
+          </div>
+          <div>
+            <p className="text-[10px] text-gray-400">笔数</p>
+            <p className="text-sm font-medium text-gray-700 dark:text-gray-200">{overview.count}笔</p>
+          </div>
+          <div>
+            <p className="text-[10px] text-gray-400">最大单笔</p>
+            <p className="text-sm font-medium text-gray-700 dark:text-gray-200">¥{overview.maxSingle.toFixed(0)}</p>
+          </div>
+        </div>
       </div>
 
       {/* Trend Bar Chart */}
@@ -250,7 +392,7 @@ export default function Stats() {
           <div className="space-y-3">
             {breakdown.items.map(item => (
               <div key={item.category?.id} className="flex items-center gap-3">
-                <span className="text-lg">{item.category?.icon}</span>
+                <span className="text-gray-600 dark:text-gray-300"><CategoryIcon icon={item.category?.icon || 'pin'} size={20} /></span>
                 <div className="flex-1">
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-sm text-gray-700 dark:text-gray-200">{item.category?.name}</span>
@@ -268,6 +410,120 @@ export default function Stats() {
           </div>
         )}
       </div>
+
+      {/* Tag Analysis */}
+      {tagBreakdown.length > 0 && (
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 mt-4 shadow-sm border border-gray-100 dark:border-gray-700">
+          <p className="text-xs text-gray-400 mb-3">标签/成员分析</p>
+          <div className="space-y-2">
+            {tagBreakdown.slice(0, 8).map(item => (
+              <div key={item.tag} className="flex items-center gap-2">
+                <span className="text-xs text-gray-600 dark:text-gray-300 w-14 truncate">{item.tag}</span>
+                <div className="flex-1 h-1.5 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+                  <div className="h-full rounded-full bg-amber-400" style={{ width: `${item.percent}%` }} />
+                </div>
+                <span className="text-xs text-gray-500 w-20 text-right">¥{item.amount.toFixed(0)} ({item.percent.toFixed(0)}%)</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Account Analysis */}
+      {accountBreakdown.length > 0 && (
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 mt-4 shadow-sm border border-gray-100 dark:border-gray-700">
+          <p className="text-xs text-gray-400 mb-3">账户/支付方式分布</p>
+          <div className="space-y-2">
+            {accountBreakdown.slice(0, 6).map((item, i) => (
+              <div key={i} className="flex items-center gap-2">
+                <span className="text-gray-600 dark:text-gray-300"><CategoryIcon icon={item.account?.icon || 'debit'} size={20} /></span>
+                <span className="text-xs text-gray-600 dark:text-gray-300 flex-shrink-0">{item.account?.name || '未指定'}</span>
+                <div className="flex-1 h-1.5 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+                  <div className="h-full rounded-full bg-blue-400" style={{ width: `${item.percent}%` }} />
+                </div>
+                <span className="text-xs text-gray-500 w-20 text-right">¥{item.amount.toFixed(0)}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Month Comparison */}
+      {viewMode === 'monthly' && monthComparison.length > 0 && (
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 mt-4 shadow-sm border border-gray-100 dark:border-gray-700">
+          <p className="text-xs text-gray-400 mb-3">vs 上月对比</p>
+          <div className="space-y-2">
+            {monthComparison.slice(0, 8).map((item, i) => (
+              <div key={i} className="flex items-center justify-between text-xs">
+                <span className="text-gray-600 dark:text-gray-300 flex items-center gap-1">
+                  <span><CategoryIcon icon={item.category?.icon || 'pin'} size={14} /></span>
+                  <span>{item.category?.name}</span>
+                </span>
+                <div className="flex items-center gap-2">
+                  <span className="text-gray-400">¥{item.lastAmt.toFixed(0)}</span>
+                  <span className="text-gray-300">→</span>
+                  <span className="text-gray-700 dark:text-gray-200 font-medium">¥{item.thisAmt.toFixed(0)}</span>
+                  <span className={`w-12 text-right ${item.change > 0 ? 'text-red-500' : item.change < 0 ? 'text-green-500' : 'text-gray-400'}`}>
+                    {item.change > 0 ? '↑' : item.change < 0 ? '↓' : '—'}{Math.abs(item.change).toFixed(0)}%
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Top Expenses */}
+      {topExpenses.length > 0 && (
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 mt-4 shadow-sm border border-gray-100 dark:border-gray-700">
+          <p className="text-xs text-gray-400 mb-3">Top {viewType === 'expense' ? '支出' : '收入'}</p>
+          <div className="space-y-2">
+            {topExpenses.map((t, i) => (
+              <div key={i} className="flex items-center justify-between text-xs py-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-gray-400 w-10">{t.date.slice(5)}</span>
+                  <span className="text-gray-500"><CategoryIcon icon={categoryMap.get(t.category_id!)?.icon || 'pin'} size={14} /></span>
+                  <span className="text-gray-700 dark:text-gray-300 truncate max-w-[120px]">
+                    {t.note || categoryMap.get(t.category_id!)?.name || '-'}
+                  </span>
+                </div>
+                <span className={`font-medium ${viewType === 'expense' ? 'text-red-500' : 'text-green-500'}`}>
+                  ¥{t.amount.toFixed(0)}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Balance Trend (6 months) */}
+      {balanceTrend.length > 0 && (
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 mt-4 shadow-sm border border-gray-100 dark:border-gray-700">
+          <p className="text-xs text-gray-400 mb-3">近 6 月收支结余</p>
+          <div className="space-y-2">
+            {balanceTrend.map((m, i) => (
+              <div key={i} className="flex items-center justify-between text-xs">
+                <span className="text-gray-500 w-8">{m.month}</span>
+                <div className="flex-1 flex items-center gap-1 mx-2">
+                  <div className="flex-1 h-1.5 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden flex">
+                    <div className="h-full bg-green-400 rounded-l-full" style={{ width: `${m.income / (Math.max(m.income, m.expense) || 1) * 100}%` }} />
+                  </div>
+                  <div className="flex-1 h-1.5 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden flex justify-end">
+                    <div className="h-full bg-red-400 rounded-r-full" style={{ width: `${m.expense / (Math.max(m.income, m.expense) || 1) * 100}%` }} />
+                  </div>
+                </div>
+                <span className={`w-16 text-right font-medium ${m.balance >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                  {m.balance >= 0 ? '+' : ''}{m.balance.toFixed(0)}
+                </span>
+              </div>
+            ))}
+          </div>
+          <div className="flex justify-center gap-4 mt-2 text-[10px] text-gray-400">
+            <span className="flex items-center gap-1"><span className="w-2 h-2 bg-green-400 rounded-full inline-block" />收入</span>
+            <span className="flex items-center gap-1"><span className="w-2 h-2 bg-red-400 rounded-full inline-block" />支出</span>
+          </div>
+        </div>
+      )}
     </main>
   )
 }

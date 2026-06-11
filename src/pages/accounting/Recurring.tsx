@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { db, type RecurringRule, type Category, type Account } from '../../lib/db'
+import CategoryIcon from '../../components/CategoryIcon'
 
 export default function Recurring() {
   const [rules, setRules] = useState<RecurringRule[]>([])
@@ -151,7 +152,7 @@ export default function Recurring() {
               <div key={r.id} className={`bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-gray-700 ${!r.is_active ? 'opacity-50' : ''}`}>
                 <div className="flex items-center justify-between mb-1">
                   <div className="flex items-center gap-2">
-                    <span className="text-lg">{cat?.icon || '📌'}</span>
+                    <span className="text-gray-600 dark:text-gray-300"><CategoryIcon icon={cat?.icon || 'pin'} size={20} /></span>
                     <span className="text-sm font-medium text-gray-800 dark:text-gray-100">
                       {cat?.name || '未分类'}{r.note ? ` · ${r.note}` : ''}
                     </span>
@@ -232,7 +233,7 @@ export default function Recurring() {
                 >
                   <option value={0}>未分类</option>
                   {categories.filter(c => c.type === form.type).map(c => (
-                    <option key={c.id} value={c.id}>{c.icon} {c.name}</option>
+                    <option key={c.id} value={c.id}>{c.name}</option>
                   ))}
                 </select>
               </div>
@@ -244,7 +245,7 @@ export default function Recurring() {
                   className="w-full mt-1 px-3 py-2 bg-gray-50 dark:bg-gray-700 rounded-lg text-sm border border-gray-200 dark:border-gray-600"
                 >
                   {accounts.map(a => (
-                    <option key={a.id} value={a.id}>{a.icon} {a.name}</option>
+                    <option key={a.id} value={a.id}>{a.name}</option>
                   ))}
                 </select>
               </div>

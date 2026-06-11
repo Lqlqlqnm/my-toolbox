@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Toolbox - 首页设计方案对比</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      fontFamily: { sans: ['-apple-system', 'BlinkMacSystemFont', 'SF Pro Display', 'Inter', 'sans-serif'] }
+    }
+  }
+}
+</script>
+<style>
+  body { background: #f5f5f5; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', sans-serif; }
+  .phone-frame { width: 390px; height: 844px; border-radius: 44px; border: 8px solid #1c1c1e; overflow: hidden; position: relative; box-shadow: 0 25px 80px rgba(0,0,0,0.25); }
+  .phone-frame::before { content:''; position:absolute; top:0; left:50%; transform:translateX(-50%); width:120px; height:28px; background:#1c1c1e; border-radius:0 0 14px 14px; z-index:50; }
+  .phone-content { height:100%; overflow-y:auto; padding-top:32px; }
+  .phone-content::-webkit-scrollbar { display:none; }
+  .section-title { font-size: 13px; font-weight: 600; color: #6b7280; letter-spacing: 0.5px; text-transform: uppercase; }
+</style>
+</head>
+<body class="p-8">
+
+<h1 class="text-3xl font-bold text-center text-gray-800 mb-2">My Toolbox - 首页设计方案</h1>
+<p class="text-sm text-gray-500 text-center mb-10">4 种现代风格对比 | 参考 Linear / Raycast / Apple Bento / Notion</p>
+
+<div class="flex flex-wrap justify-center gap-12">
+
+<!-- ==================== 方案 A: Bento Grid (Apple 风格) ==================== -->
+<div>
+<p class="text-sm font-bold text-gray-700 mb-1 text-center">方案 A - Bento Grid</p>
+<p class="text-xs text-gray-400 mb-3 text-center">Apple 风格 · 不等高网格 · 圆角卡片 · 浅色柔和</p>
+<div class="phone-frame" style="background:#f8f8fa;">
+<div class="phone-content px-5 pb-8">
+  <!-- Header -->
+  <div class="flex items-center justify-between pt-4 mb-6">
+    <div>
+      <p class="text-xs text-gray-400">Hi, HDL</p>
+      <h1 class="text-xl font-bold text-gray-900 tracking-tight">My Toolbox</h1>
+    </div>
+    <div class="w-9 h-9 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
+      <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/></svg>
+    </div>
+  </div>
+
+  <!-- Bento Grid -->
+  <div class="grid grid-cols-2 gap-3">
+    <!-- ETF - Large card spanning full width -->
+    <div class="col-span-2 bg-white rounded-2xl p-5 shadow-sm border border-gray-100" style="min-height:140px;">
+      <div class="flex items-start justify-between">
+        <div>
+          <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center mb-3">
+            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M17 7h4v4"/></svg>
+          </div>
+          <h2 class="text-base font-semibold text-gray-900">ETF 策略助手</h2>
+          <p class="text-xs text-gray-400 mt-0.5">文章分析 · 模拟仓 · 条件单</p>
+        </div>
+        <div class="text-right">
+          <p class="text-xs text-gray-400">今日收益</p>
+          <p class="text-lg font-bold text-green-500">+1.2%</p>
+        </div>
+      </div>
+      <!-- Mini chart placeholder -->
+      <div class="mt-3 h-10 rounded-lg bg-gradient-to-r from-blue-50 via-blue-100 to-blue-50 flex items-end px-2 gap-0.5">
+        <div class="w-full h-3 bg-blue-200 rounded-sm opacity-40"></div>
+        <div class="w-full h-5 bg-blue-300 rounded-sm opacity-50"></div>
+        <div class="w-full h-4 bg-blue-200 rounded-sm opacity-40"></div>
+        <div class="w-full h-7 bg-blue-400 rounded-sm opacity-60"></div>
+        <div class="w-full h-6 bg-blue-300 rounded-sm opacity-50"></div>
+        <div class="w-full h-8 bg-blue-500 rounded-sm opacity-70"></div>
+        <div class="w-full h-9 bg-blue-500 rounded-sm"></div>
+      </div>
+    </div>
+
+    <!-- Accounting - Square card -->
+    <div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100" style="min-height:160px;">
+      <div class="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center mb-3">
+        <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+      </div>
+      <h2 class="text-sm font-semibold text-gray-900">记账本</h2>
+      <p class="text-xs text-gray-400 mt-0.5">收支 · 统计</p>
+      <div class="mt-4 pt-3 border-t border-gray-50">
+        <p class="text-xs text-gray-400">本月支出</p>
+        <p class="text-base font-bold text-gray-800">¥3,280</p>
+      </div>
+    </div>
+
+    <!-- Travel - Square card -->
+    <div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100" style="min-height:160px;">
+      <div class="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center mb-3">
+        <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      </div>
+      <h2 class="text-sm font-semibold text-gray-900">旅行清单</h2>
+      <p class="text-xs text-gray-400 mt-0.5">模板 · 打勾</p>
+      <div class="mt-4 pt-3 border-t border-gray-50">
+        <p class="text-xs text-gray-400">下次出行</p>
+        <p class="text-sm font-medium text-emerald-600">日本 7/15</p>
+      </div>
+    </div>
+
+    <!-- Quick action bar -->
+    <div class="col-span-2 bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex items-center justify-around">
+      <div class="flex flex-col items-center gap-1">
+        <div class="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center"><svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></div>
+        <span class="text-[10px] text-gray-400">记一笔</span>
+      </div>
+      <div class="flex flex-col items-center gap-1">
+        <div class="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center"><svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><path d="M9 9h6v6H9z"/></svg></div>
+        <span class="text-[10px] text-gray-400">扫一扫</span>
+      </div>
+      <div class="flex flex-col items-center gap-1">
+        <div class="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center"><svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg></div>
+        <span class="text-[10px] text-gray-400">备份</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <p class="text-[10px] text-gray-300 text-center mt-6">纯本地 · 数据不上传 · PWA</p>
+</div>
+</div>
+</div>
+
+  <div class="flex-1 overflow-y-auto px-4 pb-20">
+    <!-- Asset Summary Card -->
+    <div class="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-5 text-white mt-3 mb-4">
+      <div class="flex items-center justify-between">
+        <p class="text-xs opacity-60">6月净资产</p>
+        <i data-lucide="eye" class="w-4 h-4 opacity-40"></i>
+      </div>
+      <p class="text-3xl font-bold mt-1">¥ 52,380</p>
+      <div class="flex justify-between mt-4 text-xs">
+        <div><p class="opacity-60">本月收入</p><p class="text-green-400 font-medium mt-0.5">+8,500</p></div>
+        <div><p class="opacity-60">本月支出</p><p class="text-red-400 font-medium mt-0.5">-3,280</p></div>
+        <div><p class="opacity-60">预算剩余</p><p class="text-amber-400 font-medium mt-0.5">¥1,720</p></div>
+      </div>
+    </div>
+
+    <!-- Budget Alert -->
+    <div class="bg-red-50 border border-red-100 rounded-xl px-4 py-3 mb-4 flex items-center gap-3">
+      <i data-lucide="alert-triangle" class="w-4 h-4 text-red-500 shrink-0"></i>
+      <p class="text-xs text-red-600">交通预算已使用 84%，注意控制开支</p>
+    </div>
+
+    <!-- Quick Tools (2 rows) -->
+    <div class="grid grid-cols-4 gap-3 mb-5">
+      <div class="flex flex-col items-center gap-1.5 py-3 bg-white rounded-xl border border-gray-100 shadow-sm">
+        <i data-lucide="pie-chart" class="w-5 h-5 text-amber-500"></i>
+        <span class="text-[11px] text-gray-600">预算</span>
+      </div>
+      <div class="flex flex-col items-center gap-1.5 py-3 bg-white rounded-xl border border-gray-100 shadow-sm">
+        <i data-lucide="repeat" class="w-5 h-5 text-blue-500"></i>
+        <span class="text-[11px] text-gray-600">周期</span>
+      </div>
+      <div class="flex flex-col items-center gap-1.5 py-3 bg-white rounded-xl border border-gray-100 shadow-sm">
+        <i data-lucide="handshake" class="w-5 h-5 text-green-500"></i>
+        <span class="text-[11px] text-gray-600">借还</span>
+      </div>
+      <div class="flex flex-col items-center gap-1.5 py-3 bg-white rounded-xl border border-gray-100 shadow-sm">
+        <i data-lucide="target" class="w-5 h-5 text-red-500"></i>
+        <span class="text-[11px] text-gray-600">攒钱</span>
+      </div>
+      <div class="flex flex-col items-center gap-1.5 py-3 bg-white rounded-xl border border-gray-100 shadow-sm">
+        <i data-lucide="calendar" class="w-5 h-5 text-purple-500"></i>
+        <span class="text-[11px] text-gray-600">日历</span>
+      </div>
+      <div class="flex flex-col items-center gap-1.5 py-3 bg-white rounded-xl border border-gray-100 shadow-sm">
+        <i data-lucide="trending-up" class="w-5 h-5 text-indigo-500"></i>
+        <span class="text-[11px] text-gray-600">趋势</span>
+      </div>
+      <div class="flex flex-col items-center gap-1.5 py-3 bg-white rounded-xl border border-gray-100 shadow-sm">
+        <i data-lucide="zap" class="w-5 h-5 text-cyan-500"></i>
+        <span class="text-[11px] text-gray-600">模板</span>
+      </div>
+      <div class="flex flex-col items-center gap-1.5 py-3 bg-white rounded-xl border border-gray-100 shadow-sm">
+        <i data-lucide="credit-card" class="w-5 h-5 text-pink-500"></i>
+        <span class="text-[11px] text-gray-600">还款</span>
+      </div>
+    </div>
+
+    <!-- Budget Overview -->
+    <div class="flex items-center justify-between mb-2">
+      <p class="text-sm font-medium text-gray-800">本月预算</p>
+      <button class="text-xs text-amber-500">详情 →</button>
+    </div>
+    <div class="bg-white rounded-xl border border-gray-100 p-4 mb-4 space-y-3">
+      <div>
+        <div class="flex justify-between text-xs mb-1"><span class="text-gray-600 flex items-center gap-1"><i data-lucide="utensils" class="w-3 h-3"></i> 餐饮</span><span class="text-gray-400">¥980 / ¥1,500</span></div>
+        <div class="h-2 bg-gray-100 rounded-full"><div class="h-2 bg-amber-400 rounded-full" style="width:65%"></div></div>
+      </div>
+      <div>
+        <div class="flex justify-between text-xs mb-1"><span class="text-gray-600 flex items-center gap-1"><i data-lucide="train-front" class="w-3 h-3"></i> 交通</span><span class="text-red-500 font-medium">¥420 / ¥500 ⚠️</span></div>
+        <div class="h-2 bg-gray-100 rounded-full"><div class="h-2 bg-red-400 rounded-full" style="width:84%"></div></div>
+      </div>
+      <div>
+        <div class="flex justify-between text-xs mb-1"><span class="text-gray-600 flex items-center gap-1"><i data-lucide="gamepad-2" class="w-3 h-3"></i> 娱乐</span><span class="text-gray-400">¥200 / ¥800</span></div>
+        <div class="h-2 bg-gray-100 rounded-full"><div class="h-2 bg-green-400 rounded-full" style="width:25%"></div></div>
+      </div>
+    </div>
+
+    <!-- Credit Card Interest-Free Days -->
+    <div class="flex items-center justify-between mb-2">
+      <p class="text-sm font-medium text-gray-800">信用卡免息</p>
+      <button class="text-xs text-amber-500">管理 →</button>
+    </div>
+    <div class="bg-white rounded-xl border border-gray-100 p-4 mb-4">
+      <!-- Best card highlight -->
+      <div class="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-lg px-3 py-2.5 mb-3 flex items-center gap-3">
+        <i data-lucide="crown" class="w-4 h-4 text-amber-500 shrink-0"></i>
+        <div class="flex-1">
+          <p class="text-xs font-medium text-amber-700">今日最优刷卡</p>
+          <p class="text-sm font-bold text-gray-800">招商银行 · 免息 <span class="text-amber-600">50天</span></p>
+        </div>
+        <div class="text-right">
+          <p class="text-[10px] text-gray-400">账单日 5号</p>
+          <p class="text-[10px] text-gray-400">还款日 25号</p>
+        </div>
+      </div>
+      <!-- All cards list -->
+      <div class="space-y-2">
+        <div class="flex items-center justify-between text-xs">
+          <span class="text-gray-600 flex items-center gap-1.5"><i data-lucide="credit-card" class="w-3.5 h-3.5 text-blue-500"></i> 招商银行</span>
+          <div class="flex items-center gap-2">
+            <span class="px-1.5 py-0.5 bg-green-50 text-green-600 rounded font-medium">50天</span>
+            <span class="text-gray-400">还款日 6/25</span>
+          </div>
+        </div>
+        <div class="flex items-center justify-between text-xs">
+          <span class="text-gray-600 flex items-center gap-1.5"><i data-lucide="credit-card" class="w-3.5 h-3.5 text-red-500"></i> 工商银行</span>
+          <div class="flex items-center gap-2">
+            <span class="px-1.5 py-0.5 bg-gray-100 text-gray-600 rounded font-medium">32天</span>
+            <span class="text-gray-400">还款日 6/20</span>
+          </div>
+        </div>
+        <div class="flex items-center justify-between text-xs">
+          <span class="text-gray-600 flex items-center gap-1.5"><i data-lucide="credit-card" class="w-3.5 h-3.5 text-purple-500"></i> 建设银行</span>
+          <div class="flex items-center gap-2">
+            <span class="px-1.5 py-0.5 bg-gray-100 text-gray-600 rounded font-medium">18天</span>
+            <span class="text-gray-400">还款日 6/15</span>
+          </div>
+        </div>
+      </div>
+      <p class="text-[10px] text-gray-400 mt-2 pt-2 border-t border-gray-50">免息天数 = 还款日 - 今天，账单日后消费享最长免息期</p>
+    </div>
+
+    <!-- Recent Transactions -->
+    <div class="flex items-center justify-between mb-2">
+      <p class="text-sm font-medium text-gray-800">最近交易</p>
+      <button class="text-xs text-amber-500">全部 →</button>
+    </div>
+    <div class="bg-white rounded-xl border border-gray-100 divide-y divide-gray-50">
+      <div class="flex items-center px-3 py-3">
+        <div class="w-8 h-8 bg-red-50 rounded-lg flex items-center justify-center mr-3"><i data-lucide="utensils" class="w-4 h-4 text-red-500"></i></div>
+        <div class="flex-1"><p class="text-sm text-gray-800">餐饮</p><p class="text-xs text-gray-400">午饭 · 今天</p></div>
+        <span class="text-sm font-medium text-red-500">-28.00</span>
+      </div>
+      <div class="flex items-center px-3 py-3">
+        <div class="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center mr-3"><i data-lucide="train-front" class="w-4 h-4 text-blue-500"></i></div>
+        <div class="flex-1"><p class="text-sm text-gray-800">交通</p><p class="text-xs text-gray-400">地铁通勤 · 今天</p></div>
+        <span class="text-sm font-medium text-red-500">-6.00</span>
+      </div>
+      <div class="flex items-center px-3 py-3">
+        <div class="w-8 h-8 bg-green-50 rounded-lg flex items-center justify-center mr-3"><i data-lucide="banknote" class="w-4 h-4 text-green-500"></i></div>
+        <div class="flex-1"><p class="text-sm text-gray-800">工资</p><p class="text-xs text-gray-400">6月薪资 · 今天</p></div>
+        <span class="text-sm font-medium text-green-500">+8,500</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- FAB -->
+  <div class="absolute bottom-6 right-6 w-14 h-14 bg-amber-500 rounded-full shadow-lg flex items-center justify-center text-white z-40">
+    <i data-lucide="plus" class="w-6 h-6"></i>
+  </div>
+</div>
+</div>
+</div>
+
+<!-- ====== 流水页（列表模式 + 日历切换）====== -->
+<div>
+<p class="text-xs font-medium text-gray-500 mb-3 text-center">流水 Tab - 列表视图 / 日历视图</p>
+<div class="phone-frame">
+<div class="phone-content flex flex-col h-full">
+  <!-- Header -->
+  <div class="px-4 pt-2 pb-2 shrink-0">
+    <div class="flex items-center justify-between mb-2">
+      <svg class="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd"/></svg>
+      <h1 class="text-lg font-bold text-gray-800">记账本</h1>
+      <div class="flex items-center gap-2">
+        <button class="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-500">全部 ▾</button>
+        <button onclick="toggleSearch()" class="text-gray-400"><svg class="w-4.5 h-4.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/></svg></button>
+      </div>
+    </div>
+    <!-- Top Tabs -->
+    <div class="flex border-b border-gray-200">
+      <button class="flex-1 py-2 text-sm font-medium text-center tab-active">流水</button>
+      <button class="flex-1 py-2 text-sm font-medium text-center text-gray-400">统计</button>
+      <button class="flex-1 py-2 text-sm font-medium text-center text-gray-400">资产</button>
+      <button class="flex-1 py-2 text-sm font-medium text-center text-gray-400">工具</button>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="flex-1 overflow-y-auto px-4 pb-20">
+    <!-- Month + View Toggle -->
+    <div class="flex items-center justify-between py-3">
+      <button class="text-gray-400 text-sm">&lt;</button>
+      <span class="text-sm font-medium text-gray-700">2026年6月</span>
+      <div class="flex items-center gap-3">
+        <button onclick="toggleCalendar()" id="cal-toggle" class="text-xs px-2 py-1 rounded bg-gray-100 text-gray-500 hover:bg-amber-50 hover:text-amber-600">日历</button>
+        <button class="text-gray-400 text-sm">&gt;</button>
+      </div>
+    </div>
+
+    <!-- Calendar View (hidden by default, toggle) -->
+    <div id="calendar-view" class="hidden mb-4">
+      <div class="bg-white rounded-xl border border-gray-100 p-3">
+        <!-- Weekday headers -->
+        <div class="grid grid-cols-7 text-center text-xs text-gray-400 mb-2">
+          <span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span>
+        </div>
+        <!-- Calendar grid -->
+        <div class="grid grid-cols-7 text-center text-xs gap-y-1">
+          <!-- Row 1: June starts on Sunday -->
+          <span class="w-8 h-8 flex items-center justify-center mx-auto cal-has-record">1</span>
+          <span class="w-8 h-8 flex items-center justify-center mx-auto">2</span>
+          <span class="w-8 h-8 flex items-center justify-center mx-auto cal-has-record">3</span>
+          <span class="w-8 h-8 flex items-center justify-center mx-auto">4</span>
+          <span class="w-8 h-8 flex items-center justify-center mx-auto cal-has-record">5</span>
+          <span class="w-8 h-8 flex items-center justify-center mx-auto cal-has-record">6</span>
+          <span class="w-8 h-8 flex items-center justify-center mx-auto">7</span>
+          <!-- Row 2 -->
+          <span class="w-8 h-8 flex items-center justify-center mx-auto cal-has-record">8</span>
+          <span class="w-8 h-8 flex items-center justify-center mx-auto cal-has-record">9</span>
+          <span class="w-8 h-8 flex items-center justify-center mx-auto cal-has-record">10</span>
+          <span class="w-8 h-8 flex items-center justify-center mx-auto cal-selected font-bold">11</span>
+          <span class="w-8 h-8 flex items-center justify-center mx-auto text-gray-300">12</span>
+          <span class="w-8 h-8 flex items-center justify-center mx-auto text-gray-300">13</span>
+          <span class="w-8 h-8 flex items-center justify-center mx-auto text-gray-300">14</span>
+          <!-- Row 3 -->
+          <span class="w-8 h-8 flex items-center justify-center mx-auto text-gray-300">15</span>
+          <span class="w-8 h-8 flex items-center justify-center mx-auto text-gray-300">16</span>
+          <span class="w-8 h-8 flex items-center justify-center mx-auto text-gray-300">17</span>
+          <span class="w-8 h-8 flex items-center justify-center mx-auto text-gray-300">18</span>
+          <span class="w-8 h-8 flex items-center justify-center mx-auto text-gray-300">19</span>
+          <span class="w-8 h-8 flex items-center justify-center mx-auto text-gray-300">20</span>
+          <span class="w-8 h-8 flex items-center justify-center mx-auto text-gray-300">21</span>
+          <!-- Row 4 -->
+          <span class="w-8 h-8 flex items-center justify-center mx-auto text-gray-300">22</span>
+          <span class="w-8 h-8 flex items-center justify-center mx-auto text-gray-300">23</span>
+          <span class="w-8 h-8 flex items-center justify-center mx-auto text-gray-300">24</span>
+          <span class="w-8 h-8 flex items-center justify-center mx-auto text-gray-300">25</span>
+          <span class="w-8 h-8 flex items-center justify-center mx-auto text-gray-300">26</span>
+          <span class="w-8 h-8 flex items-center justify-center mx-auto text-gray-300">27</span>
+          <span class="w-8 h-8 flex items-center justify-center mx-auto text-gray-300">28</span>
+          <!-- Row 5 -->
+          <span class="w-8 h-8 flex items-center justify-center mx-auto text-gray-300">29</span>
+          <span class="w-8 h-8 flex items-center justify-center mx-auto text-gray-300">30</span>
+        </div>
+        <!-- Selected day summary -->
+        <div class="mt-3 pt-3 border-t border-gray-100 flex justify-between text-xs">
+          <span class="text-gray-500">6月11日 周三</span>
+          <span class="text-gray-500">支出 <span class="text-red-500 font-medium">-34.00</span> | 收入 <span class="text-green-500 font-medium">+8,500</span></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Summary -->
+    <div class="grid grid-cols-3 text-center py-3 bg-gray-50 rounded-xl mb-4">
+      <div><p class="text-xs text-gray-400">收入</p><p class="text-sm font-semibold text-green-500">+8,500</p></div>
+      <div><p class="text-xs text-gray-400">支出</p><p class="text-sm font-semibold text-red-500">-3,280</p></div>
+      <div><p class="text-xs text-gray-400">结余</p><p class="text-sm font-semibold text-gray-700">+5,220</p></div>
+    </div>
+
+    <!-- Search/Filter bar (hidden by default) -->
+    <div id="search-bar" class="hidden mb-3 space-y-2">
+      <input type="text" placeholder="搜索备注或标签..." class="w-full px-3 py-2 bg-gray-50 rounded-lg text-sm border border-gray-200">
+      <div class="flex gap-2">
+        <select class="flex-1 px-2 py-1.5 bg-gray-50 rounded-lg text-xs border border-gray-200"><option>全部类型</option><option>支出</option><option>收入</option><option>转账</option></select>
+        <select class="flex-1 px-2 py-1.5 bg-gray-50 rounded-lg text-xs border border-gray-200"><option>全部分类</option><option>🍜 餐饮</option><option>🚇 交通</option></select>
+        <input type="number" placeholder="最低" class="w-16 px-2 py-1.5 bg-gray-50 rounded-lg text-xs border border-gray-200">
+        <input type="number" placeholder="最高" class="w-16 px-2 py-1.5 bg-gray-50 rounded-lg text-xs border border-gray-200">
+      </div>
+    </div>
+
+    <!-- Transaction list -->
+    <div class="space-y-3">
+      <div>
+        <div class="flex items-center justify-between px-1 mb-1.5">
+          <span class="text-xs text-gray-400">6月11日 周三</span>
+          <span class="text-xs text-gray-400">支 34 | 收 8,500</span>
+        </div>
+        <div class="bg-white rounded-xl border border-gray-100 divide-y divide-gray-50">
+          <div class="flex items-center px-3 py-3">
+            <span class="text-xl mr-3">🍜</span>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm text-gray-800">餐饮 <span class="text-gray-400 text-xs">- 午饭</span></p>
+              <span class="text-xs text-gray-400">微信</span>
+            </div>
+            <span class="text-sm font-medium text-red-500">-28.00</span>
+          </div>
+          <div class="flex items-center px-3 py-3">
+            <span class="text-xl mr-3">🚇</span>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm text-gray-800">交通 <span class="text-gray-400 text-xs">- 地铁</span></p>
+              <span class="text-xs text-gray-400">支付宝</span>
+            </div>
+            <span class="text-sm font-medium text-red-500">-6.00</span>
+          </div>
+          <div class="flex items-center px-3 py-3">
+            <span class="text-xl mr-3">💰</span>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm text-gray-800">工资 <span class="text-gray-400 text-xs">- 6月</span></p>
+              <span class="text-xs text-gray-400">工商银行</span>
+            </div>
+            <span class="text-sm font-medium text-green-500">+8,500.00</span>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="flex items-center justify-between px-1 mb-1.5">
+          <span class="text-xs text-gray-400">6月10日 周二</span>
+          <span class="text-xs text-gray-400">支 192</span>
+        </div>
+        <div class="bg-white rounded-xl border border-gray-100 divide-y divide-gray-50">
+          <div class="flex items-center px-3 py-3">
+            <span class="text-xl mr-3">🛒</span>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm text-gray-800">购物 <span class="text-gray-400 text-xs">- 超市</span></p>
+              <div class="flex gap-1 mt-0.5"><span class="text-[10px] px-1.5 py-0 bg-blue-50 text-blue-500 rounded">#日用</span></div>
+            </div>
+            <span class="text-sm font-medium text-red-500">-156.80</span>
+          </div>
+          <div class="flex items-center px-3 py-3">
+            <span class="text-xl mr-3">🍜</span>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm text-gray-800">餐饮 <span class="text-gray-400 text-xs">- 外卖</span></p>
+              <div class="flex gap-1 mt-0.5"><span class="text-[10px] px-1.5 py-0 bg-orange-50 text-orange-500 rounded">待报销</span></div>
+            </div>
+            <span class="text-sm font-medium text-red-500">-35.00</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Undo toast demo -->
+    <div class="mt-4 bg-gray-800 text-white px-4 py-2.5 rounded-lg flex items-center gap-3 text-sm">
+      <span>已删除</span>
+      <button class="text-amber-400 font-medium">撤销</button>
+      <span class="text-gray-400 text-xs">5秒后生效</span>
+    </div>
+  </div>
+
+  <!-- FAB -->
+  <div class="absolute bottom-6 right-6 w-14 h-14 bg-amber-500 rounded-full shadow-lg flex items-center justify-center text-white text-2xl z-40">+</div>
+</div>
+</div>
+</div>
+
+<!-- ====== 记一笔（FAB 点击后） ====== -->
+<div>
+<p class="text-xs font-medium text-gray-500 mb-3 text-center">记一笔 - 含常用模板/智能推荐/分期/拆分</p>
+<div class="phone-frame">
+<div class="phone-content px-4 pb-6">
+  <div class="flex items-center justify-between pt-2 pb-3">
+    <button class="text-gray-400 text-sm">取消</button>
+    <h1 class="text-base font-bold text-gray-800">记一笔</h1>
+    <button class="text-amber-500 text-sm font-medium">保存</button>
+  </div>
+
+  <!-- Type Toggle -->
+  <div class="flex rounded-lg bg-gray-100 p-1 mb-4">
+    <button class="flex-1 py-2 text-sm rounded-md bg-red-500 text-white font-medium">支出</button>
+    <button class="flex-1 py-2 text-sm rounded-md text-gray-500">收入</button>
+    <button class="flex-1 py-2 text-sm rounded-md text-gray-500">转账</button>
+  </div>
+
+  <!-- Quick Templates -->
+  <div class="mb-4">
+    <p class="text-xs text-gray-400 mb-2">常用模板</p>
+    <div class="flex gap-2 overflow-x-auto pb-1">
+      <button class="flex-shrink-0 px-3 py-1.5 bg-white border border-gray-100 rounded-lg text-xs hover:border-amber-300">🍜 午饭 <span class="text-gray-400">28</span></button>
+      <button class="flex-shrink-0 px-3 py-1.5 bg-white border border-gray-100 rounded-lg text-xs hover:border-amber-300">🚇 通勤 <span class="text-gray-400">6</span></button>
+      <button class="flex-shrink-0 px-3 py-1.5 bg-white border border-gray-100 rounded-lg text-xs hover:border-amber-300">☕ 咖啡 <span class="text-gray-400">18</span></button>
+    </div>
+  </div>
+
+  <!-- Amount -->
+  <input type="text" placeholder="0.00" class="w-full text-3xl font-bold text-center py-3 border-b-2 border-gray-200 bg-transparent focus:outline-none focus:border-amber-500 mb-4">
+
+  <!-- Category Grid -->
+  <p class="text-xs text-gray-400 mb-2">分类</p>
+  <div class="grid grid-cols-5 gap-2 mb-4">
+    <div class="flex flex-col items-center py-2 rounded-lg bg-amber-50 border border-amber-300 text-xs"><span class="text-lg">🍜</span><span class="mt-0.5 text-gray-600">餐饮</span></div>
+    <div class="flex flex-col items-center py-2 rounded-lg bg-gray-50 text-xs"><span class="text-lg">🚇</span><span class="mt-0.5 text-gray-600">交通</span></div>
+    <div class="flex flex-col items-center py-2 rounded-lg bg-gray-50 text-xs"><span class="text-lg">🛒</span><span class="mt-0.5 text-gray-600">购物</span></div>
+    <div class="flex flex-col items-center py-2 rounded-lg bg-gray-50 text-xs"><span class="text-lg">🧴</span><span class="mt-0.5 text-gray-600">日用</span></div>
+    <div class="flex flex-col items-center py-2 rounded-lg bg-gray-50 text-xs"><span class="text-lg">🎬</span><span class="mt-0.5 text-gray-600">娱乐</span></div>
+    <div class="flex flex-col items-center py-2 rounded-lg bg-gray-50 text-xs"><span class="text-lg">🏠</span><span class="mt-0.5 text-gray-600">住房</span></div>
+    <div class="flex flex-col items-center py-2 rounded-lg bg-gray-50 text-xs"><span class="text-lg">💊</span><span class="mt-0.5 text-gray-600">医疗</span></div>
+    <div class="flex flex-col items-center py-2 rounded-lg bg-gray-50 text-xs"><span class="text-lg">📚</span><span class="mt-0.5 text-gray-600">教育</span></div>
+    <div class="flex flex-col items-center py-2 rounded-lg bg-gray-50 text-xs"><span class="text-lg">🎁</span><span class="mt-0.5 text-gray-600">人情</span></div>
+    <div class="flex flex-col items-center py-2 rounded-lg bg-gray-50 text-xs"><span class="text-lg">📌</span><span class="mt-0.5 text-gray-600">其他</span></div>
+  </div>
+
+  <!-- Smart suggestion -->
+  <div class="mb-3 px-3 py-2 bg-amber-50 rounded-lg border border-amber-200">
+    <p class="text-xs text-amber-700">智能推荐: <span class="font-medium">🍜 餐饮</span> ← 基于备注"午饭"</p>
+  </div>
+
+  <!-- Account + Date -->
+  <div class="grid grid-cols-2 gap-3 mb-3">
+    <div>
+      <p class="text-xs text-gray-400 mb-1">账户</p>
+      <select class="w-full px-3 py-2 rounded-lg border border-gray-200 bg-white text-sm"><option>💬 微信</option><option>🔵 支付宝</option><option>💵 现金</option></select>
+    </div>
+    <div>
+      <p class="text-xs text-gray-400 mb-1">日期</p>
+      <input type="date" value="2026-06-11" class="w-full px-3 py-2 rounded-lg border border-gray-200 bg-white text-sm">
+    </div>
+  </div>
+
+  <!-- Note -->
+  <input type="text" value="午饭" class="w-full px-3 py-2 rounded-lg border border-gray-200 bg-white text-sm mb-3" placeholder="备注">
+
+  <!-- Tags -->
+  <div class="flex gap-1.5 mb-3">
+    <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-50 text-blue-600 rounded text-xs">#工作餐 <button class="text-blue-400">&times;</button></span>
+    <input type="text" placeholder="标签(回车添加)" class="flex-1 px-2 py-1 rounded border border-gray-200 text-xs">
+  </div>
+
+  <!-- Options -->
+  <div class="flex items-center gap-4 mb-4 flex-wrap">
+    <label class="flex items-center gap-1.5 text-xs text-gray-500"><input type="checkbox" class="rounded"> 分期记账</label>
+    <label class="flex items-center gap-1.5 text-xs text-gray-500"><input type="checkbox" class="rounded"> 拆分账单</label>
+    <label class="flex items-center gap-1.5 text-xs text-gray-500"><input type="checkbox" class="rounded"> 不计入统计</label>
+  </div>
+
+  <!-- Reimbursement -->
+  <div class="flex items-center gap-2 mb-4">
+    <p class="text-xs text-gray-400">报销:</p>
+    <select class="px-2 py-1 text-xs rounded border border-gray-200 bg-white"><option>无需报销</option><option>待报销</option><option>已报销</option></select>
+  </div>
+
+  <!-- Submit -->
+  <button class="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-medium">记一笔</button>
+  <p class="text-xs text-gray-400 text-center mt-2">保存后自动添加到常用模板</p>
+</div>
+</div>
+</div>
+
+<!-- ====== 工具页 ====== -->
+<div>
+<p class="text-xs font-medium text-gray-500 mb-3 text-center">工具 Tab - 完整功能入口</p>
+<div class="phone-frame">
+<div class="phone-content px-4 pb-6">
+  <div class="px-0 pt-2 pb-2">
+    <div class="flex items-center justify-between mb-2">
+      <svg class="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd"/></svg>
+      <h1 class="text-lg font-bold text-gray-800">记账本</h1>
+      <span class="w-5"></span>
+    </div>
+    <div class="flex border-b border-gray-200">
+      <button class="flex-1 py-2 text-sm font-medium text-center text-gray-400">流水</button>
+      <button class="flex-1 py-2 text-sm font-medium text-center text-gray-400">统计</button>
+      <button class="flex-1 py-2 text-sm font-medium text-center text-gray-400">资产</button>
+      <button class="flex-1 py-2 text-sm font-medium text-center tab-active">工具</button>
+    </div>
+  </div>
+
+  <!-- Tools Grid -->
+  <p class="text-xs text-gray-400 mt-4 mb-3">记账工具</p>
+  <div class="grid grid-cols-4 gap-4 mb-6">
+    <div class="flex flex-col items-center gap-1.5"><div class="w-12 h-12 bg-amber-50 rounded-xl flex items-center justify-center text-xl shadow-sm">📊</div><span class="text-[11px] text-gray-600">预算</span></div>
+    <div class="flex flex-col items-center gap-1.5"><div class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center text-xl shadow-sm">🔄</div><span class="text-[11px] text-gray-600">周期记账</span></div>
+    <div class="flex flex-col items-center gap-1.5"><div class="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center text-xl shadow-sm">🤝</div><span class="text-[11px] text-gray-600">借还</span></div>
+    <div class="flex flex-col items-center gap-1.5"><div class="w-12 h-12 bg-red-50 rounded-xl flex items-center justify-center text-xl shadow-sm">🎯</div><span class="text-[11px] text-gray-600">攒钱目标</span></div>
+    <div class="flex flex-col items-center gap-1.5"><div class="w-12 h-12 bg-purple-50 rounded-xl flex items-center justify-center text-xl shadow-sm">📅</div><span class="text-[11px] text-gray-600">日历</span></div>
+    <div class="flex flex-col items-center gap-1.5"><div class="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center text-xl shadow-sm">📈</div><span class="text-[11px] text-gray-600">资产趋势</span></div>
+    <div class="flex flex-col items-center gap-1.5"><div class="w-12 h-12 bg-cyan-50 rounded-xl flex items-center justify-center text-xl shadow-sm">⚡</div><span class="text-[11px] text-gray-600">常用模板</span></div>
+    <div class="flex flex-col items-center gap-1.5"><div class="w-12 h-12 bg-pink-50 rounded-xl flex items-center justify-center text-xl shadow-sm">💳</div><span class="text-[11px] text-gray-600">还款提醒</span></div>
+  </div>
+
+  <p class="text-xs text-gray-400 mb-3">数据管理</p>
+  <div class="grid grid-cols-4 gap-4 mb-6">
+    <div class="flex flex-col items-center gap-1.5"><div class="w-12 h-12 bg-teal-50 rounded-xl flex items-center justify-center text-xl shadow-sm">📥</div><span class="text-[11px] text-gray-600">导入</span></div>
+    <div class="flex flex-col items-center gap-1.5"><div class="w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center text-xl shadow-sm">📤</div><span class="text-[11px] text-gray-600">导出</span></div>
+    <div class="flex flex-col items-center gap-1.5"><div class="w-12 h-12 bg-gray-50 rounded-xl flex items-center justify-center text-xl shadow-sm">📚</div><span class="text-[11px] text-gray-600">账本</span></div>
+    <div class="flex flex-col items-center gap-1.5"><div class="w-12 h-12 bg-gray-50 rounded-xl flex items-center justify-center text-xl shadow-sm">🏷️</div><span class="text-[11px] text-gray-600">分类管理</span></div>
+  </div>
+
+  <!-- Budget preview card -->
+  <p class="text-xs text-gray-400 mb-2">本月预算概览</p>
+  <div class="bg-white rounded-xl border border-gray-100 p-4 space-y-3">
+    <div>
+      <div class="flex justify-between text-xs mb-1"><span class="text-gray-600">🍜 餐饮</span><span class="text-gray-400">¥980 / ¥1,500</span></div>
+      <div class="h-2 bg-gray-100 rounded-full"><div class="h-2 bg-amber-400 rounded-full" style="width:65%"></div></div>
+    </div>
+    <div>
+      <div class="flex justify-between text-xs mb-1"><span class="text-gray-600">🚇 交通</span><span class="text-red-400 font-medium">¥420 / ¥500 (84%)</span></div>
+      <div class="h-2 bg-gray-100 rounded-full"><div class="h-2 bg-red-400 rounded-full" style="width:84%"></div></div>
+    </div>
+    <div>
+      <div class="flex justify-between text-xs mb-1"><span class="text-gray-600">🎬 娱乐</span><span class="text-gray-400">¥200 / ¥800</span></div>
+      <div class="h-2 bg-gray-100 rounded-full"><div class="h-2 bg-green-400 rounded-full" style="width:25%"></div></div>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+
+</div>
+
+<!-- Feature comparison table -->
+<div class="max-w-4xl mx-auto mt-12 mb-8">
+  <h2 class="text-lg font-bold text-gray-800 mb-4 text-center">功能完整性对比</h2>
+  <table class="w-full text-sm border-collapse">
+    <thead><tr class="bg-gray-100"><th class="p-2 text-left">功能</th><th class="p-2 text-center">旧版(etf-copilot)</th><th class="p-2 text-center">当前(my-toolbox)</th><th class="p-2 text-center">方案B(目标)</th></tr></thead>
+    <tbody class="divide-y divide-gray-100">
+      <tr><td class="p-2">基础记账(支出/收入/转账)</td><td class="p-2 text-center text-green-500">✓</td><td class="p-2 text-center text-green-500">✓</td><td class="p-2 text-center text-green-500">✓</td></tr>
+      <tr><td class="p-2">日历视图(月历高亮+点击日期)</td><td class="p-2 text-center text-red-400">✗</td><td class="p-2 text-center text-red-400">✗</td><td class="p-2 text-center text-green-500 font-bold">✓ 新增</td></tr>
+      <tr><td class="p-2">常用模板(快速复用)</td><td class="p-2 text-center text-green-500">✓</td><td class="p-2 text-center text-red-400">✗</td><td class="p-2 text-center text-green-500 font-bold">✓ 补回</td></tr>
+      <tr><td class="p-2">撤销删除(5秒)</td><td class="p-2 text-center text-green-500">✓</td><td class="p-2 text-center text-red-400">✗</td><td class="p-2 text-center text-green-500 font-bold">✓ 补回</td></tr>
+      <tr><td class="p-2">智能分类推荐</td><td class="p-2 text-center text-green-500">✓</td><td class="p-2 text-center text-red-400">✗</td><td class="p-2 text-center text-green-500 font-bold">✓ 补回</td></tr>
+      <tr><td class="p-2">报销状态(待报销/已报销)</td><td class="p-2 text-center text-green-500">✓</td><td class="p-2 text-center text-gray-400">部分</td><td class="p-2 text-center text-green-500 font-bold">✓ 完善</td></tr>
+      <tr><td class="p-2">退款关联</td><td class="p-2 text-center text-green-500">✓</td><td class="p-2 text-center text-gray-400">部分</td><td class="p-2 text-center text-green-500 font-bold">✓ 完善</td></tr>
+      <tr><td class="p-2">标签筛选 + 金额范围</td><td class="p-2 text-center text-green-500">✓</td><td class="p-2 text-center text-red-400">✗</td><td class="p-2 text-center text-green-500 font-bold">✓ 补回</td></tr>
+      <tr><td class="p-2">分期记账</td><td class="p-2 text-center text-green-500">✓</td><td class="p-2 text-center text-red-400">✗</td><td class="p-2 text-center text-green-500 font-bold">✓ 补回</td></tr>
+      <tr><td class="p-2">拆分账单</td><td class="p-2 text-center text-green-500">✓</td><td class="p-2 text-center text-red-400">✗</td><td class="p-2 text-center text-green-500 font-bold">✓ 补回</td></tr>
+      <tr><td class="p-2">信用卡还款提醒</td><td class="p-2 text-center text-red-400">✗</td><td class="p-2 text-center text-red-400">✗</td><td class="p-2 text-center text-green-500 font-bold">✓ 新增</td></tr>
+      <tr><td class="p-2">不计入统计标记</td><td class="p-2 text-center text-green-500">✓</td><td class="p-2 text-center text-green-500">✓</td><td class="p-2 text-center text-green-500">✓</td></tr>
+      <tr><td class="p-2">资产趋势</td><td class="p-2 text-center text-green-500">✓</td><td class="p-2 text-center text-green-500">✓</td><td class="p-2 text-center text-green-500">✓</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<script>
+lucide.createIcons();
+function toggleCalendar() {
+  const cal = document.getElementById('calendar-view');
+  const btn = document.getElementById('cal-toggle');
+  cal.classList.toggle('hidden');
+  if (!cal.classList.contains('hidden')) {
+    btn.classList.add('bg-amber-500', 'text-white');
+    btn.classList.remove('bg-gray-100', 'text-gray-500');
+  } else {
+    btn.classList.remove('bg-amber-500', 'text-white');
+    btn.classList.add('bg-gray-100', 'text-gray-500');
+  }
+}
+function toggleSearch() {
+  document.getElementById('search-bar').classList.toggle('hidden');
+}
+</script>
+
+</body>
+</html>

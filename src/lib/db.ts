@@ -104,7 +104,6 @@ export interface Portfolio {
   name: string
   cash: number
   initial_capital: number
-  positions: Array<{ code: string; name: string; shares: number; cost: number; sector: string }>
   created_at: string
 }
 
@@ -117,18 +116,32 @@ export interface TradeRecord {
   shares: number
   price: number
   fee: number
+  reason: string
+  order_id: number | null
+  position_id: number | null
   date: string
   created_at: string
 }
 
 export interface AnalysisRecord {
   id?: number
-  articles: string[] // 多篇文章原文
+  articles: string[]
   market_view: string
   main_sectors: string[]
   core_logic: string
   etf_mapping: Record<string, string[]>
-  orders: Array<{ code: string; name: string; direction: string; trigger_price: number; position_pct: number }>
+  orders: Array<{
+    code: string
+    name: string
+    direction: string
+    trigger_price: number
+    position_pct: number
+    stop_loss_pct: number
+    trailing_pct: number
+    activation_pct: number
+    max_hold_days: number
+    reason: string
+  }>
   created_at: string
 }
 
@@ -138,11 +151,44 @@ export interface PendingOrder {
   analysis_id: number | null
   code: string
   name: string
-  direction: 'buy' | 'sell'
+  direction: 'buy'
   trigger_price: number
-  shares: number
-  status: 'pending' | 'triggered' | 'cancelled'
+  position_pct: number
+  stop_loss_pct: number
+  trailing_pct: number
+  activation_pct: number
+  max_hold_days: number
+  reason: string
+  status: 'pending' | 'executed' | 'cancelled'
+  cancel_reason: 'superseded' | 'manual' | 'has_position' | null
+  executed_price: number | null
+  executed_shares: number | null
+  executed_at: string | null
   created_at: string
+}
+
+export interface ActivePosition {
+  id?: number
+  portfolio_id: number
+  order_id: number
+  analysis_id: number | null
+  code: string
+  name: string
+  buy_price: number
+  shares: number
+  remaining_shares: number
+  highest_price: number
+  buy_date: string
+  stop_loss_pct: number
+  trailing_pct: number
+  activation_pct: number
+  max_hold_days: number
+  status: 'holding' | 'closed'
+  close_reason: 'stop_loss' | 'trailing_stop' | 'extreme_rally' | 'max_hold' | 'manual' | null
+  close_price: number | null
+  close_date: string | null
+  pnl: number | null
+  pnl_pct: number | null
 }
 
 export interface WatchlistItem {
@@ -154,12 +200,24 @@ export interface WatchlistItem {
 }
 
 // ===== 旅行清单模块 =====
+export interface TemplateCategory {
+  name: string
+  icon: string
+  items: string[]
+}
+
 export interface TravelTemplate {
   id?: number
   name: string
   icon: string
-  items: string[]
+  categories: TemplateCategory[]
   created_at: string
+}
+
+export interface ChecklistCategory {
+  name: string
+  icon: string
+  items: Array<{ text: string; checked: boolean }>
 }
 
 export interface TravelChecklist {
@@ -167,8 +225,9 @@ export interface TravelChecklist {
   template_id: number | null
   name: string
   icon: string
-  items: Array<{ text: string; checked: boolean }>
+  categories: ChecklistCategory[]
   trip_date: string | null
+  is_archived: boolean
   created_at: string
 }
 
@@ -188,6 +247,7 @@ class ToolboxDB extends Dexie {
   trades!: Table<TradeRecord>
   analyses!: Table<AnalysisRecord>
   pendingOrders!: Table<PendingOrder>
+  activePositions!: Table<ActivePosition>
   watchlist!: Table<WatchlistItem>
   // 旅行
   travelTemplates!: Table<TravelTemplate>
@@ -214,6 +274,16 @@ class ToolboxDB extends Dexie {
       // 旅行
       travelTemplates: '++id',
       travelChecklists: '++id, template_id',
+    })
+
+    this.version(2).stores({
+      trades: '++id, portfolio_id, code, date, order_id, position_id',
+      pendingOrders: '++id, portfolio_id, analysis_id, status, code',
+      activePositions: '++id, portfolio_id, order_id, code, status, buy_date',
+    })
+
+    this.version(3).stores({
+      travelChecklists: '++id, template_id, is_archived',
     })
   }
 }
@@ -260,7 +330,47 @@ export async function initDefaultData() {
     name: '默认模拟仓',
     cash: 50000,
     initial_capital: 50000,
-    positions: [],
     created_at: new Date().toISOString(),
   })
+
+  // 默认旅行模板
+  await db.travelTemplates.bulkAdd([
+    {
+      name: '出差3天',
+      icon: '💼',
+      categories: [
+        { name: '证件', icon: '📋', items: ['身份证', '工牌', '银行卡', '钥匙'] },
+        { name: '衣物', icon: '👔', items: ['衬衫×2', '内衣×3', '袜子×3', '睡衣'] },
+        { name: '洗漱', icon: '🧴', items: ['牙刷', '牙膏', '洗面奶', '毛巾', '剃须刀'] },
+        { name: '电子', icon: '🔌', items: ['充电器', '数据线', '充电宝', '耳机', '笔记本'] },
+        { name: '其他', icon: '📦', items: ['水杯', '纸巾', '雨伞'] },
+      ],
+      created_at: new Date().toISOString(),
+    },
+    {
+      name: '旅行一周',
+      icon: '🏖️',
+      categories: [
+        { name: '证件', icon: '📋', items: ['身份证', '护照', '银行卡', '现金', '钥匙'] },
+        { name: '衣物', icon: '👕', items: ['T恤×4', '裤子×3', '内衣×5', '袜子×5', '睡衣', '泳衣', '外套'] },
+        { name: '洗漱', icon: '🧴', items: ['牙刷', '牙膏', '洗面奶', '防晒霜', '洗发水', '沐浴露', '毛巾'] },
+        { name: '电子', icon: '🔌', items: ['充电器', '数据线', '充电宝', '耳机', '相机'] },
+        { name: '药品', icon: '💊', items: ['感冒药', '肠胃药', '创可贴', '防蚊液'] },
+        { name: '其他', icon: '📦', items: ['水杯', '零食', '纸巾', '雨伞', '塑料袋'] },
+      ],
+      created_at: new Date().toISOString(),
+    },
+    {
+      name: '露营',
+      icon: '🏕️',
+      categories: [
+        { name: '装备', icon: '⛺', items: ['帐篷', '睡袋', '防潮垫', '营地灯', '折叠椅', '折叠桌'] },
+        { name: '炊具', icon: '🍳', items: ['炉头', '气罐', '锅具', '餐具', '水壶', '打火机'] },
+        { name: '衣物', icon: '🧥', items: ['冲锋衣', '抓绒衣', '速干裤', '帽子', '手套', '换洗内衣'] },
+        { name: '食物', icon: '🥫', items: ['饮用水', '主食', '零食', '调料', '垃圾袋'] },
+        { name: '其他', icon: '📦', items: ['急救包', '防蚊液', '头灯', '刀具', '充电宝', '纸巾'] },
+      ],
+      created_at: new Date().toISOString(),
+    },
+  ])
 }

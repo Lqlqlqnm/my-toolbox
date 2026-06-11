@@ -42,9 +42,13 @@ export interface AnalysisResult {
   orders: Array<{
     code: string
     name: string
-    direction: string
+    direction: 'buy'
     trigger_price: number
     position_pct: number
+    stop_loss_pct: number
+    trailing_pct: number
+    activation_pct: number
+    max_hold_days: number
     reason: string
   }>
 }
@@ -72,20 +76,34 @@ export async function analyzeArticles(articles: string[]): Promise<AnalysisResul
   },
   "orders": [
     {
-      "code": "ETF代码",
+      "code": "ETF代码(6位数字)",
       "name": "ETF名称",
-      "direction": "买入/卖出",
+      "direction": "buy",
       "trigger_price": 1.234,
       "position_pct": 20,
-      "reason": "触发理由"
+      "stop_loss_pct": 5,
+      "trailing_pct": 3,
+      "activation_pct": 8,
+      "max_hold_days": 15,
+      "reason": "买入理由"
     }
   ]
 }
 
+参数说明与要求：
+- code: ETF代码为6位数字（如510300、159919）
+- direction: 固定为 "buy"（卖出由系统规则自动管理）
+- trigger_price: 建议买入触发价位
+- position_pct: 建议仓位百分比（5-30）
+- stop_loss_pct: 止损比例，宽基ETF给3-5%，行业ETF给5-8%
+- trailing_pct: 移动止盈回撤比例，宽基ETF给3%，行业ETF给4-5%
+- activation_pct: 移动止盈启动门槛，信号强给8-15%，信号弱给5-8%
+- max_hold_days: 最大持仓天数，短期逻辑给5-10天，中期逻辑给10-20天
+- reason: 一句话说明买入理由
+
 注意：
-- ETF代码为6位数字（如510300、159919）
-- trigger_price 为建议触发价位
-- position_pct 为建议仓位百分比（1-40）
+- 请根据ETF品种特性（宽基vs行业vs跨境）灵活调整参数
+- 信号越强，activation_pct越高（给更多上涨空间），trailing_pct越宽（容忍更大回撤）
 - 如果文章没有明确交易信号，orders 可以为空数组
 - 请基于文章内容给出合理判断，不要编造`
 

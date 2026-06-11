@@ -102,7 +102,7 @@ export default function DataIO() {
           <select value={importAccountId ?? ''} onChange={e => setImportAccountId(Number(e.target.value))}
             className="w-full mt-1 px-3 py-2 bg-gray-50 dark:bg-gray-700 rounded-lg text-sm border border-gray-200 dark:border-gray-600">
             {accounts.map(a => (
-              <option key={a.id} value={a.id!}>{a.icon} {a.name}</option>
+              <option key={a.id} value={a.id!}>{a.name}</option>
             ))}
           </select>
         </div>

@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { useState, useEffect, useMemo } from 'react'
 import { db, type Transaction, type Category, type Account, type Book } from '../../lib/db'
+import CategoryIcon from '../../components/CategoryIcon'
 
 const PAGE_SIZE = 30
 
@@ -293,7 +294,7 @@ export default function Dashboard() {
             >
               <option value="all">全部分类</option>
               {categories.filter(c => filterType === 'all' || c.type === filterType).map(c => (
-                <option key={c.id} value={c.id!}>{c.icon} {c.name}</option>
+                <option key={c.id} value={c.id!}>{c.name}</option>
               ))}
             </select>
           </div>
@@ -422,8 +423,8 @@ export default function Dashboard() {
                           className="mr-3 w-4 h-4 text-amber-500 rounded"
                         />
                       )}
-                      <span className="text-xl mr-3">
-                        {t.type === 'transfer' ? '🔄' : cat?.icon || '📌'}
+                      <span className="mr-3 text-gray-600 dark:text-gray-300">
+                        {t.type === 'transfer' ? '🔄' : <CategoryIcon icon={cat?.icon || 'pin'} size={22} />}
                       </span>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm text-gray-800 dark:text-gray-100 truncate">
@@ -521,7 +522,7 @@ export default function Dashboard() {
                     className="w-full mt-1 px-3 py-2 bg-gray-50 dark:bg-gray-700 rounded-lg text-sm border border-gray-200 dark:border-gray-600">
                     <option value="">未分类</option>
                     {categories.filter(c => c.type === editingTx.type).map(c => (
-                      <option key={c.id} value={c.id!}>{c.icon} {c.name}</option>
+                      <option key={c.id} value={c.id!}>{c.name}</option>
                     ))}
                   </select>
                 </div>

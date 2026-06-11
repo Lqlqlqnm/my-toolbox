@@ -1,12 +1,13 @@
 import { Link } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { db, type SavingsGoal } from '../../lib/db'
+import CategoryIcon, { goalIconKeys } from '../../components/CategoryIcon'
 
 export default function SavingsGoals() {
   const [goals, setGoals] = useState<SavingsGoal[]>([])
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState<number | null>(null)
-  const [form, setForm] = useState({ name: '', icon: '🎯', target: '', current: '0', deadline: '' })
+  const [form, setForm] = useState({ name: '', icon: 'target', target: '', current: '0', deadline: '' })
 
   useEffect(() => { loadData() }, [])
 
@@ -16,7 +17,7 @@ export default function SavingsGoals() {
   }
 
   function openAdd() {
-    setForm({ name: '', icon: '🎯', target: '', current: '0', deadline: '' })
+    setForm({ name: '', icon: 'target', target: '', current: '0', deadline: '' })
     setEditingId(null)
     setShowForm(true)
   }
@@ -58,7 +59,7 @@ export default function SavingsGoals() {
   const totalSaved = goals.reduce((s, g) => s + g.current, 0)
   const totalTarget = goals.reduce((s, g) => s + g.target, 0)
 
-  const iconOptions = ['🎯', '🏠', '🚗', '✈️', '💻', '📱', '👗', '💍', '🎓', '🏖️', '🎮', '💰']
+  const iconOptions = goalIconKeys
 
   return (
     <main className="max-w-lg mx-auto px-4 py-4">
@@ -96,7 +97,7 @@ export default function SavingsGoals() {
               <div key={g.id} className={`bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border ${isComplete ? 'border-green-200 dark:border-green-800' : 'border-gray-100 dark:border-gray-700'}`}>
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
-                    <span className="text-2xl">{g.icon}</span>
+                    <span className="text-gray-600 dark:text-gray-300"><CategoryIcon icon={g.icon} size={26} /></span>
                     <div>
                       <p className="text-sm font-medium text-gray-800 dark:text-gray-100">{g.name}</p>
                       {g.deadline && (
@@ -157,9 +158,9 @@ export default function SavingsGoals() {
                     <button
                       key={ico}
                       onClick={() => setForm({ ...form, icon: ico })}
-                      className={`w-9 h-9 rounded-lg text-lg flex items-center justify-center ${form.icon === ico ? 'ring-2 ring-amber-400 bg-amber-50 dark:bg-amber-900/30' : 'bg-gray-50 dark:bg-gray-700'}`}
+                      className={`w-9 h-9 rounded-lg flex items-center justify-center text-gray-600 dark:text-gray-300 ${form.icon === ico ? 'ring-2 ring-amber-400 bg-amber-50 dark:bg-amber-900/30' : 'bg-gray-50 dark:bg-gray-700'}`}
                     >
-                      {ico}
+                      <CategoryIcon icon={ico} size={18} />
                     </button>
                   ))}
                 </div>

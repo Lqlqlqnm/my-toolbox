@@ -1,13 +1,14 @@
 import { Link } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { db, type Category } from '../../lib/db'
+import CategoryIcon, { categoryIconKeys } from '../../components/CategoryIcon'
 
 export default function Categories() {
   const [categories, setCategories] = useState<Category[]>([])
   const [viewType, setViewType] = useState<'expense' | 'income'>('expense')
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState<number | null>(null)
-  const [form, setForm] = useState({ name: '', icon: '📌', parent_id: null as number | null })
+  const [form, setForm] = useState({ name: '', icon: 'pin', parent_id: null as number | null })
   const [expandedIds, setExpandedIds] = useState<Set<number>>(new Set())
 
   useEffect(() => { loadData() }, [])
@@ -30,7 +31,7 @@ export default function Categories() {
   }
 
   function openAdd(parentId: number | null = null) {
-    setForm({ name: '', icon: '📌', parent_id: parentId })
+    setForm({ name: '', icon: 'pin', parent_id: parentId })
     setEditingId(null)
     setShowForm(true)
   }
@@ -85,7 +86,7 @@ export default function Categories() {
     loadData()
   }
 
-  const iconOptions = ['🍜', '🚇', '🛒', '🧴', '🎬', '🏠', '💊', '📚', '🎁', '📌', '☕', '🍺', '🐱', '💇', '🏋️', '📱', '🚗', '✈️', '🎵', '👕', '💰', '🏆', '📈', '🧧', '📋', '💼', '🎮', '🏖️']
+  const iconOptions = categoryIconKeys
 
   return (
     <main className="max-w-lg mx-auto px-4 py-4">
@@ -134,7 +135,7 @@ export default function Categories() {
                       </svg>
                     </button>
                   ) : <span className="w-5 mr-1" />}
-                  <span className="text-xl mr-3">{c.icon}</span>
+                  <span className="mr-3 text-gray-600 dark:text-gray-300"><CategoryIcon icon={c.icon} size={22} /></span>
                   <span className="flex-1 text-sm text-gray-800 dark:text-gray-100">{c.name}</span>
                   <div className="flex items-center gap-1.5">
                     <button onClick={() => openAdd(c.id!)} className="text-gray-300 hover:text-green-500" title="添加子分类">
@@ -167,7 +168,7 @@ export default function Categories() {
                 {/* Children */}
                 {isExpanded && children.map((child, cidx) => (
                   <div key={child.id} className="flex items-center px-4 py-2.5 pl-12 bg-gray-50/50 dark:bg-gray-750 border-t border-gray-50 dark:border-gray-700">
-                    <span className="text-lg mr-3">{child.icon}</span>
+                    <span className="mr-3 text-gray-500 dark:text-gray-400"><CategoryIcon icon={child.icon} size={18} /></span>
                     <span className="flex-1 text-sm text-gray-600 dark:text-gray-300">{child.name}</span>
                     <div className="flex items-center gap-1.5">
                       <button onClick={() => openEdit(child)} className="text-gray-300 hover:text-amber-500">
@@ -204,9 +205,9 @@ export default function Categories() {
                     <button
                       key={ico}
                       onClick={() => setForm({ ...form, icon: ico })}
-                      className={`w-9 h-9 rounded-lg text-lg flex items-center justify-center ${form.icon === ico ? 'ring-2 ring-amber-400 bg-amber-50 dark:bg-amber-900/30' : 'bg-gray-50 dark:bg-gray-700'}`}
+                      className={`w-9 h-9 rounded-lg flex items-center justify-center text-gray-600 dark:text-gray-300 ${form.icon === ico ? 'ring-2 ring-amber-400 bg-amber-50 dark:bg-amber-900/30' : 'bg-gray-50 dark:bg-gray-700'}`}
                     >
-                      {ico}
+                      <CategoryIcon icon={ico} size={18} />
                     </button>
                   ))}
                 </div>
@@ -225,7 +226,7 @@ export default function Categories() {
                 >
                   <option value="">无（顶级分类）</option>
                   {topLevel.filter(c => c.id !== editingId).map(c => (
-                    <option key={c.id} value={c.id!}>{c.icon} {c.name}</option>
+                    <option key={c.id} value={c.id!}>{c.name}</option>
                   ))}
                 </select>
               </div>

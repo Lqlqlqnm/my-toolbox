@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { useState, useEffect, useMemo } from 'react'
 import { db, type Budget, type Category, type Transaction } from '../../lib/db'
+import CategoryIcon from '../../components/CategoryIcon'
 
 export default function Budgets() {
   const [budgets, setBudgets] = useState<Budget[]>([])
@@ -140,7 +141,7 @@ export default function Budgets() {
               <div key={b.id} className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-gray-700">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
-                    <span className="text-lg">{cat?.icon || '📊'}</span>
+                    <span className="text-gray-600 dark:text-gray-300"><CategoryIcon icon={cat?.icon || 'pin'} size={20} /></span>
                     <span className="text-sm font-medium text-gray-800 dark:text-gray-100">
                       {cat?.name || '总预算'}
                     </span>
@@ -192,7 +193,7 @@ export default function Budgets() {
                 >
                   <option value={0}>全部（总预算）</option>
                   {categories.map(c => (
-                    <option key={c.id} value={c.id}>{c.icon} {c.name}</option>
+                    <option key={c.id} value={c.id}>{c.name}</option>
                   ))}
                 </select>
               </div>

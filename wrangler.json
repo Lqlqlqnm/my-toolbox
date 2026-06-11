@@ -1,0 +1,19 @@
+{
+  "name": "my-toolbox",
+  "main": "worker/index.ts",
+  "compatibility_date": "2024-09-01",
+  "assets": {
+    "directory": "dist",
+    "binding": "ASSETS"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "my-toolbox-db",
+      "database_id": "8a20c0c4-5b7c-4f37-bcec-6e5c587eace7"
+    }
+  ],
+  "triggers": {
+    "crons": ["* * * * *"]
+  }
+}
