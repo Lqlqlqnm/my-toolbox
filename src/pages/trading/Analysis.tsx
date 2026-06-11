@@ -1,14 +1,24 @@
-import { useState, useEffect } from 'react'
-import { analyzeArticles, type AnalysisResult } from '../../lib/ai'
-import { getAnalyses, submitAnalysis } from '../../lib/api'
+import { useState, useEffect, useRef } from 'react'
+import { analyzeArticles, type AnalysisResult, type ImageInput } from '../../lib/ai'
+import { getAnalyses, submitAnalysis, uploadImage, fetchArticleUrl } from '../../lib/api'
+
+interface InputItem {
+  type: 'text' | 'image' | 'url'
+  content: string // text content, base64, or url
+  mime_type?: string
+  preview?: string // thumbnail or extracted text preview
+  imageId?: number // server-side image id
+  loading?: boolean
+}
 
 export default function Analysis() {
-  const [articles, setArticles] = useState<string[]>([''])
+  const [inputs, setInputs] = useState<InputItem[]>([{ type: 'text', content: '' }])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [result, setResult] = useState<AnalysisResult | null>(null)
   const [history, setHistory] = useState<any[]>([])
   const [showHistory, setShowHistory] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => { loadHistory() }, [])
 
@@ -19,33 +29,120 @@ export default function Analysis() {
     } catch {}
   }
 
-  function addArticle() { setArticles([...articles, '']) }
-  function removeArticle(index: number) {
-    if (articles.length <= 1) return
-    setArticles(articles.filter((_, i) => i !== index))
+  function addTextInput() {
+    setInputs([...inputs, { type: 'text', content: '' }])
   }
-  function updateArticle(index: number, value: string) {
-    const updated = [...articles]
-    updated[index] = value
-    setArticles(updated)
+
+  function addUrlInput() {
+    setInputs([...inputs, { type: 'url', content: '', preview: '' }])
+  }
+
+  function removeInput(index: number) {
+    if (inputs.length <= 1) return
+    setInputs(inputs.filter((_, i) => i !== index))
+  }
+
+  function updateInput(index: number, content: string) {
+    const updated = [...inputs]
+    updated[index] = { ...updated[index], content }
+    setInputs(updated)
+  }
+
+  async function handleImageSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = e.target.files
+    if (!files || files.length === 0) return
+
+    for (const file of Array.from(files)) {
+      if (!file.type.startsWith('image/')) continue
+      if (file.size > 2 * 1024 * 1024) {
+        setError('图片不能超过 2MB')
+        continue
+      }
+
+      // Read as base64
+      const base64 = await fileToBase64(file)
+      const preview = URL.createObjectURL(file)
+
+      // Upload to server for storage
+      const newItem: InputItem = {
+        type: 'image',
+        content: base64,
+        mime_type: file.type,
+        preview,
+        loading: true,
+      }
+      setInputs(prev => [...prev, newItem])
+
+      try {
+        const { id } = await uploadImage(file)
+        setInputs(prev => prev.map(item =>
+          item === newItem ? { ...item, imageId: id, loading: false } : item
+        ))
+      } catch {
+        setInputs(prev => prev.map(item =>
+          item === newItem ? { ...item, loading: false } : item
+        ))
+      }
+    }
+
+    // Reset file input
+    if (fileInputRef.current) fileInputRef.current.value = ''
+  }
+
+  async function handleUrlFetch(index: number) {
+    const url = inputs[index].content.trim()
+    if (!url) return
+
+    const updated = [...inputs]
+    updated[index] = { ...updated[index], loading: true, preview: '' }
+    setInputs(updated)
+
+    try {
+      const { text } = await fetchArticleUrl(url)
+      setInputs(prev => {
+        const u = [...prev]
+        u[index] = { ...u[index], preview: text, loading: false }
+        return u
+      })
+    } catch (e) {
+      setInputs(prev => {
+        const u = [...prev]
+        u[index] = { ...u[index], preview: '', loading: false }
+        return u
+      })
+      setError(e instanceof Error ? e.message : '抓取失败')
+    }
   }
 
   async function handleAnalyze() {
-    const validArticles = articles.filter(a => a.trim().length > 0)
-    if (validArticles.length === 0) { setError('请至少粘贴一篇文章内容'); return }
+    const articles: string[] = []
+    const images: ImageInput[] = []
+
+    for (const item of inputs) {
+      if (item.type === 'text' && item.content.trim()) {
+        articles.push(item.content)
+      } else if (item.type === 'url' && item.preview) {
+        articles.push(item.preview)
+      } else if (item.type === 'image' && item.content) {
+        images.push({ base64: item.content, mime_type: item.mime_type || 'image/jpeg' })
+      }
+    }
+
+    if (articles.length === 0 && images.length === 0) {
+      setError('请至少提供一篇文章内容或一张图片')
+      return
+    }
 
     setLoading(true)
     setError('')
     setResult(null)
 
     try {
-      // AI 分析仍在前端（用户自己的 key）
-      const analysisResult = await analyzeArticles(validArticles)
+      const analysisResult = await analyzeArticles(articles, images)
       setResult(analysisResult)
 
-      // 提交到 Worker API（服务端保存 + 自动创建条件单）
       const { createdCount } = await submitAnalysis({
-        articles: validArticles,
+        articles,
         market_view: analysisResult.market_view,
         main_sectors: analysisResult.main_sectors,
         core_logic: analysisResult.core_logic,
@@ -63,38 +160,85 @@ export default function Analysis() {
 
   return (
     <div className="space-y-4">
+      {/* Input List */}
       <div className="space-y-3">
-        {articles.map((article, i) => (
+        {inputs.map((item, i) => (
           <div key={i} className="relative">
-            <textarea
-              value={article}
-              onChange={e => updateArticle(i, e.target.value)}
-              placeholder={`粘贴文章${i + 1}正文（支持 HTML，自动清洗）`}
-              className="w-full h-32 px-3 py-2 text-sm border border-gray-200 dark:border-white/[0.06] rounded-xl bg-white dark:bg-[#141416] resize-none shadow-sm"
-            />
-            {articles.length > 1 && (
-              <button onClick={() => removeArticle(i)} className="absolute top-2 right-2 text-gray-400 hover:text-red-500 text-xs">删除</button>
+            {item.type === 'text' && (
+              <textarea
+                value={item.content}
+                onChange={e => updateInput(i, e.target.value)}
+                placeholder={`粘贴文章${i + 1}正文（支持 HTML，自动清洗）`}
+                className="w-full h-32 px-3 py-2 text-sm border border-gray-200 dark:border-white/[0.06] rounded-xl bg-white dark:bg-[#141416] resize-none shadow-sm"
+              />
+            )}
+            {item.type === 'url' && (
+              <div className="space-y-2">
+                <div className="flex gap-2">
+                  <input
+                    value={item.content}
+                    onChange={e => updateInput(i, e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && handleUrlFetch(i)}
+                    placeholder="粘贴文章链接（如微信公众号、财经网站）"
+                    className="flex-1 px-3 py-2 text-sm border border-gray-200 dark:border-white/[0.06] rounded-xl bg-white dark:bg-[#141416] shadow-sm"
+                  />
+                  <button
+                    onClick={() => handleUrlFetch(i)}
+                    disabled={item.loading || !item.content.trim()}
+                    className="px-3 py-2 text-xs bg-blue-500 text-white rounded-xl disabled:opacity-50 whitespace-nowrap"
+                  >
+                    {item.loading ? '提取中...' : '提取'}
+                  </button>
+                </div>
+                {item.preview && (
+                  <div className="px-3 py-2 bg-gray-50 dark:bg-[#0c0c0d] rounded-lg text-xs text-gray-600 dark:text-gray-400 max-h-24 overflow-y-auto">
+                    {item.preview.substring(0, 300)}...
+                  </div>
+                )}
+              </div>
+            )}
+            {item.type === 'image' && (
+              <div className="flex items-center gap-3 p-3 border border-gray-200 dark:border-white/[0.06] rounded-xl bg-white dark:bg-[#141416] shadow-sm">
+                {item.preview && (
+                  <img src={item.preview} alt="预览" className="w-16 h-16 object-cover rounded-lg" />
+                )}
+                <div className="flex-1 text-xs text-gray-500">
+                  {item.loading ? '上传中...' : item.imageId ? `已上传 (ID: ${item.imageId})` : '图片就绪'}
+                </div>
+              </div>
+            )}
+            {inputs.length > 1 && (
+              <button onClick={() => removeInput(i)} className="absolute top-2 right-2 text-gray-400 hover:text-red-500 text-xs">
+                删除
+              </button>
             )}
           </div>
         ))}
-        <button onClick={addArticle} className="text-xs text-blue-500 dark:text-blue-400">+ 添加文章</button>
       </div>
 
+      {/* Add buttons */}
+      <div className="flex gap-2 flex-wrap">
+        <button onClick={addTextInput} className="text-xs text-blue-500 dark:text-blue-400">+ 文章</button>
+        <button onClick={addUrlInput} className="text-xs text-green-500 dark:text-green-400">+ 链接</button>
+        <button onClick={() => fileInputRef.current?.click()} className="text-xs text-purple-500 dark:text-purple-400">+ 图片</button>
+        <input ref={fileInputRef} type="file" accept="image/*" multiple className="hidden" onChange={handleImageSelect} />
+      </div>
+
+      {/* Analyze button */}
       <button onClick={handleAnalyze} disabled={loading} className="w-full py-2.5 bg-blue-500 text-white rounded-xl text-sm font-medium disabled:opacity-50">
         {loading ? 'AI 分析中...' : 'AI 分析'}
       </button>
 
       {error && <p className="text-red-500 text-sm">{error}</p>}
 
+      {/* Result display */}
       {result && (
         <div className="space-y-3">
-          {/* Market View */}
           <div className="rounded-xl p-4 bg-white dark:bg-[#141416] border border-gray-100 dark:border-white/[0.06] shadow-sm relative overflow-hidden">
             <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-blue-400 dark:hidden" />
             <p className="text-[10px] text-gray-400 dark:text-gray-600 mb-1">大盘观点</p>
             <p className="text-sm text-gray-900 dark:text-white">{result.market_view}</p>
           </div>
-          {/* Sectors */}
           <div className="rounded-xl p-4 bg-white dark:bg-[#141416] border border-gray-100 dark:border-white/[0.06] shadow-sm relative overflow-hidden">
             <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-purple-400 dark:hidden" />
             <p className="text-[10px] text-gray-400 dark:text-gray-600 mb-2">主线方向</p>
@@ -104,13 +248,11 @@ export default function Analysis() {
               ))}
             </div>
           </div>
-          {/* Core Logic */}
           <div className="rounded-xl p-4 bg-white dark:bg-[#141416] border border-gray-100 dark:border-white/[0.06] shadow-sm relative overflow-hidden">
             <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-amber-400 dark:hidden" />
             <p className="text-[10px] text-gray-400 dark:text-gray-600 mb-1">核心逻辑</p>
             <p className="text-sm text-gray-700 dark:text-gray-300">{result.core_logic}</p>
           </div>
-          {/* Orders */}
           {result.orders.length > 0 && (
             <div>
               <p className="text-[11px] text-gray-400 dark:text-gray-600 mb-2">条件单（已自动创建）</p>
@@ -132,6 +274,7 @@ export default function Analysis() {
         </div>
       )}
 
+      {/* History */}
       <div>
         <button onClick={() => setShowHistory(!showHistory)} className="text-xs text-gray-400 dark:text-gray-600 hover:text-gray-600">
           {showHistory ? '收起历史' : `历史分析 (${history.length})`}
@@ -158,4 +301,18 @@ export default function Analysis() {
       </div>
     </div>
   )
+}
+
+// Helper: File to base64 (without data: prefix)
+function fileToBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => {
+      const result = reader.result as string
+      // Remove "data:image/xxx;base64," prefix
+      resolve(result.split(',')[1])
+    }
+    reader.onerror = reject
+    reader.readAsDataURL(file)
+  })
 }

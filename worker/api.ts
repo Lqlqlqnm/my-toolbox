@@ -24,11 +24,18 @@ export async function handleApiRequest(request: Request, env: Env): Promise<Resp
       if (path === 'analyses') return postAnalysis(request, env)
       if (path.startsWith('orders/cancel/')) return cancelOrder(path, env)
       if (path === 'watchlist') return addWatchlist(request, env)
+      if (path === 'images/upload') return uploadImage(request, env)
+      if (path === 'fetch-url') return fetchUrl(request, env)
     }
 
     // DELETE routes
     if (method === 'DELETE') {
       if (path.startsWith('watchlist/')) return deleteWatchlist(path, env)
+    }
+
+    // GET images
+    if (method === 'GET' && path.startsWith('images/')) {
+      return getImage(path, env)
     }
 
     return json({ error: 'Not found' }, 404)
@@ -223,4 +230,131 @@ function json(data: any, status = 200): Response {
     status,
     headers: { 'Content-Type': 'application/json' },
   })
+}
+
+// ===== Image Upload =====
+
+async function uploadImage(request: Request, env: Env): Promise<Response> {
+  const contentType = request.headers.get('content-type') || ''
+
+  if (contentType.includes('multipart/form-data')) {
+    const formData = await request.formData()
+    const file = formData.get('file') as File | null
+    if (!file) return json({ error: 'No file provided' }, 400)
+
+    const buffer = await file.arrayBuffer()
+    if (buffer.byteLength > 2 * 1024 * 1024) return json({ error: 'File too large (max 2MB)' }, 400)
+
+    const { meta } = await env.DB.prepare(
+      'INSERT INTO analysis_images (filename, mime_type, data, created_at) VALUES (?, ?, ?, ?)'
+    ).bind(file.name, file.type, buffer, new Date().toISOString()).run()
+
+    return json({ id: meta.last_row_id, filename: file.name })
+  }
+
+  // JSON body with base64
+  const body = await request.json() as any
+  if (!body.data || !body.mime_type) return json({ error: 'Missing data or mime_type' }, 400)
+
+  const binaryStr = atob(body.data)
+  const bytes = new Uint8Array(binaryStr.length)
+  for (let i = 0; i < binaryStr.length; i++) bytes[i] = binaryStr.charCodeAt(i)
+
+  if (bytes.byteLength > 2 * 1024 * 1024) return json({ error: 'File too large (max 2MB)' }, 400)
+
+  const { meta } = await env.DB.prepare(
+    'INSERT INTO analysis_images (filename, mime_type, data, created_at) VALUES (?, ?, ?, ?)'
+  ).bind(body.filename || 'image', body.mime_type, bytes.buffer, new Date().toISOString()).run()
+
+  return json({ id: meta.last_row_id, filename: body.filename || 'image' })
+}
+
+// ===== Get Image =====
+
+async function getImage(path: string, env: Env): Promise<Response> {
+  const id = path.replace('images/', '')
+  const row = await env.DB.prepare(
+    'SELECT mime_type, data FROM analysis_images WHERE id = ?'
+  ).bind(id).first<{ mime_type: string; data: ArrayBuffer }>()
+
+  if (!row) return new Response('Not found', { status: 404 })
+
+  return new Response(row.data, {
+    headers: { 'Content-Type': row.mime_type, 'Cache-Control': 'public, max-age=86400' },
+  })
+}
+
+// ===== URL Fetch (extract article text) =====
+
+async function fetchUrl(request: Request, env: Env): Promise<Response> {
+  const body = await request.json() as any
+  const url = body.url as string
+  if (!url) return json({ error: 'Missing url' }, 400)
+
+  try {
+    const resp = await fetch(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml',
+      },
+      redirect: 'follow',
+    })
+
+    if (!resp.ok) return json({ error: `Fetch failed: ${resp.status}` }, 400)
+
+    const html = await resp.text()
+    const text = extractTextFromHtml(html)
+
+    if (!text || text.length < 50) {
+      return json({ error: '无法提取文章内容，请手动复制粘贴' }, 400)
+    }
+
+    return json({ text, length: text.length })
+  } catch (e) {
+    return json({ error: `抓取失败: ${e instanceof Error ? e.message : 'Unknown'}` }, 400)
+  }
+}
+
+// Simple HTML to text extraction (runs in Worker, no DOM)
+function extractTextFromHtml(html: string): string {
+  // Remove script, style, nav, header, footer
+  let text = html
+    .replace(/<script[\s\S]*?<\/script>/gi, '')
+    .replace(/<style[\s\S]*?<\/style>/gi, '')
+    .replace(/<nav[\s\S]*?<\/nav>/gi, '')
+    .replace(/<header[\s\S]*?<\/header>/gi, '')
+    .replace(/<footer[\s\S]*?<\/footer>/gi, '')
+
+  // Try to extract article/main content
+  const articleMatch = text.match(/<article[\s\S]*?<\/article>/i)
+    || text.match(/<div[^>]*class="[^"]*content[^"]*"[\s\S]*?<\/div>/i)
+    || text.match(/<div[^>]*id="[^"]*content[^"]*"[\s\S]*?<\/div>/i)
+    || text.match(/<main[\s\S]*?<\/main>/i)
+
+  if (articleMatch) text = articleMatch[0]
+
+  // Strip all tags
+  text = text.replace(/<[^>]+>/g, '\n')
+  // Decode common HTML entities
+  text = text
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&amp;/g, '&')
+    .replace(/&quot;/g, '"')
+    .replace(/&#(\d+);/g, (_, n) => String.fromCharCode(Number(n)))
+  // Clean up whitespace
+  text = text.replace(/[ \t]+/g, ' ').replace(/\n\s*\n/g, '\n').trim()
+
+  return text.substring(0, 8000)
+}
+
+// ===== Cleanup expired images (called from cron) =====
+
+export async function cleanupExpiredImages(env: Env): Promise<number> {
+  const cutoff = new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString()
+  const { meta } = await env.DB.prepare(
+    'DELETE FROM analysis_images WHERE created_at < ?'
+  ).bind(cutoff).run()
+  return meta.changes || 0
 }

@@ -1,6 +1,7 @@
 // Cron 定时任务：每分钟轮询行情，执行交易逻辑
 
 import type { Env } from './index'
+import { cleanupExpiredImages } from './api'
 
 const FEE_RATE = 0.0001
 
@@ -168,6 +169,13 @@ async function executeSell(env: Env, position: any, currentPrice: number, sellSh
 
 // ===== 主逻辑 =====
 export async function handleScheduled(env: Env): Promise<void> {
+  // 每小时第0分钟清理过期图片
+  const now = new Date()
+  const minute = now.getUTCMinutes()
+  if (minute === 0) {
+    await cleanupExpiredImages(env)
+  }
+
   // 非交易时间不执行
   if (!isTradingTime()) return
 

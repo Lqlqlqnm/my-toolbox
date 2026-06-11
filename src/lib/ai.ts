@@ -53,20 +53,22 @@ export interface AnalysisResult {
   }>
 }
 
-export async function analyzeArticles(articles: string[]): Promise<AnalysisResult> {
+// 图片输入项
+export interface ImageInput {
+  base64: string
+  mime_type: string
+}
+
+export async function analyzeArticles(articles: string[], images: ImageInput[] = []): Promise<AnalysisResult> {
   const config = getAIConfig()
   if (!config) throw new Error('请先在设置中配置 AI API Key')
 
   const cleanedArticles = articles.map(extractText).filter(Boolean)
-  if (cleanedArticles.length === 0) throw new Error('没有有效的文章内容')
-
-  const articleTexts = cleanedArticles.map((text, i) =>
-    `【文章${i + 1}】\n${text.substring(0, 4000)}`
-  ).join('\n\n---\n\n')
+  if (cleanedArticles.length === 0 && images.length === 0) throw new Error('请至少提供一篇文章内容或一张图片')
 
   const systemPrompt = `你是一位专业的ETF投资策略分析师，擅长从公众号文章中提取投资方向和交易信号。
 
-请分析用户提供的文章，输出以下结构化JSON（不要输出其他内容）：
+请分析用户提供的文章（文字和/或图片截图），输出以下结构化JSON（不要输出其他内容）：
 {
   "market_view": "看多/震荡/看空 + 一句话理由",
   "main_sectors": ["主线方向1", "主线方向2"],
@@ -105,7 +107,32 @@ export async function analyzeArticles(articles: string[]): Promise<AnalysisResul
 - 请根据ETF品种特性（宽基vs行业vs跨境）灵活调整参数
 - 信号越强，activation_pct越高（给更多上涨空间），trailing_pct越宽（容忍更大回撤）
 - 如果文章没有明确交易信号，orders 可以为空数组
-- 请基于文章内容给出合理判断，不要编造`
+- 请基于文章内容给出合理判断，不要编造
+- 如果输入包含图片，请先识别图片中的文字内容再进行分析`
+
+  // Build multimodal content array
+  const userContent: any[] = []
+
+  // Add text articles
+  if (cleanedArticles.length > 0) {
+    const articleTexts = cleanedArticles.map((text, i) =>
+      `【文章${i + 1}】\n${text.substring(0, 4000)}`
+    ).join('\n\n---\n\n')
+    userContent.push({ type: 'text', text: articleTexts })
+  }
+
+  // Add images
+  for (const img of images) {
+    userContent.push({
+      type: 'image_url',
+      image_url: { url: `data:${img.mime_type};base64,${img.base64}` },
+    })
+  }
+
+  // If only images, add a text prompt
+  if (cleanedArticles.length === 0 && images.length > 0) {
+    userContent.unshift({ type: 'text', text: '请识别并分析以下图片中的文章内容：' })
+  }
 
   const response = await fetch(`${config.baseUrl}/chat/completions`, {
     method: 'POST',
@@ -117,7 +144,7 @@ export async function analyzeArticles(articles: string[]): Promise<AnalysisResul
       model: config.model || 'gpt-4o-mini',
       messages: [
         { role: 'system', content: systemPrompt },
-        { role: 'user', content: articleTexts },
+        { role: 'user', content: userContent },
       ],
       temperature: 0.3,
       response_format: { type: 'json_object' },

@@ -84,3 +84,29 @@ export async function getStats() {
 export async function getNotifications(since: string) {
   return request<any[]>(`notifications?since=${encodeURIComponent(since)}`)
 }
+
+// ===== Images =====
+
+export async function uploadImage(file: File): Promise<{ id: number; filename: string }> {
+  const formData = new FormData()
+  formData.append('file', file)
+  const resp = await fetch(`${BASE}/images/upload`, { method: 'POST', body: formData })
+  if (!resp.ok) {
+    const err = await resp.json().catch(() => ({ error: 'Upload failed' }))
+    throw new Error((err as any).error || `HTTP ${resp.status}`)
+  }
+  return resp.json()
+}
+
+export function getImageUrl(id: number): string {
+  return `${BASE}/images/${id}`
+}
+
+// ===== URL Fetch =====
+
+export async function fetchArticleUrl(url: string): Promise<{ text: string; length: number }> {
+  return request<{ text: string; length: number }>('fetch-url', {
+    method: 'POST',
+    body: JSON.stringify({ url }),
+  })
+}
