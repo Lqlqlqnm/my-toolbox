@@ -2,11 +2,13 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { getAIConfig, saveAIConfig } from '../lib/ai'
 import { shareBackup, importBackup, type BackupData } from '../lib/backup'
+import { getThemeMode, setThemeMode, type ThemeMode } from '../lib/theme'
 
 export default function Settings() {
   const [aiConfig, setAiConfig] = useState(() => getAIConfig() || { apiKey: '', baseUrl: 'https://bmc-llm-relay.bluemediagroup.cn/v1', model: 'gpt-4o-mini' })
   const [message, setMessage] = useState('')
   const [backupInterval, setBackupInterval] = useState(() => localStorage.getItem('backup_interval_days') || '7')
+  const [theme, setTheme] = useState<ThemeMode>(() => getThemeMode())
 
   const handleSaveAI = () => {
     saveAIConfig(aiConfig)
@@ -50,6 +52,26 @@ export default function Settings() {
         </Link>
         <h1 className="text-xl font-bold text-gray-800 dark:text-gray-100">设置</h1>
       </div>
+
+      {/* Theme */}
+      <section className="mb-6">
+        <h2 className="text-sm font-medium text-gray-700 dark:text-gray-200 mb-3">外观</h2>
+        <div className="flex gap-2">
+          {([['system', '跟随系统'], ['light', '浅色'], ['dark', '深色']] as const).map(([value, label]) => (
+            <button
+              key={value}
+              onClick={() => { setTheme(value); setThemeMode(value) }}
+              className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
+                theme === value
+                  ? 'bg-gray-900 dark:bg-white text-white dark:text-gray-900'
+                  : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      </section>
 
       {/* AI Config */}
       <section className="mb-6">

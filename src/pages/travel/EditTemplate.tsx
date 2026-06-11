@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { db, type TravelTemplate, type TemplateCategory } from '../../lib/db'
+import { useModal } from '../../components/Modal'
 
 const ICONS = ['💼', '🏖️', '🏕️', '🎒', '✈️', '🚗', '🏔️', '🎿', '🚢', '👶']
 
@@ -14,6 +15,7 @@ export default function EditTemplate({ templateId, onBack }: Props) {
   const [categories, setCategories] = useState<TemplateCategory[]>([])
   const [editingCat, setEditingCat] = useState<number | null>(null)
   const [newItemText, setNewItemText] = useState('')
+  const { showConfirm, showPrompt } = useModal()
 
   useEffect(() => {
     if (templateId) loadTemplate()
@@ -44,15 +46,16 @@ export default function EditTemplate({ templateId, onBack }: Props) {
     onBack()
   }
 
-  function addCategory() {
-    const catName = prompt('分类名称（如：衣物、洗漱、证件）')
+  async function addCategory() {
+    const catName = await showPrompt('分类名称', { placeholder: '如：衣物、洗漱、证件' })
     if (!catName) return
-    const catIcon = prompt('分类图标（一个emoji）', '📦') || '📦'
+    const catIcon = await showPrompt('分类图标', { defaultValue: '📦', placeholder: '一个emoji' }) || '📦'
     setCategories([...categories, { name: catName, icon: catIcon, items: [] }])
   }
 
-  function removeCategory(index: number) {
-    if (!confirm(`删除分类"${categories[index].name}"？`)) return
+  async function removeCategory(index: number) {
+    const ok = await showConfirm('删除分类', `确定删除"${categories[index].name}"？`)
+    if (!ok) return
     setCategories(categories.filter((_, i) => i !== index))
   }
 

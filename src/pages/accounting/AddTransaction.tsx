@@ -3,12 +3,14 @@ import { useState, useEffect, useCallback } from 'react'
 import { db, type Category, type Account, type Book, type Transaction } from '../../lib/db'
 import { suggestCategory, getTemplates, addTemplate, type QuickTemplate } from '../../lib/accounting-utils'
 import CategoryIcon from '../../components/CategoryIcon'
+import { useModal } from '../../components/Modal'
 
 type TxType = 'expense' | 'income' | 'transfer'
 
 export default function AddTransaction() {
   const navigate = useNavigate()
   const { id } = useParams()
+  const { showAlert } = useModal()
   const isEditing = Boolean(id)
 
   const [txType, setTxType] = useState<TxType>('expense')
@@ -587,7 +589,7 @@ export default function AddTransaction() {
           onClick={() => {
             addTemplate({ name: note, type: txType, amount: parseFloat(amount), category_id: categoryId, account_id: accountId, note })
             setTemplates(getTemplates())
-            alert('已保存为模板')
+            showAlert('已保存为模板')
           }}
           className="w-full mt-2 py-2 text-sm text-amber-600 border border-amber-200 dark:border-amber-800 rounded-xl"
         >

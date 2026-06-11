@@ -3,11 +3,13 @@ import { Link, useLocation } from 'react-router-dom'
 import { Search, Calendar as CalendarIcon, X } from 'lucide-react'
 import { db, type Transaction, type Category, type Account } from '../../lib/db'
 import CategoryIcon from '../../components/CategoryIcon'
+import { useModal } from '../../components/Modal'
 
 const PAGE_SIZE = 30
 
 export default function TransactionList() {
   const location = useLocation()
+  const { showConfirm, showPrompt, showAlert } = useModal()
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [categories, setCategories] = useState<Category[]>([])
   const [accounts, setAccounts] = useState<Account[]>([])
@@ -98,7 +100,8 @@ export default function TransactionList() {
   }
 
   async function deleteTransaction(id: number) {
-    if (!confirm('确定删除此记录？删除后账户余额将自动回滚。')) return
+    const ok = await showConfirm('删除记录', '删除后账户余额将自动回滚，确定删除？')
+    if (!ok) return
     const tx = await db.transactions.get(id)
     if (!tx) return
     // Remove from UI immediately
@@ -122,10 +125,10 @@ export default function TransactionList() {
 
   async function refundTransaction(tx: Transaction) {
     if (!tx.id) return
-    const refundAmount = prompt(`退款金额（原金额 ¥${tx.amount}）`, String(tx.amount))
-    if (!refundAmount) return
+    const refundAmount = await showPrompt(`退款金额（原金额 ¥${tx.amount}）`, { defaultValue: String(tx.amount), inputType: 'number' })
+    if (refundAmount === null) return
     const amount = parseFloat(refundAmount)
-    if (!amount || amount <= 0 || amount > tx.amount) { alert('退款金额无效'); return }
+    if (!amount || amount <= 0 || amount > tx.amount) { await showAlert('退款金额无效'); return }
     const now = new Date().toISOString()
     // 创建一条负数支出（同分类），统计时自动抵消
     const refundTx = {

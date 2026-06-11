@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { db, type TravelChecklist } from '../../lib/db'
+import { useModal } from '../../components/Modal'
 
 interface Props {
   checklistId: number
@@ -8,6 +9,7 @@ interface Props {
 
 export default function Checklist({ checklistId, onBack }: Props) {
   const [checklist, setChecklist] = useState<TravelChecklist | null>(null)
+  const { showConfirm } = useModal()
 
   useEffect(() => { loadChecklist() }, [checklistId])
 
@@ -32,7 +34,8 @@ export default function Checklist({ checklistId, onBack }: Props) {
 
   async function resetAll() {
     if (!checklist) return
-    if (!confirm('重置所有打勾状态？')) return
+    const ok = await showConfirm('重置', '重置所有打勾状态？')
+    if (!ok) return
     const updated = checklist.categories.map(cat => ({
       ...cat,
       items: cat.items.map(item => ({ ...item, checked: false })),
@@ -42,13 +45,15 @@ export default function Checklist({ checklistId, onBack }: Props) {
   }
 
   async function archiveChecklist() {
-    if (!confirm('归档此行程？')) return
+    const ok = await showConfirm('归档', '归档此行程？')
+    if (!ok) return
     await db.travelChecklists.update(checklistId, { is_archived: true })
     onBack()
   }
 
   async function deleteChecklist() {
-    if (!confirm('删除此行程？不可恢复')) return
+    const ok = await showConfirm('删除', '删除此行程？不可恢复')
+    if (!ok) return
     await db.travelChecklists.delete(checklistId)
     onBack()
   }

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { db, type TravelTemplate, type TravelChecklist } from '../../lib/db'
+import { useModal } from '../../components/Modal'
 import EditTemplate from './EditTemplate'
 import Checklist from './Checklist'
 
@@ -12,6 +13,7 @@ export default function TravelIndex() {
   const [archivedChecklists, setArchivedChecklists] = useState<TravelChecklist[]>([])
   const [view, setView] = useState<View>({ type: 'list' })
   const [showHistory, setShowHistory] = useState(false)
+  const { showConfirm, showPrompt } = useModal()
 
   useEffect(() => { loadData() }, [view])
 
@@ -24,9 +26,9 @@ export default function TravelIndex() {
   }
 
   async function createChecklist(template: TravelTemplate) {
-    const name = prompt('行程名称', `${template.name} - ${new Date().toLocaleDateString()}`)
+    const name = await showPrompt('行程名称', { defaultValue: `${template.name} - ${new Date().toLocaleDateString()}` })
     if (!name) return
-    const tripDate = prompt('出发日期 (如 2026-06-15)', new Date().toISOString().split('T')[0])
+    const tripDate = await showPrompt('出发日期', { defaultValue: new Date().toISOString().split('T')[0], placeholder: '如 2026-06-15', inputType: 'date' })
 
     const id = await db.travelChecklists.add({
       template_id: template.id!,
@@ -45,7 +47,8 @@ export default function TravelIndex() {
   }
 
   async function deleteTemplate(id: number) {
-    if (!confirm('确定删除此模板？')) return
+    const ok = await showConfirm('删除模板', '确定删除此模板？')
+    if (!ok) return
     await db.travelTemplates.delete(id)
     await loadData()
   }
