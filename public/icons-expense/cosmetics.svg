@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+  <!-- 化妆品/护肤 -->
+  <rect x="8" y="2" width="8" height="16" rx="3"/>
+  <path d="M10 18h4v3a1 1 0 01-1 1h-2a1 1 0 01-1-1v-3z"/>
+  <path d="M8 7h8"/>
+  <circle cx="12" cy="11" r="2"/>
+</svg>

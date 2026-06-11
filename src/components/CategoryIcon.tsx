@@ -1,82 +1,107 @@
-import {
-  UtensilsCrossed, TrainFront, ShoppingCart, Droplets, Clapperboard,
-  Home, Pill, BookOpen, Gift, Pin, Coffee, Beer, Cat, Scissors,
-  Dumbbell, Smartphone, Car, Plane, Music, Shirt, Coins, Trophy,
-  TrendingUp, Landmark, ClipboardList, Briefcase, Gamepad2, Palmtree,
-  Wallet, CreditCard, Banknote, Target, GraduationCap, Gem, Laptop,
-  type LucideIcon,
-} from 'lucide-react'
-
-// Map icon keys to Lucide components
-const iconMap: Record<string, LucideIcon> = {
-  food: UtensilsCrossed,
-  transit: TrainFront,
-  shopping: ShoppingCart,
-  personal: Droplets,
-  movie: Clapperboard,
-  house: Home,
-  medical: Pill,
-  book: BookOpen,
-  gift: Gift,
-  pin: Pin,
-  coffee: Coffee,
-  beer: Beer,
-  pet: Cat,
-  haircut: Scissors,
-  fitness: Dumbbell,
-  phone: Smartphone,
-  car: Car,
-  flight: Plane,
-  music: Music,
-  clothing: Shirt,
-  money: Coins,
-  trophy: Trophy,
-  invest: TrendingUp,
-  bonus: Landmark,
-  bills: ClipboardList,
-  work: Briefcase,
-  game: Gamepad2,
-  vacation: Palmtree,
+// Map old Lucide icon keys to new SVG filenames
+const legacyKeyMap: Record<string, { file: string; dir: string }> = {
+  food: { file: 'dining', dir: 'expense' },
+  transit: { file: 'subway', dir: 'expense' },
+  shopping: { file: 'shopping', dir: 'expense' },
+  personal: { file: 'daily-necessities', dir: 'expense' },
+  movie: { file: 'entertainment', dir: 'expense' },
+  house: { file: 'housing', dir: 'expense' },
+  medical: { file: 'medical', dir: 'expense' },
+  book: { file: 'education', dir: 'expense' },
+  gift: { file: 'gift', dir: 'expense' },
+  pin: { file: 'office', dir: 'expense' },
+  coffee: { file: 'coffee', dir: 'expense' },
+  beer: { file: 'alcohol', dir: 'expense' },
+  pet: { file: 'pet', dir: 'expense' },
+  haircut: { file: 'beauty', dir: 'expense' },
+  fitness: { file: 'fitness', dir: 'expense' },
+  phone: { file: 'phone', dir: 'expense' },
+  car: { file: 'taxi', dir: 'expense' },
+  flight: { file: 'flight', dir: 'expense' },
+  music: { file: 'entertainment', dir: 'expense' },
+  clothing: { file: 'clothing', dir: 'expense' },
+  money: { file: 'salary', dir: 'income' },
+  trophy: { file: 'bonus', dir: 'income' },
+  invest: { file: 'investment-return', dir: 'income' },
+  bonus: { file: 'red-envelope', dir: 'income' },
+  bills: { file: 'utilities', dir: 'expense' },
+  work: { file: 'office', dir: 'expense' },
+  game: { file: 'game', dir: 'expense' },
+  vacation: { file: 'travel', dir: 'expense' },
   // Account icons
-  cash: Banknote,
-  debit: CreditCard,
-  credit: Wallet,
-  ewallet: Smartphone,
+  cash: { file: 'cash', dir: 'finance' },
+  debit: { file: 'deposit', dir: 'finance' },
+  credit: { file: 'credit-card', dir: 'finance' },
+  ewallet: { file: 'wechat-pay', dir: 'bank' },
   // Savings goal icons
-  target: Target,
-  graduation: GraduationCap,
-  ring: Gem,
-  laptop: Laptop,
+  target: { file: 'fund', dir: 'finance' },
+  graduation: { file: 'education', dir: 'expense' },
+  ring: { file: 'gift', dir: 'expense' },
+  laptop: { file: 'digital', dir: 'expense' },
 }
 
-// All category icon keys in display order
-export const categoryIconKeys = [
-  'food', 'transit', 'shopping', 'personal', 'movie', 'house', 'medical',
-  'book', 'gift', 'pin', 'coffee', 'beer', 'pet', 'haircut', 'fitness',
-  'phone', 'car', 'flight', 'music', 'clothing', 'money', 'trophy',
-  'invest', 'bonus', 'bills', 'work', 'game', 'vacation',
+// New icon keys that map directly to SVG filenames
+const expenseIcons = [
+  'dining', 'subway', 'shopping', 'daily-necessities', 'entertainment',
+  'housing', 'medical', 'education', 'gift-money', 'office', 'coffee',
+  'alcohol', 'pet', 'beauty', 'fitness', 'phone', 'taxi', 'flight',
+  'clothing', 'game', 'travel', 'digital', 'snack', 'takeout',
+  'movie', 'bus', 'train', 'parking', 'gas', 'grocery', 'fruit',
+  'subscription', 'insurance', 'mortgage', 'utilities', 'repair',
+  'childcare', 'social', 'hotel', 'delivery', 'internet', 'fine',
+  'breakfast', 'bike', 'supermarket', 'banquet', 'cosmetics',
+  'home', 'property-fee', 'fitness', 'gift',
 ]
 
-// Account icon keys
-export const accountIconKeys = ['cash', 'debit', 'credit', 'ewallet']
-
-// Savings goal icon keys
-export const goalIconKeys = [
-  'target', 'house', 'car', 'flight', 'laptop', 'phone',
-  'clothing', 'ring', 'graduation', 'vacation', 'game', 'money',
+const incomeIcons = [
+  'salary', 'bonus', 'investment-return', 'red-envelope',
+  'reimbursement', 'side-business', 'rental', 'interest',
+  'lottery', 'parttime', 'refund', 'second-hand',
 ]
+
+const bankIcons = [
+  'wechat-pay', 'alipay', 'icbc', 'ccb', 'abc', 'boc', 'bocom',
+  'cmb', 'cib', 'cmbc', 'spdb', 'citic', 'ceb', 'hxb', 'pab',
+  'psbc', 'cgb', 'nbcb', 'bosc', 'bob', 'webank', 'mybank',
+  'unionpay', 'jd-pay', 'douyin-pay', 'meituan-pay', 'huabao-zhitou',
+]
+
+const financeIcons = [
+  'cash', 'credit-card', 'deposit', 'fund', 'stock',
+  'wealth', 'housing-fund', 'huabei',
+]
+
+// All category icon keys in display order (for icon picker)
+export const categoryIconKeys = expenseIcons.slice(0, 28)
+export const incomeIconKeys = incomeIcons
+export const accountIconKeys = [...bankIcons, ...financeIcons]
+export const goalIconKeys = ['fund', 'housing', 'taxi', 'flight', 'digital', 'phone', 'clothing', 'gift', 'education', 'travel', 'game', 'salary']
 
 // Icon key to Chinese label (for select options)
 export const iconLabels: Record<string, string> = {
-  food: '餐饮', transit: '交通', shopping: '购物', personal: '日用',
-  movie: '娱乐', house: '住房', medical: '医疗', book: '教育',
-  gift: '礼物', pin: '其他', coffee: '咖啡', beer: '酒饮',
-  pet: '宠物', haircut: '美容', fitness: '健身', phone: '数码',
-  car: '用车', flight: '出行', music: '音乐', clothing: '服饰',
-  money: '收入', trophy: '奖金', invest: '投资', bonus: '红包',
-  bills: '账单', work: '工作', game: '游戏', vacation: '度假',
-  cash: '现金', debit: '储蓄卡', credit: '信用卡', ewallet: '钱包',
-  target: '目标', graduation: '学业', ring: '珠宝', laptop: '电脑',
+  dining: '餐饮', subway: '交通', shopping: '购物', 'daily-necessities': '日用',
+  entertainment: '娱乐', housing: '住房', medical: '医疗', education: '教育',
+  'gift-money': '人情', office: '其他', coffee: '咖啡', alcohol: '酒饮',
+  pet: '宠物', beauty: '美容', fitness: '健身', phone: '通讯',
+  taxi: '打车', flight: '机票', clothing: '服饰', game: '游戏',
+  travel: '旅行', digital: '数码', snack: '零食', takeout: '外卖',
+  movie: '电影', bus: '公交', train: '火车', parking: '停车',
+  gas: '加油', grocery: '买菜', fruit: '水果', subscription: '订阅',
+  insurance: '保险', mortgage: '房贷', utilities: '水电', repair: '维修',
+  salary: '工资', bonus: '奖金', 'investment-return': '理财',
+  'red-envelope': '红包', reimbursement: '报销', 'side-business': '副业',
+  rental: '房租收入', interest: '利息', lottery: '彩票', parttime: '兼职',
+  cash: '现金', 'credit-card': '信用卡', deposit: '储蓄',
+  'wechat-pay': '微信', alipay: '支付宝', icbc: '工商', ccb: '建设',
+  abc: '农业', boc: '中国', bocom: '交通', cmb: '招商',
+  fund: '基金', stock: '股票', wealth: '理财', 'housing-fund': '公积金',
+}
+
+function getIconDir(icon: string): string {
+  if (incomeIcons.includes(icon)) return 'icons-income'
+  if (bankIcons.includes(icon)) return 'icons-bank'
+  if (financeIcons.includes(icon)) return 'icons-finance'
+  return 'icons-expense'
 }
 
 interface CategoryIconProps {
@@ -96,10 +121,17 @@ export default function CategoryIcon({ icon, size = 20, className = '' }: Catego
     return <span className={className} style={{ fontSize: size * 0.9 }}>{icon}</span>
   }
 
-  const IconComponent = iconMap[icon]
-  if (!IconComponent) {
-    return <span className={className} style={{ fontSize: size * 0.9 }}>{icon}</span>
-  }
+  // Map old Lucide keys to new SVG filenames
+  const mapped = legacyKeyMap[icon]
+  const fileName = mapped ? mapped.file : icon
+  const dir = mapped ? `icons-${mapped.dir}` : getIconDir(icon)
 
-  return <IconComponent size={size} strokeWidth={1.75} className={className} />
+  return (
+    <img
+      src={`/${dir}/${fileName}.svg`}
+      alt={icon}
+      className={className}
+      style={{ width: size, height: size }}
+    />
+  )
 }
