@@ -302,24 +302,24 @@ export async function initDefaultData() {
 
   // 默认支出分类
   const expenseCategories = [
-    { name: '餐饮', icon: 'dining', type: 'expense' as const, parent_id: null, sort_order: 1 },
-    { name: '交通', icon: 'subway', type: 'expense' as const, parent_id: null, sort_order: 2 },
-    { name: '购物', icon: 'shopping', type: 'expense' as const, parent_id: null, sort_order: 3 },
-    { name: '日用', icon: 'daily-necessities', type: 'expense' as const, parent_id: null, sort_order: 4 },
-    { name: '娱乐', icon: 'entertainment', type: 'expense' as const, parent_id: null, sort_order: 5 },
-    { name: '住房', icon: 'housing', type: 'expense' as const, parent_id: null, sort_order: 6 },
-    { name: '医疗', icon: 'medical', type: 'expense' as const, parent_id: null, sort_order: 7 },
-    { name: '教育', icon: 'education', type: 'expense' as const, parent_id: null, sort_order: 8 },
-    { name: '人情', icon: 'gift-money', type: 'expense' as const, parent_id: null, sort_order: 9 },
-    { name: '其他', icon: 'office', type: 'expense' as const, parent_id: null, sort_order: 10 },
+    { name: '餐饮', icon: '🍜', type: 'expense' as const, parent_id: null, sort_order: 1 },
+    { name: '交通', icon: '🚇', type: 'expense' as const, parent_id: null, sort_order: 2 },
+    { name: '购物', icon: '🛒', type: 'expense' as const, parent_id: null, sort_order: 3 },
+    { name: '日用', icon: '🧴', type: 'expense' as const, parent_id: null, sort_order: 4 },
+    { name: '娱乐', icon: '🎬', type: 'expense' as const, parent_id: null, sort_order: 5 },
+    { name: '住房', icon: '🏠', type: 'expense' as const, parent_id: null, sort_order: 6 },
+    { name: '医疗', icon: '💊', type: 'expense' as const, parent_id: null, sort_order: 7 },
+    { name: '教育', icon: '📚', type: 'expense' as const, parent_id: null, sort_order: 8 },
+    { name: '人情', icon: '🎁', type: 'expense' as const, parent_id: null, sort_order: 9 },
+    { name: '其他', icon: '📌', type: 'expense' as const, parent_id: null, sort_order: 10 },
   ]
   const incomeCategories = [
-    { name: '工资', icon: 'salary', type: 'income' as const, parent_id: null, sort_order: 1 },
-    { name: '奖金', icon: 'bonus', type: 'income' as const, parent_id: null, sort_order: 2 },
-    { name: '理财', icon: 'investment-return', type: 'income' as const, parent_id: null, sort_order: 3 },
-    { name: '红包', icon: 'red-envelope', type: 'income' as const, parent_id: null, sort_order: 4 },
-    { name: '报销', icon: 'reimbursement', type: 'income' as const, parent_id: null, sort_order: 5 },
-    { name: '其他', icon: 'side-business', type: 'income' as const, parent_id: null, sort_order: 6 },
+    { name: '工资', icon: '💰', type: 'income' as const, parent_id: null, sort_order: 1 },
+    { name: '奖金', icon: '🏆', type: 'income' as const, parent_id: null, sort_order: 2 },
+    { name: '理财', icon: '📈', type: 'income' as const, parent_id: null, sort_order: 3 },
+    { name: '红包', icon: '🧧', type: 'income' as const, parent_id: null, sort_order: 4 },
+    { name: '报销', icon: '📋', type: 'income' as const, parent_id: null, sort_order: 5 },
+    { name: '其他', icon: '💼', type: 'income' as const, parent_id: null, sort_order: 6 },
   ]
   await db.categories.bulkAdd([...expenseCategories, ...incomeCategories])
 

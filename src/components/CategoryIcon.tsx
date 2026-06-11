@@ -72,8 +72,15 @@ const financeIcons = [
 ]
 
 // All category icon keys in display order (for icon picker)
-export const categoryIconKeys = expenseIcons.slice(0, 28)
-export const incomeIconKeys = incomeIcons
+export const categoryIconKeys = [
+  '🍜', '🚇', '🛒', '🧴', '🎬', '🏠', '💊', '📚', '🎁', '📌',
+  '☕', '🍺', '🐱', '💄', '🏋️', '📱', '🚕', '✈️', '👔', '🎮',
+  '🧳', '💻', '🍿', '🥡', '🎬', '🚌', '🚄', '🅿️', '⛽', '🥬',
+  '🍎', '📺', '🛡️', '🏦', '💡', '🔧', '👶', '🍻', '🏨', '📦',
+]
+export const incomeIconKeys = [
+  '💰', '🏆', '📈', '🧧', '📋', '💼', '🏘️', '💵', '🎰', '👨‍💻', '↩️', '♻️',
+]
 export const accountIconKeys = [...bankIcons, ...financeIcons]
 export const goalIconKeys = ['fund', 'housing', 'taxi', 'flight', 'digital', 'phone', 'clothing', 'gift', 'education', 'travel', 'game', 'salary']
 
