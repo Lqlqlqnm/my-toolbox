@@ -77,23 +77,36 @@ export default function TravelIndex() {
       {/* 进行中的行程 */}
       {activeChecklists.length > 0 && (
         <div className="mb-6">
-          <h2 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">进行中</h2>
-          <div className="space-y-2">
+          <p className="text-[11px] text-gray-400 dark:text-gray-600 mb-2">进行中</p>
+          <div className="space-y-3">
             {activeChecklists.map(cl => {
               const total = cl.categories.reduce((s, c) => s + c.items.length, 0)
               const checked = cl.categories.reduce((s, c) => s + c.items.filter(i => i.checked).length, 0)
               const pct = total > 0 ? (checked / total) * 100 : 0
+              // Days until trip
+              const daysLeft = cl.trip_date ? Math.ceil((new Date(cl.trip_date).getTime() - Date.now()) / 86400000) : null
               return (
                 <button key={cl.id} onClick={() => setView({ type: 'checklist', checklistId: cl.id! })}
-                  className="w-full p-3 bg-white dark:bg-[#141416] rounded-lg border border-gray-100 dark:border-white/[0.06] text-left">
-                  <div className="flex justify-between items-center mb-1">
-                    <span className="text-sm font-medium text-gray-800 dark:text-gray-200">{cl.icon} {cl.name}</span>
-                    <span className="text-xs text-gray-400">{checked}/{total}</span>
+                  className="w-full rounded-xl p-4 relative overflow-hidden text-left" style={{ background: 'linear-gradient(135deg, #002e1a, #003d23, #004d2d)' }}>
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/10 rounded-full blur-2xl"></div>
+                  <div className="relative">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-[10px] text-emerald-300/50">{cl.trip_date ? `${cl.trip_date} 出发` : '进行中'}</p>
+                        <p className="text-base font-bold text-white mt-0.5">{cl.icon} {cl.name}</p>
+                      </div>
+                      {daysLeft !== null && daysLeft > 0 && (
+                        <div className="text-right">
+                          <p className="text-xl font-bold text-emerald-400">{daysLeft}</p>
+                          <p className="text-[10px] text-emerald-300/40">天后出发</p>
+                        </div>
+                      )}
+                    </div>
+                    <div className="mt-3 h-1.5 bg-white/10 rounded-full">
+                      <div className="h-1.5 bg-emerald-500/60 rounded-full transition-all" style={{ width: `${pct}%` }} />
+                    </div>
+                    <p className="text-[10px] text-gray-500 mt-1">已完成 {checked}/{total} 项</p>
                   </div>
-                  <div className="w-full h-1.5 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
-                    <div className="h-full bg-emerald-500 rounded-full transition-all" style={{ width: `${pct}%` }} />
-                  </div>
-                  {cl.trip_date && <p className="text-xs text-gray-400 mt-1">{cl.trip_date} 出发</p>}
                 </button>
               )
             })}
@@ -102,24 +115,29 @@ export default function TravelIndex() {
       )}
 
       {/* 模板列表 */}
-      <h2 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">我的模板</h2>
-      <div className="grid grid-cols-2 gap-3 mb-6">
+      <p className="text-[11px] text-gray-400 dark:text-gray-600 mb-2">我的模板</p>
+      <div className="space-y-2 mb-6">
         {templates.map(t => (
-          <div key={t.id} className="p-3 bg-white dark:bg-[#141416] rounded-lg border border-gray-100 dark:border-white/[0.06]">
-            <div className="text-2xl mb-1">{t.icon}</div>
-            <p className="text-sm font-medium text-gray-800 dark:text-gray-200">{t.name}</p>
-            <p className="text-xs text-gray-400">{totalItems(t)} 项</p>
-            <div className="flex gap-2 mt-2">
-              <button onClick={() => createChecklist(t)} className="text-xs text-emerald-600 hover:text-emerald-700">使用</button>
-              <button onClick={() => setView({ type: 'edit', templateId: t.id })} className="text-xs text-blue-500 hover:text-blue-600">编辑</button>
-              <button onClick={() => deleteTemplate(t.id!)} className="text-xs text-gray-400 hover:text-red-500">删除</button>
+          <div key={t.id} className="rounded-xl p-4 bg-white dark:bg-[#141416] border border-gray-100 dark:border-white/[0.06] shadow-sm relative overflow-hidden">
+            <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-emerald-400 dark:hidden" />
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center text-xl shrink-0">{t.icon}</div>
+              <div className="flex-1">
+                <p className="text-sm font-medium text-gray-900 dark:text-white">{t.name}</p>
+                <p className="text-[10px] text-gray-400 dark:text-gray-600">{totalItems(t)} 项</p>
+              </div>
+              <div className="flex gap-3">
+                <button onClick={() => createChecklist(t)} className="text-xs text-emerald-600 dark:text-emerald-400">使用</button>
+                <button onClick={() => setView({ type: 'edit', templateId: t.id })} className="text-xs text-blue-500 dark:text-blue-400">编辑</button>
+                <button onClick={() => deleteTemplate(t.id!)} className="text-xs text-gray-400 hover:text-red-500">删除</button>
+              </div>
             </div>
           </div>
         ))}
         <button onClick={() => setView({ type: 'edit' })}
-          className="p-3 bg-[#f4f4f5] dark:bg-[#0c0c0d] rounded-lg border border-dashed border-gray-300 dark:border-gray-600 flex flex-col items-center justify-center">
-          <span className="text-2xl text-gray-300">+</span>
-          <span className="text-xs text-gray-400 mt-1">新建模板</span>
+          className="w-full p-4 rounded-xl border border-dashed border-gray-300 dark:border-white/[0.1] flex items-center justify-center gap-2">
+          <span className="text-lg text-gray-300">+</span>
+          <span className="text-xs text-gray-400">新建模板</span>
         </button>
       </div>
 
