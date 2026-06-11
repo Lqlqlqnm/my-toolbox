@@ -1,29 +1,8 @@
 import { useState, useEffect, useMemo } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { Eye, EyeOff, AlertTriangle, Crown, CreditCard, PieChart, Repeat, Handshake, Target, Calendar, TrendingUp, Zap, Settings, ChevronUp, ChevronDown, EyeOff as EyeOffIcon, Eye as EyeIcon } from 'lucide-react'
+import { Eye, EyeOff, AlertTriangle, Crown, CreditCard, TrendingUp } from 'lucide-react'
 import { db, type Account, type Transaction, type Budget, type Category } from '../../lib/db'
 import CategoryIcon from '../../components/CategoryIcon'
-
-interface ModuleItem {
-  key: string
-  icon: React.ReactNode
-  label: string
-  to: string
-  color: string
-  visible: boolean
-  sort_order: number
-}
-
-const DEFAULT_MODULES: ModuleItem[] = [
-  { key: 'budget', icon: <PieChart className="w-5 h-5 text-amber-500" />, label: '预算', to: '/accounting/budgets', color: 'bg-amber-50', visible: true, sort_order: 0 },
-  { key: 'recurring', icon: <Repeat className="w-5 h-5 text-blue-500" />, label: '周期', to: '/accounting/recurring', color: 'bg-blue-50', visible: true, sort_order: 1 },
-  { key: 'debts', icon: <Handshake className="w-5 h-5 text-green-500" />, label: '借还', to: '/accounting/debts', color: 'bg-green-50', visible: true, sort_order: 2 },
-  { key: 'savings', icon: <Target className="w-5 h-5 text-red-500" />, label: '攒钱', to: '/accounting/savings', color: 'bg-red-50', visible: true, sort_order: 3 },
-  { key: 'calendar', icon: <Calendar className="w-5 h-5 text-purple-500" />, label: '日历', to: '/accounting/list?view=calendar', color: 'bg-purple-50', visible: true, sort_order: 4 },
-  { key: 'trend', icon: <TrendingUp className="w-5 h-5 text-indigo-500" />, label: '趋势', to: '/accounting/trend', color: 'bg-indigo-50', visible: true, sort_order: 5 },
-  { key: 'templates', icon: <Zap className="w-5 h-5 text-cyan-500" />, label: '模板', to: '/accounting/templates', color: 'bg-cyan-50', visible: true, sort_order: 6 },
-  { key: 'credit-cards', icon: <CreditCard className="w-5 h-5 text-pink-500" />, label: '还款', to: '/accounting/credit-cards', color: 'bg-pink-50', visible: true, sort_order: 7 },
-]
 
 export default function Overview() {
   const location = useLocation()
@@ -32,19 +11,6 @@ export default function Overview() {
   const [budgets, setBudgets] = useState<Budget[]>([])
   const [categories, setCategories] = useState<Map<number, Category>>(new Map())
   const [hideAmount, setHideAmount] = useState(false)
-  const [modules, setModules] = useState<ModuleItem[]>(() => {
-    const saved = localStorage.getItem('overview_modules')
-    if (saved) {
-      try {
-        const config = JSON.parse(saved) as Array<{ key: string; visible: boolean; sort_order: number }>
-        return DEFAULT_MODULES.map(m => {
-          const c = config.find(x => x.key === m.key)
-          return c ? { ...m, visible: c.visible, sort_order: c.sort_order } : m
-        }).sort((a, b) => a.sort_order - b.sort_order)
-      } catch { /* use default */ }
-    }
-    return DEFAULT_MODULES
-  })
 
   useEffect(() => {
     loadData()
@@ -120,30 +86,7 @@ export default function Overview() {
     }).sort((a, b) => b.interestFreeDays - a.interestFreeDays)
   }, [accounts])
 
-  const visibleModules = modules.filter(m => m.visible)
-  const [editingModules, setEditingModules] = useState(false)
   const [budgetExpanded, setBudgetExpanded] = useState(false)
-
-  function saveModules(updated: ModuleItem[]) {
-    setModules(updated)
-    localStorage.setItem('overview_modules', JSON.stringify(updated.map(m => ({ key: m.key, visible: m.visible, sort_order: m.sort_order }))))
-  }
-
-  function toggleModuleVisible(key: string) {
-    const updated = modules.map(m => m.key === key ? { ...m, visible: !m.visible } : m)
-    saveModules(updated)
-  }
-
-  function moveModule(key: string, dir: -1 | 1) {
-    const idx = modules.findIndex(m => m.key === key)
-    if (idx < 0) return
-    const targetIdx = idx + dir
-    if (targetIdx < 0 || targetIdx >= modules.length) return
-    const updated = [...modules]
-    ;[updated[idx], updated[targetIdx]] = [updated[targetIdx], updated[idx]]
-    updated.forEach((m, i) => m.sort_order = i)
-    saveModules(updated)
-  }
 
   const formatAmount = (n: number) => hideAmount ? '****' : `¥${n.toLocaleString('zh-CN', { minimumFractionDigits: 2 })}`
 
@@ -153,9 +96,6 @@ export default function Overview() {
       <div className="flex items-center justify-end gap-2 mb-3">
         <button onClick={() => setHideAmount(!hideAmount)} className="text-gray-400 p-1">
           {hideAmount ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-        </button>
-        <button onClick={() => setEditingModules(!editingModules)} className={`p-1 ${editingModules ? 'text-amber-500' : 'text-gray-400'}`}>
-          <Settings className="w-4 h-4" />
         </button>
       </div>
 
@@ -185,42 +125,6 @@ export default function Overview() {
           <p className="text-xs text-red-600 dark:text-red-400">
             {budgetStatus.filter(b => b.pct >= 80).length} 项预算接近上限，注意控制开支
           </p>
-        </div>
-      )}
-
-      {/* Quick Tools - horizontal scroll pills */}
-      {editingModules ? (
-        <div className="mb-5 bg-white dark:bg-[#141416] rounded-xl border border-gray-100 dark:border-white/[0.06] p-4">
-          <div className="flex items-center justify-between mb-3">
-            <p className="text-sm font-medium text-gray-900 dark:text-white">编辑模块</p>
-            <button onClick={() => setEditingModules(false)} className="text-xs text-amber-500 font-medium">完成</button>
-          </div>
-          <div className="space-y-2">
-            {modules.map((m, idx) => (
-              <div key={m.key} className="flex items-center gap-3 py-2 px-2 rounded-lg bg-gray-50 dark:bg-white/[0.03]">
-                {m.icon}
-                <span className="flex-1 text-sm text-gray-700 dark:text-gray-200">{m.label}</span>
-                <button onClick={() => moveModule(m.key, -1)} disabled={idx === 0} className="p-1 text-gray-400 hover:text-gray-600 disabled:opacity-30">
-                  <ChevronUp className="w-4 h-4" />
-                </button>
-                <button onClick={() => moveModule(m.key, 1)} disabled={idx === modules.length - 1} className="p-1 text-gray-400 hover:text-gray-600 disabled:opacity-30">
-                  <ChevronDown className="w-4 h-4" />
-                </button>
-                <button onClick={() => toggleModuleVisible(m.key)} className={`p-1 ${m.visible ? 'text-green-500' : 'text-gray-300'}`}>
-                  {m.visible ? <EyeIcon className="w-4 h-4" /> : <EyeOffIcon className="w-4 h-4" />}
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
-      ) : (
-        <div className="mb-5 flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-hide">
-          {visibleModules.filter(m => m.key !== 'budget').map(m => (
-            <Link key={m.key} to={m.to} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white dark:bg-[#141416] border border-gray-100 dark:border-white/[0.06] shadow-sm whitespace-nowrap shrink-0">
-              {m.icon}
-              <span className="text-xs text-gray-600 dark:text-gray-300">{m.label}</span>
-            </Link>
-          ))}
         </div>
       )}
 
@@ -274,6 +178,34 @@ export default function Overview() {
           )}
         </div>
       )}
+
+      {/* Trend Card */}
+      <Link to="/accounting/trend" className="block mb-5 rounded-xl p-4 bg-white dark:bg-[#141416] border border-gray-100 dark:border-white/[0.06] shadow-sm relative overflow-hidden">
+        <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-indigo-400 dark:hidden" />
+        <div className="flex items-center justify-between mb-2">
+          <p className="text-sm font-medium text-gray-900 dark:text-white">资产趋势</p>
+          <TrendingUp className="w-4 h-4 text-indigo-400" />
+        </div>
+        <div className="flex items-end gap-[3px] h-8">
+          {(() => {
+            // Simple last-7-days expense bars
+            const days: number[] = []
+            const now = new Date()
+            for (let i = 6; i >= 0; i--) {
+              const d = new Date(now)
+              d.setDate(d.getDate() - i)
+              const dateStr = d.toISOString().split('T')[0]
+              const dayTotal = transactions.filter(t => t.type === 'expense' && t.date === dateStr).reduce((s, t) => s + t.amount, 0)
+              days.push(dayTotal)
+            }
+            const max = Math.max(...days, 1)
+            return days.map((v, i) => (
+              <div key={i} className="flex-1 bg-indigo-400/30 dark:bg-indigo-500/20 rounded-sm" style={{ height: `${Math.max(8, (v / max) * 100)}%` }} />
+            ))
+          })()}
+        </div>
+        <p className="text-[10px] text-gray-400 dark:text-gray-600 mt-1.5">最近 7 天支出</p>
+      </Link>
 
       {/* Credit Card Interest-Free */}
       {creditCards.length > 0 && (
