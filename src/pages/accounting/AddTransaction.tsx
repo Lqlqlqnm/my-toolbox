@@ -1,7 +1,7 @@
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useState, useEffect, useCallback } from 'react'
 import { db, type Category, type Account, type Book, type Transaction } from '../../lib/db'
-import { suggestCategory, getTemplates, type QuickTemplate } from '../../lib/accounting-utils'
+import { suggestCategory, getTemplates, addTemplate, type QuickTemplate } from '../../lib/accounting-utils'
 import CategoryIcon from '../../components/CategoryIcon'
 
 type TxType = 'expense' | 'income' | 'transfer'
@@ -34,6 +34,8 @@ export default function AddTransaction() {
   const [installmentCount, setInstallmentCount] = useState('3')
   const [installmentAdjust, setInstallmentAdjust] = useState<'last' | 'first'>('last')
   const [installmentFeeRate, setInstallmentFeeRate] = useState('') // 每期费率%，如0.6
+  // Transfer fee
+  const [transferFee, setTransferFee] = useState('')
   // Split (拆分)
   const [showSplit, setShowSplit] = useState(false)
   const [splitItems, setSplitItems] = useState<{amount: string; note: string; category_id: number | null}[]>([])
@@ -94,13 +96,13 @@ export default function AddTransaction() {
 
   const filteredCategories = categories.filter(c => c.type === txType)
 
-  async function applyBalance(tx: { type: string; amount: number; account_id: number | null; to_account_id: number | null }) {
+  async function applyBalance(tx: { type: string; amount: number; account_id: number | null; to_account_id: number | null }, fee = 0) {
     if (tx.type === 'expense' && tx.account_id) {
       await db.accounts.where('id').equals(tx.account_id).modify(a => { a.balance -= tx.amount })
     } else if (tx.type === 'income' && tx.account_id) {
       await db.accounts.where('id').equals(tx.account_id).modify(a => { a.balance += tx.amount })
     } else if (tx.type === 'transfer') {
-      if (tx.account_id) await db.accounts.where('id').equals(tx.account_id).modify(a => { a.balance -= tx.amount })
+      if (tx.account_id) await db.accounts.where('id').equals(tx.account_id).modify(a => { a.balance -= (tx.amount + fee) })
       if (tx.to_account_id) await db.accounts.where('id').equals(tx.to_account_id).modify(a => { a.balance += tx.amount })
     }
   }
@@ -229,9 +231,33 @@ export default function AddTransaction() {
       await db.transactions.update(Number(id), { ...txData, updated_at: now })
     } else {
       await db.transactions.add(txData)
+      // 如果有转账手续费，额外记录一笔支出
+      const feeAmount = txType === 'transfer' ? (parseFloat(transferFee) || 0) : 0
+      if (feeAmount > 0) {
+        await db.transactions.add({
+          type: 'expense',
+          amount: feeAmount,
+          category_id: null,
+          account_id: accountId,
+          to_account_id: null,
+          tags: ['手续费'],
+          note: `转账手续费 (${note || '转账'})`,
+          date,
+          book_id: bookId,
+          is_excluded: false,
+          is_reconciled: false,
+          currency: 'CNY',
+          exchange_rate: 1,
+          reimbursement: null,
+          refund_for: null,
+          created_at: now,
+          updated_at: now,
+        })
+      }
     }
 
-    await applyBalance(txData)
+    const feeAmount = txType === 'transfer' ? (parseFloat(transferFee) || 0) : 0
+    await applyBalance(txData, feeAmount)
     navigate('/accounting')
   }
 
@@ -363,6 +389,13 @@ export default function AddTransaction() {
                 <span className="inline-flex items-center gap-1"><CategoryIcon icon={a.icon} size={14} /> {a.name}</span>
               </button>
             ))}
+          </div>
+          <div className="mt-2 flex items-center gap-2">
+            <span className="text-xs text-gray-500">手续费:</span>
+            <input type="number" value={transferFee} onChange={e => setTransferFee(e.target.value)}
+              placeholder="0" step="0.01"
+              className="w-20 px-2 py-1 bg-white dark:bg-gray-700 rounded text-sm border border-gray-200 dark:border-gray-600" />
+            <span className="text-xs text-gray-400">(可选，从转出账户扣除)</span>
           </div>
         </div>
       )}
@@ -547,6 +580,20 @@ export default function AddTransaction() {
       >
         {isEditing ? '保存修改' : showInstallment ? `保存 (${installmentCount}期)` : showSplit ? `保存 (${splitItems.length}笔)` : '保存'}
       </button>
+
+      {/* Save as Template */}
+      {!isEditing && amount && parseFloat(amount) > 0 && note && (
+        <button
+          onClick={() => {
+            addTemplate({ name: note, type: txType, amount: parseFloat(amount), category_id: categoryId, account_id: accountId, note })
+            setTemplates(getTemplates())
+            alert('已保存为模板')
+          }}
+          className="w-full mt-2 py-2 text-sm text-amber-600 border border-amber-200 dark:border-amber-800 rounded-xl"
+        >
+          保存为模板
+        </button>
+      )}
     </main>
   )
 }

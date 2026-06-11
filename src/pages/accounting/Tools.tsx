@@ -8,7 +8,7 @@ const accountingTools = [
   { icon: <Target className="w-5 h-5 text-red-500" />, label: '攒钱目标', to: '/accounting/savings', bg: 'bg-red-50' },
   { icon: <Calendar className="w-5 h-5 text-purple-500" />, label: '日历', to: '/accounting/list?view=calendar', bg: 'bg-purple-50' },
   { icon: <TrendingUp className="w-5 h-5 text-indigo-500" />, label: '资产趋势', to: '/accounting/trend', bg: 'bg-indigo-50' },
-  { icon: <Zap className="w-5 h-5 text-cyan-500" />, label: '常用模板', to: '/accounting/tools', bg: 'bg-cyan-50' },
+  { icon: <Zap className="w-5 h-5 text-cyan-500" />, label: '常用模板', to: '/accounting/templates', bg: 'bg-cyan-50' },
   { icon: <CreditCard className="w-5 h-5 text-pink-500" />, label: '信用卡', to: '/accounting/credit-cards', bg: 'bg-pink-50' },
 ]
 

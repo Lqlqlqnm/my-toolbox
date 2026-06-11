@@ -97,18 +97,59 @@ export default function TransactionList() {
   }
 
   async function deleteTransaction(id: number) {
+    if (!confirm('确定删除此记录？删除后账户余额将自动回滚。')) return
     const tx = await db.transactions.get(id)
     if (!tx) return
     // Remove from UI immediately
     setTransactions(prev => prev.filter(t => t.id !== id))
-    // Set undo timer
+    // Set undo timer (5s grace period before actual deletion)
     const timer = setTimeout(async () => {
-      if (tx.type === 'expense' && tx.account_id) await db.accounts.where('id').equals(tx.account_id).modify(a => { a.balance += tx.amount })
-      else if (tx.type === 'income' && tx.account_id) await db.accounts.where('id').equals(tx.account_id).modify(a => { a.balance -= tx.amount })
+      // Reverse balance
+      if (tx.type === 'expense' && tx.account_id) {
+        await db.accounts.where('id').equals(tx.account_id).modify(a => { a.balance += tx.amount })
+      } else if (tx.type === 'income' && tx.account_id) {
+        await db.accounts.where('id').equals(tx.account_id).modify(a => { a.balance -= tx.amount })
+      } else if (tx.type === 'transfer') {
+        if (tx.account_id) await db.accounts.where('id').equals(tx.account_id).modify(a => { a.balance += tx.amount })
+        if (tx.to_account_id) await db.accounts.where('id').equals(tx.to_account_id).modify(a => { a.balance -= tx.amount })
+      }
       await db.transactions.delete(id)
       setPendingDelete(null)
     }, 5000)
     setPendingDelete({ id, timer })
+  }
+
+  async function refundTransaction(tx: Transaction) {
+    if (!tx.id) return
+    const refundAmount = prompt(`退款金额（原金额 ¥${tx.amount}）`, String(tx.amount))
+    if (!refundAmount) return
+    const amount = parseFloat(refundAmount)
+    if (!amount || amount <= 0) return
+    const now = new Date().toISOString()
+    const refundTx = {
+      type: 'income' as const,
+      amount,
+      category_id: tx.category_id,
+      account_id: tx.account_id,
+      to_account_id: null,
+      tags: [...(tx.tags || []), '退款'],
+      note: `退款: ${tx.note || ''}`.trim(),
+      date: new Date().toISOString().slice(0, 10),
+      book_id: tx.book_id,
+      is_excluded: false,
+      is_reconciled: false,
+      currency: tx.currency,
+      exchange_rate: 1,
+      reimbursement: null,
+      refund_for: tx.id,
+      created_at: now,
+      updated_at: now,
+    }
+    await db.transactions.add(refundTx)
+    if (tx.account_id) {
+      await db.accounts.where('id').equals(tx.account_id).modify(a => { a.balance += amount })
+    }
+    await loadData()
   }
 
   function undoDelete() {
@@ -232,11 +273,18 @@ export default function TransactionList() {
                           {t.reimbursement && <span className="text-[10px] px-1 bg-orange-50 text-orange-500 rounded">{t.reimbursement === 'pending' ? '待报销' : '已报销'}</span>}
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1">
                         <span className={`text-sm font-medium ${t.type === 'income' ? 'text-green-500' : t.type === 'expense' ? 'text-red-500' : 'text-blue-500'}`}>
                           {t.type === 'income' ? '+' : t.type === 'expense' ? '-' : ''}{t.amount.toFixed(2)}
                         </span>
-                        <button onClick={() => t.id && deleteTransaction(t.id)} className="text-gray-300 hover:text-red-500 ml-1">
+                        {t.type === 'expense' && (
+                          <button onClick={() => refundTransaction(t)} className="text-gray-300 hover:text-green-500 ml-1" title="退款">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor">
+                              <path fillRule="evenodd" d="M7.707 3.293a1 1 0 010 1.414L5.414 7H11a7 7 0 017 7v2a1 1 0 11-2 0v-2a5 5 0 00-5-5H5.414l2.293 2.293a1 1 0 11-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
+                            </svg>
+                          </button>
+                        )}
+                        <button onClick={() => t.id && deleteTransaction(t.id)} className="text-gray-300 hover:text-red-500">
                           <X className="w-3.5 h-3.5" />
                         </button>
                       </div>

@@ -16,6 +16,7 @@ import DataIO from './DataIO'
 import AssetTrend from './AssetTrend'
 import Tools from './Tools'
 import CreditCards from './CreditCards'
+import Templates from './Templates'
 
 const tabs = [
   { path: '/accounting', label: '首页' },
@@ -80,6 +81,7 @@ export default function AccountingIndex() {
           <Route path="/data" element={<DataIO />} />
           <Route path="/trend" element={<AssetTrend />} />
           <Route path="/tools" element={<Tools />} />
+          <Route path="/templates" element={<Templates />} />
           <Route path="/credit-cards" element={<CreditCards />} />
         </Routes>
       </div>

@@ -20,7 +20,7 @@ const DEFAULT_MODULES: ModuleItem[] = [
   { key: 'savings', icon: <Target className="w-5 h-5 text-red-500" />, label: '攒钱', to: '/accounting/savings', color: 'bg-red-50', visible: true, sort_order: 3 },
   { key: 'calendar', icon: <Calendar className="w-5 h-5 text-purple-500" />, label: '日历', to: '/accounting/list?view=calendar', color: 'bg-purple-50', visible: true, sort_order: 4 },
   { key: 'trend', icon: <TrendingUp className="w-5 h-5 text-indigo-500" />, label: '趋势', to: '/accounting/trend', color: 'bg-indigo-50', visible: true, sort_order: 5 },
-  { key: 'templates', icon: <Zap className="w-5 h-5 text-cyan-500" />, label: '模板', to: '/accounting/tools', color: 'bg-cyan-50', visible: true, sort_order: 6 },
+  { key: 'templates', icon: <Zap className="w-5 h-5 text-cyan-500" />, label: '模板', to: '/accounting/templates', color: 'bg-cyan-50', visible: true, sort_order: 6 },
   { key: 'credit-cards', icon: <CreditCard className="w-5 h-5 text-pink-500" />, label: '还款', to: '/accounting/credit-cards', color: 'bg-pink-50', visible: true, sort_order: 7 },
 ]
 
