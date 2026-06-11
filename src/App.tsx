@@ -2,6 +2,7 @@ import { Routes, Route } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { initDefaultData } from './lib/db'
 import { shouldRemindBackup, shareBackup } from './lib/backup'
+import { initTheme } from './lib/theme'
 import Home from './pages/Home'
 import Accounting from './pages/accounting/Index'
 import Trading from './pages/trading/Index'
@@ -13,11 +14,12 @@ export default function App() {
 
   useEffect(() => {
     initDefaultData()
+    initTheme()
     if (shouldRemindBackup()) setShowBackupReminder(true)
   }, [])
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+    <div className="min-h-screen bg-[#f4f4f5] dark:bg-[#0c0c0d] transition-colors">
       {/* Backup Reminder Banner */}
       {showBackupReminder && (
         <div className="fixed top-0 left-0 right-0 bg-amber-500 text-white text-center py-2 px-4 text-sm z-50 flex items-center justify-center gap-3">
