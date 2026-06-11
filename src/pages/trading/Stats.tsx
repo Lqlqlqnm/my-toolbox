@@ -12,7 +12,8 @@ export default function Stats() {
 
   return (
     <div className="space-y-4">
-      <div className="bg-white dark:bg-[#141416] rounded-lg p-4 border border-gray-200 dark:border-white/[0.06]">
+      {/* Stats grid - gradient card */}
+      <div className="rounded-xl p-4 relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #1f2937, #111827)' }}>
         <div className="grid grid-cols-2 gap-3">
           <StatItem label="总交易" value={`${stats.totalTrades} 笔`} />
           <StatItem label="胜率" value={`${stats.winRate.toFixed(1)}%`} highlight={stats.winRate >= 50} />
@@ -25,17 +26,21 @@ export default function Stats() {
         </div>
       </div>
 
-      <div className="bg-white dark:bg-[#141416] rounded-lg p-4 border border-gray-200 dark:border-white/[0.06]">
-        <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">卖出原因分布</h3>
+      {/* Reason breakdown */}
+      <div>
+        <p className="text-[11px] text-gray-400 dark:text-gray-600 mb-2">卖出原因分布</p>
         <div className="space-y-2">
           {Object.entries(stats.reasonBreakdown || {}).map(([reason, data]: [string, any]) => (
-            <div key={reason} className="flex justify-between items-center text-xs">
-              <span className="text-gray-600 dark:text-gray-400">{reasonLabel(reason)}</span>
-              <div className="flex gap-3">
-                <span className="text-gray-500">{data.count} 笔</span>
-                <span className={data.avgPnl >= 0 ? 'text-red-500' : 'text-green-500'}>
-                  平均 {data.avgPnl >= 0 ? '+' : ''}{data.avgPnl.toFixed(1)}%
-                </span>
+            <div key={reason} className="rounded-xl p-3 bg-white dark:bg-[#141416] border border-gray-100 dark:border-white/[0.06] shadow-sm relative overflow-hidden">
+              <div className={`absolute left-0 top-0 bottom-0 w-0.5 ${data.avgPnl >= 0 ? 'bg-green-400' : 'bg-red-400'} dark:hidden`} />
+              <div className="flex justify-between items-center text-xs">
+                <span className="text-gray-900 dark:text-white font-medium">{reasonLabel(reason)}</span>
+                <div className="flex gap-3">
+                  <span className="text-gray-400">{data.count} 笔</span>
+                  <span className={data.avgPnl >= 0 ? 'text-green-500 dark:text-green-400' : 'text-red-500 dark:text-red-400'}>
+                    平均 {data.avgPnl >= 0 ? '+' : ''}{data.avgPnl.toFixed(1)}%
+                  </span>
+                </div>
               </div>
             </div>
           ))}
@@ -48,8 +53,8 @@ export default function Stats() {
 function StatItem({ label, value, highlight }: { label: string; value: string; highlight?: boolean }) {
   return (
     <div>
-      <p className="text-xs text-gray-500">{label}</p>
-      <p className={`text-sm font-medium ${highlight ? 'text-red-500' : 'text-gray-800 dark:text-gray-200'}`}>{value}</p>
+      <p className="text-[10px] text-white/50">{label}</p>
+      <p className={`text-sm font-medium ${highlight ? 'text-green-400' : 'text-white'}`}>{value}</p>
     </div>
   )
 }
