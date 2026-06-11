@@ -339,45 +339,18 @@ export async function initDefaultData() {
   })
 
   // 默认旅行模板
-  await db.travelTemplates.bulkAdd([
-    {
-      name: '出差3天',
-      icon: '💼',
-      categories: [
-        { name: '证件', icon: '📋', items: ['身份证', '工牌', '银行卡', '钥匙'] },
-        { name: '衣物', icon: '👔', items: ['衬衫×2', '内衣×3', '袜子×3', '睡衣'] },
-        { name: '洗漱', icon: '🧴', items: ['牙刷', '牙膏', '洗面奶', '毛巾', '剃须刀'] },
-        { name: '电子', icon: '🔌', items: ['充电器', '数据线', '充电宝', '耳机', '笔记本'] },
-        { name: '其他', icon: '📦', items: ['水杯', '纸巾', '雨伞'] },
-      ],
-      created_at: new Date().toISOString(),
-    },
-    {
-      name: '旅行一周',
-      icon: '🏖️',
-      categories: [
-        { name: '证件', icon: '📋', items: ['身份证', '护照', '银行卡', '现金', '钥匙'] },
-        { name: '衣物', icon: '👕', items: ['T恤×4', '裤子×3', '内衣×5', '袜子×5', '睡衣', '泳衣', '外套'] },
-        { name: '洗漱', icon: '🧴', items: ['牙刷', '牙膏', '洗面奶', '防晒霜', '洗发水', '沐浴露', '毛巾'] },
-        { name: '电子', icon: '🔌', items: ['充电器', '数据线', '充电宝', '耳机', '相机'] },
-        { name: '药品', icon: '💊', items: ['感冒药', '肠胃药', '创可贴', '防蚊液'] },
-        { name: '其他', icon: '📦', items: ['水杯', '零食', '纸巾', '雨伞', '塑料袋'] },
-      ],
-      created_at: new Date().toISOString(),
-    },
-    {
-      name: '露营',
-      icon: '🏕️',
-      categories: [
-        { name: '装备', icon: '⛺', items: ['帐篷', '睡袋', '防潮垫', '营地灯', '折叠椅', '折叠桌'] },
-        { name: '炊具', icon: '🍳', items: ['炉头', '气罐', '锅具', '餐具', '水壶', '打火机'] },
-        { name: '衣物', icon: '🧥', items: ['冲锋衣', '抓绒衣', '速干裤', '帽子', '手套', '换洗内衣'] },
-        { name: '食物', icon: '🥫', items: ['饮用水', '主食', '零食', '调料', '垃圾袋'] },
-        { name: '其他', icon: '📦', items: ['急救包', '防蚊液', '头灯', '刀具', '充电宝', '纸巾'] },
-      ],
-      created_at: new Date().toISOString(),
-    },
-  ])
+  await initTravelTemplates()
+}
+
+// ===== 初始化旅行模板（独立函数，可重复调用） =====
+export async function initTravelTemplates() {
+  const count = await db.travelTemplates.count()
+  if (count > 0) return
+  const { defaultTravelTemplates } = await import('./travel-templates')
+  const now = new Date().toISOString()
+  await db.travelTemplates.bulkAdd(
+    defaultTravelTemplates.map(t => ({ ...t, created_at: now }))
+  )
 }
 
 // ===== 检查到期分期，自动扣减余额 =====

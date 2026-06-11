@@ -2,8 +2,10 @@ import { Link } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { db, type Category } from '../../lib/db'
 import CategoryIcon, { categoryIconKeys } from '../../components/CategoryIcon'
+import { useModal } from '../../components/Modal'
 
 export default function Categories() {
+  const { showPrompt } = useModal()
   const [categories, setCategories] = useState<Category[]>([])
   const [viewType, setViewType] = useState<'expense' | 'income'>('expense')
   const [showForm, setShowForm] = useState(false)
@@ -210,6 +212,15 @@ export default function Categories() {
                       <CategoryIcon icon={ico} size={18} />
                     </button>
                   ))}
+                  <button
+                    onClick={async () => {
+                      const emoji = await showPrompt('输入自定义 emoji', { placeholder: '粘贴或输入一个 emoji' })
+                      if (emoji) setForm({ ...form, icon: emoji })
+                    }}
+                    className="w-9 h-9 rounded-lg flex items-center justify-center bg-gray-50 dark:bg-gray-700 text-gray-400 hover:text-amber-500 text-lg"
+                  >
+                    +
+                  </button>
                 </div>
               </div>
               <div>
