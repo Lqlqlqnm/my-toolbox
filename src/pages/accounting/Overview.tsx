@@ -157,22 +157,19 @@ export default function Overview() {
       </div>
 
       {/* Asset Card */}
-      <div className="rounded-xl p-4 mb-4 bg-white dark:bg-[#141416] border border-gray-100 dark:border-white/[0.06] shadow-sm relative overflow-hidden">
-        {/* Light: left gradient bar */}
-        <div className="absolute left-0 top-0 bottom-0 w-1 rounded-l-xl dark:hidden" style={{ background: 'linear-gradient(180deg, #f59e0b, #ef4444)' }} />
-        <div className="flex justify-between text-xs text-gray-400 dark:text-gray-500 mb-2">
+      <div className="rounded-xl p-5 mb-4 text-white relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #1f2937, #111827)' }}>
+        <div className="flex justify-between text-xs opacity-60 mb-2">
           <span>净资产</span>
           <span>{new Date().getFullYear()}年{new Date().getMonth() + 1}月</span>
         </div>
-        <p className="text-2xl font-bold text-gray-900 dark:text-white">{formatAmount(totalAssets)}</p>
+        <p className="text-2xl font-bold">{formatAmount(totalAssets)}</p>
         <div className="flex justify-between mt-3 text-xs">
-          <div><p className="text-gray-400 dark:text-gray-500">收入</p><p className="text-green-600 dark:text-green-400 font-medium mt-0.5">+{hideAmount ? '****' : monthIncome.toFixed(2)}</p></div>
-          <div><p className="text-gray-400 dark:text-gray-500">支出</p><p className="text-red-500 dark:text-red-400 font-medium mt-0.5">-{hideAmount ? '****' : monthExpense.toFixed(2)}</p></div>
-          <div><p className="text-gray-400 dark:text-gray-500">结余</p><p className="text-gray-700 dark:text-amber-400 font-medium mt-0.5">{hideAmount ? '****' : (monthIncome - monthExpense).toFixed(2)}</p></div>
+          <div><p className="opacity-60">收入</p><p className="text-green-400 font-medium mt-0.5">+{hideAmount ? '****' : monthIncome.toFixed(2)}</p></div>
+          <div><p className="opacity-60">支出</p><p className="text-red-400 font-medium mt-0.5">-{hideAmount ? '****' : monthExpense.toFixed(2)}</p></div>
+          <div><p className="opacity-60">结余</p><p className="text-amber-400 font-medium mt-0.5">{hideAmount ? '****' : (monthIncome - monthExpense).toFixed(2)}</p></div>
         </div>
-        {/* Budget progress bar */}
         {budgetStatus.length > 0 && (
-          <div className="mt-3 h-1.5 bg-gray-100 dark:bg-white/5 rounded-full">
+          <div className="mt-3 h-1.5 bg-white/10 rounded-full">
             <div className="h-1.5 rounded-full" style={{ width: `${Math.min(100, (monthExpense / (budgetStatus.reduce((s, b) => s + b.amount, 0) || 1)) * 100)}%`, background: 'linear-gradient(90deg, #f59e0b, #ef4444)' }} />
           </div>
         )}
