@@ -79,11 +79,23 @@ export default function Checklist({ checklistId, onBack }: Props) {
         <span className="text-sm text-gray-500">{checked}/{total}</span>
       </div>
 
-      {/* Progress bar */}
-      <div className="w-full h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden mb-4">
-        <div className={`h-full rounded-full transition-all ${pct === 100 ? 'bg-emerald-500' : 'bg-blue-500'}`} style={{ width: `${pct}%` }} />
+      {/* Progress card - gradient */}
+      <div className="rounded-xl p-4 mb-4 relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #002e1a, #003d23, #004d2d)' }}>
+        <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/10 rounded-full blur-2xl"></div>
+        <div className="relative flex items-center justify-between">
+          <div>
+            <p className="text-[10px] text-emerald-300/50">进度</p>
+            <p className="text-lg font-bold text-white mt-0.5">{checked}/{total} 项</p>
+          </div>
+          <div className="text-right">
+            <p className="text-2xl font-bold text-emerald-400">{pct.toFixed(0)}%</p>
+          </div>
+        </div>
+        <div className="mt-3 h-1.5 bg-white/10 rounded-full">
+          <div className={`h-1.5 rounded-full transition-all ${pct === 100 ? 'bg-emerald-400' : 'bg-emerald-500/60'}`} style={{ width: `${pct}%` }} />
+        </div>
       </div>
-      {pct === 100 && <p className="text-xs text-emerald-600 text-center mb-4">全部打包完成!</p>}
+      {pct === 100 && <p className="text-xs text-emerald-600 dark:text-emerald-400 text-center mb-4">全部打包完成!</p>}
 
       {/* Categories */}
       <div className="space-y-4">
@@ -95,13 +107,18 @@ export default function Checklist({ checklistId, onBack }: Props) {
                 <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">{cat.icon} {cat.name}</h3>
                 <span className="text-xs text-gray-400">{catChecked}/{cat.items.length}</span>
               </div>
-              <div className="bg-white dark:bg-[#141416] rounded-lg border border-gray-100 dark:border-white/[0.06] divide-y divide-gray-50 dark:divide-gray-700">
+              <div className="space-y-2">
                 {cat.items.map((item, itemIndex) => (
                   <button
                     key={itemIndex}
                     onClick={() => toggleItem(catIndex, itemIndex)}
-                    className="w-full flex items-center gap-3 px-3 py-2.5 text-left"
+                    className={`w-full flex items-center gap-3 px-3 py-3 rounded-xl border shadow-sm relative overflow-hidden text-left ${
+                      item.checked
+                        ? 'bg-white/50 dark:bg-[#141416]/50 border-gray-100 dark:border-white/[0.04] opacity-50'
+                        : 'bg-white dark:bg-[#141416] border-gray-100 dark:border-white/[0.06]'
+                    }`}
                   >
+                    <div className={`absolute left-0 top-0 bottom-0 w-0.5 ${item.checked ? 'bg-emerald-300' : 'bg-gray-200'} dark:hidden`} />
                     <span className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
                       item.checked
                         ? 'bg-emerald-500 border-emerald-500 text-white'
@@ -113,7 +130,7 @@ export default function Checklist({ checklistId, onBack }: Props) {
                         </svg>
                       )}
                     </span>
-                    <span className={`text-sm ${item.checked ? 'text-gray-400 line-through' : 'text-gray-800 dark:text-gray-200'}`}>
+                    <span className={`text-sm ${item.checked ? 'text-gray-400 line-through' : 'text-gray-900 dark:text-white'}`}>
                       {item.text}
                     </span>
                   </button>
