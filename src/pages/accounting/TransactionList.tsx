@@ -124,11 +124,12 @@ export default function TransactionList() {
     const refundAmount = prompt(`退款金额（原金额 ¥${tx.amount}）`, String(tx.amount))
     if (!refundAmount) return
     const amount = parseFloat(refundAmount)
-    if (!amount || amount <= 0) return
+    if (!amount || amount <= 0 || amount > tx.amount) { alert('退款金额无效'); return }
     const now = new Date().toISOString()
+    // 创建一条负数支出（同分类），统计时自动抵消
     const refundTx = {
-      type: 'income' as const,
-      amount,
+      type: 'expense' as const,
+      amount: -amount,
       category_id: tx.category_id,
       account_id: tx.account_id,
       to_account_id: null,
@@ -146,6 +147,7 @@ export default function TransactionList() {
       updated_at: now,
     }
     await db.transactions.add(refundTx)
+    // 回滚账户余额（退款 = 钱回来了，余额增加）
     if (tx.account_id) {
       await db.accounts.where('id').equals(tx.account_id).modify(a => { a.balance += amount })
     }
