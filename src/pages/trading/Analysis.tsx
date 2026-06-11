@@ -163,14 +163,19 @@ export default function Analysis() {
       {/* Input List */}
       <div className="space-y-3">
         {inputs.map((item, i) => (
-          <div key={i} className="relative">
+          <div key={i}>
             {item.type === 'text' && (
-              <textarea
-                value={item.content}
-                onChange={e => updateInput(i, e.target.value)}
-                placeholder={`粘贴文章${i + 1}正文（支持 HTML，自动清洗）`}
-                className="w-full h-32 px-3 py-2 text-sm border border-gray-200 dark:border-white/[0.06] rounded-xl bg-white dark:bg-[#141416] resize-none shadow-sm"
-              />
+              <div className="relative">
+                <textarea
+                  value={item.content}
+                  onChange={e => updateInput(i, e.target.value)}
+                  placeholder={`粘贴文章${i + 1}正文（支持 HTML，自动清洗）`}
+                  className="w-full h-32 px-3 py-2 text-sm border border-gray-200 dark:border-white/[0.06] rounded-xl bg-white dark:bg-[#141416] resize-none shadow-sm"
+                />
+                {inputs.length > 1 && (
+                  <button onClick={() => removeInput(i)} className="absolute top-2 right-2 text-gray-400 hover:text-red-500 text-xs">删除</button>
+                )}
+              </div>
             )}
             {item.type === 'url' && (
               <div className="space-y-2">
@@ -179,16 +184,21 @@ export default function Analysis() {
                     value={item.content}
                     onChange={e => updateInput(i, e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && handleUrlFetch(i)}
-                    placeholder="粘贴文章链接（如微信公众号、财经网站）"
+                    placeholder="粘贴文章链接"
                     className="flex-1 px-3 py-2 text-sm border border-gray-200 dark:border-white/[0.06] rounded-xl bg-white dark:bg-[#141416] shadow-sm"
                   />
                   <button
                     onClick={() => handleUrlFetch(i)}
                     disabled={item.loading || !item.content.trim()}
-                    className="px-3 py-2 text-xs bg-blue-500 text-white rounded-xl disabled:opacity-50 whitespace-nowrap"
+                    className="px-3 py-2 text-xs bg-blue-500 text-white rounded-xl disabled:opacity-50 whitespace-nowrap shrink-0"
                   >
-                    {item.loading ? '提取中...' : '提取'}
+                    {item.loading ? '...' : '提取'}
                   </button>
+                  {inputs.length > 1 && (
+                    <button onClick={() => removeInput(i)} className="text-gray-400 hover:text-red-500 shrink-0">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                  )}
                 </div>
                 {item.preview && (
                   <div className="px-3 py-2 bg-gray-50 dark:bg-[#0c0c0d] rounded-lg text-xs text-gray-600 dark:text-gray-400 max-h-24 overflow-y-auto">
@@ -205,12 +215,12 @@ export default function Analysis() {
                 <div className="flex-1 text-xs text-gray-500">
                   {item.loading ? '上传中...' : item.imageId ? `已上传 (ID: ${item.imageId})` : '图片就绪'}
                 </div>
+                {inputs.length > 1 && (
+                  <button onClick={() => removeInput(i)} className="text-gray-400 hover:text-red-500">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"/></svg>
+                  </button>
+                )}
               </div>
-            )}
-            {inputs.length > 1 && (
-              <button onClick={() => removeInput(i)} className="absolute top-2 right-2 text-gray-400 hover:text-red-500 text-xs">
-                删除
-              </button>
             )}
           </div>
         ))}
