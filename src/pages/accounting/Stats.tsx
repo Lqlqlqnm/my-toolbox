@@ -137,15 +137,17 @@ export default function Stats() {
     return { count, maxSingle, dailyAvg }
   }, [transactions, viewType, breakdown.total, trendData.length])
 
-  // Step 2: Tag analysis
+  // Step 2: Tag analysis (filter out system tags)
   const tagBreakdown = useMemo(() => {
+    const systemTagPattern = /^(分期\d+\/\d+|手续费|退款)$/
     const map = new Map<string, number>()
     let total = 0
     for (const t of transactions) {
       if (t.type !== viewType) continue
       total += t.amount
-      if (t.tags && t.tags.length > 0) {
-        for (const tag of t.tags) {
+      const userTags = (t.tags || []).filter(tag => !systemTagPattern.test(tag))
+      if (userTags.length > 0) {
+        for (const tag of userTags) {
           map.set(tag, (map.get(tag) || 0) + t.amount)
         }
       } else {

@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { Search, Calendar as CalendarIcon, X } from 'lucide-react'
 import { db, type Transaction, type Category, type Account } from '../../lib/db'
 import CategoryIcon from '../../components/CategoryIcon'
@@ -7,6 +7,7 @@ import CategoryIcon from '../../components/CategoryIcon'
 const PAGE_SIZE = 30
 
 export default function TransactionList() {
+  const location = useLocation()
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [categories, setCategories] = useState<Category[]>([])
   const [accounts, setAccounts] = useState<Account[]>([])
@@ -24,7 +25,7 @@ export default function TransactionList() {
   // Undo delete
   const [pendingDelete, setPendingDelete] = useState<{ id: number; timer: ReturnType<typeof setTimeout> } | null>(null)
 
-  useEffect(() => { setPage(1); loadData(1) }, [currentMonth, searchKeyword, filterType, selectedDate])
+  useEffect(() => { setPage(1); loadData(1) }, [currentMonth, searchKeyword, filterType, selectedDate, location.key])
 
   async function loadData(loadPage = page) {
     const [year, month] = currentMonth.split('-').map(Number)

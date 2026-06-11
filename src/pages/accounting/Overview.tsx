@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { Eye, EyeOff, AlertTriangle, Crown, CreditCard, PieChart, Repeat, Handshake, Target, Calendar, TrendingUp, Zap, Settings, ChevronUp, ChevronDown, EyeOff as EyeOffIcon, Eye as EyeIcon } from 'lucide-react'
 import { db, type Account, type Transaction, type Budget } from '../../lib/db'
 
@@ -25,6 +25,7 @@ const DEFAULT_MODULES: ModuleItem[] = [
 ]
 
 export default function Overview() {
+  const location = useLocation()
   const [accounts, setAccounts] = useState<Account[]>([])
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [budgets, setBudgets] = useState<Budget[]>([])
@@ -45,7 +46,7 @@ export default function Overview() {
 
   useEffect(() => {
     loadData()
-  }, [])
+  }, [location.key])
 
   async function loadData() {
     const now = new Date()
