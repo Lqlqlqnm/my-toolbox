@@ -33,17 +33,17 @@ export default function AccountingIndex() {
   const showTabs = ['/accounting', '/accounting/list', '/accounting/stats', '/accounting/accounts', '/accounting/tools'].includes(location.pathname)
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col max-w-lg mx-auto">
+    <div className="min-h-screen bg-[#f4f4f5] dark:bg-[#0c0c0d] flex flex-col max-w-lg mx-auto">
       {/* Top Tab Bar */}
       {showTabs && (
-        <div className="sticky top-0 z-30 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800">
+        <div className="sticky top-0 z-30 bg-white/80 dark:bg-[#141416]/80 backdrop-blur-md border-b border-gray-100 dark:border-white/[0.06]">
           <div className="flex items-center justify-between px-4 pt-3 pb-1">
-            <Link to="/" className="text-gray-400 hover:text-gray-600">
+            <Link to="/" className="text-gray-400 dark:text-gray-500 hover:text-gray-600">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
               </svg>
             </Link>
-            <h1 className="text-lg font-bold text-gray-800 dark:text-gray-100">记账本</h1>
+            <h1 className="text-lg font-bold text-gray-900 dark:text-white">记账本</h1>
             <span className="w-5" />
           </div>
           <div className="flex">
@@ -53,7 +53,7 @@ export default function AccountingIndex() {
                 <Link
                   key={tab.path}
                   to={tab.path}
-                  className={`flex-1 py-2.5 text-center text-sm font-medium transition-colors ${isActive ? 'text-amber-500 border-b-2 border-amber-500' : 'text-gray-400'}`}
+                  className={`flex-1 py-2.5 text-center text-sm font-medium transition-colors ${isActive ? 'text-amber-500 border-b-2 border-amber-500' : 'text-gray-400 dark:text-gray-500'}`}
                 >
                   {tab.label}
                 </Link>

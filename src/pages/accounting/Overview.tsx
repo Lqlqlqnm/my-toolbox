@@ -286,12 +286,15 @@ export default function Overview() {
         <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 divide-y divide-gray-50 dark:divide-gray-700">
           {recent.map(t => {
             const cat = t.category_id ? categories.get(t.category_id) : null
+            const displayName = t.type === 'transfer' ? '转账' : cat?.name || '未分类'
+            const systemNotePattern = /^分期\s?\d+\/\d+/
+            const displayNote = t.note && !systemNotePattern.test(t.note) ? t.note : ''
             return (
             <Link key={t.id} to={`/accounting/edit/${t.id}`} className="flex items-center px-3 py-3">
               <span className="text-xl mr-3">{t.type === 'transfer' ? '🔄' : (cat?.icon || '📌')}</span>
               <div className="flex-1 min-w-0">
                 <p className="text-sm text-gray-800 dark:text-gray-100 truncate">
-                  {t.note || (t.type === 'transfer' ? '转账' : cat?.name || '未分类')}
+                  {displayName}{displayNote ? ` - ${displayNote}` : ''}
                 </p>
                 <p className="text-xs text-gray-400">{t.date}</p>
               </div>

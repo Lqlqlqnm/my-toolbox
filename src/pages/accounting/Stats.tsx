@@ -480,20 +480,25 @@ export default function Stats() {
         <div className="bg-white dark:bg-gray-800 rounded-xl p-4 mt-4 shadow-sm border border-gray-100 dark:border-gray-700">
           <p className="text-xs text-gray-400 mb-3">Top {viewType === 'expense' ? '支出' : '收入'}</p>
           <div className="space-y-2">
-            {topExpenses.map((t, i) => (
+            {topExpenses.map((t, i) => {
+              const cat = categoryMap.get(t.category_id!)
+              const systemNote = /^(分期\s?\d+\/\d+|退款:|转账手续费)/
+              const displayNote = t.note && !systemNote.test(t.note) ? t.note : ''
+              return (
               <div key={i} className="flex items-center justify-between text-xs py-1">
                 <div className="flex items-center gap-2">
                   <span className="text-gray-400 w-10">{t.date.slice(5)}</span>
-                  <span className="text-gray-500"><CategoryIcon icon={categoryMap.get(t.category_id!)?.icon || 'pin'} size={14} /></span>
+                  <span className="text-gray-500"><CategoryIcon icon={cat?.icon || 'pin'} size={14} /></span>
                   <span className="text-gray-700 dark:text-gray-300 truncate max-w-[120px]">
-                    {t.note || categoryMap.get(t.category_id!)?.name || '-'}
+                    {cat?.name || '未分类'}{displayNote ? ` - ${displayNote}` : ''}
                   </span>
                 </div>
                 <span className={`font-medium ${viewType === 'expense' ? 'text-red-500' : 'text-green-500'}`}>
                   ¥{t.amount.toFixed(0)}
                 </span>
               </div>
-            ))}
+              )
+            })}
           </div>
         </div>
       )}

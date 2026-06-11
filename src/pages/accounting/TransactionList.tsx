@@ -4,6 +4,7 @@ import { Search, Calendar as CalendarIcon, X } from 'lucide-react'
 import { db, type Transaction, type Category, type Account } from '../../lib/db'
 import CategoryIcon from '../../components/CategoryIcon'
 import { useModal } from '../../components/Modal'
+import RefundDialog from '../../components/RefundDialog'
 
 const PAGE_SIZE = 30
 
@@ -123,36 +124,22 @@ export default function TransactionList() {
     setPendingDelete({ id, timer })
   }
 
-  async function refundTransaction(tx: Transaction) {
-    if (!tx.id) return
-    // 1. 退款金额
-    const refundAmount = await showPrompt(`退款金额（原金额 ¥${tx.amount}）`, { defaultValue: String(tx.amount), inputType: 'number' })
-    if (refundAmount === null) return
-    const amount = parseFloat(refundAmount)
-    if (!amount || amount <= 0 || amount > tx.amount) { await showAlert('退款金额无效'); return }
+  // Refund dialog state
+  const [refundTarget, setRefundTarget] = useState<Transaction | null>(null)
 
-    // 2. 退款日期
-    const refundDate = await showPrompt('退款日期', { defaultValue: new Date().toISOString().slice(0, 10), inputType: 'date' })
-    if (refundDate === null) return
-
-    // 3. 退款账户（默认原账户，可选其他）
-    const accountOptions = accounts.map(a => `${a.name}`).join('/')
-    const origAccount = accounts.find(a => a.id === tx.account_id)
-    const refundAccName = await showPrompt(`退入账户（${accountOptions}）`, { defaultValue: origAccount?.name || '' })
-    if (refundAccName === null) return
-    const refundAccount = accounts.find(a => a.name === refundAccName.trim()) || origAccount
-    const refundAccountId = refundAccount?.id || tx.account_id
-
+  async function handleRefundConfirm(amount: number, date: string, accountId: number | null) {
+    const tx = refundTarget
+    if (!tx?.id) return
     const now = new Date().toISOString()
     const refundTx = {
       type: 'expense' as const,
       amount: -amount,
       category_id: tx.category_id,
-      account_id: refundAccountId,
+      account_id: accountId,
       to_account_id: null,
       tags: [...(tx.tags || []).filter(t => !/^(分期|手续费|退款)/.test(t)), '退款'],
       note: `退款: ${tx.note || ''}`.trim(),
-      date: refundDate,
+      date,
       book_id: tx.book_id,
       is_excluded: false,
       is_reconciled: false,
@@ -165,10 +152,10 @@ export default function TransactionList() {
       updated_at: now,
     }
     await db.transactions.add(refundTx)
-    // 退款入指定账户
-    if (refundAccountId) {
-      await db.accounts.where('id').equals(refundAccountId).modify(a => { a.balance += amount })
+    if (accountId) {
+      await db.accounts.where('id').equals(accountId).modify(a => { a.balance += amount })
     }
+    setRefundTarget(null)
     await loadData()
   }
 
@@ -298,7 +285,7 @@ export default function TransactionList() {
                           {t.type === 'income' ? '+' : t.type === 'expense' ? '-' : ''}{t.amount.toFixed(2)}
                         </span>
                         {t.type === 'expense' && (
-                          <button onClick={() => refundTransaction(t)} className="text-gray-300 hover:text-green-500 ml-1" title="退款">
+                          <button onClick={() => setRefundTarget(t)} className="text-gray-300 hover:text-green-500 ml-1" title="退款">
                             <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor">
                               <path fillRule="evenodd" d="M7.707 3.293a1 1 0 010 1.414L5.414 7H11a7 7 0 017 7v2a1 1 0 11-2 0v-2a5 5 0 00-5-5H5.414l2.293 2.293a1 1 0 11-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
                             </svg>
@@ -329,6 +316,17 @@ export default function TransactionList() {
           <button onClick={undoDelete} className="text-amber-400 font-medium">撤销</button>
           <span className="text-gray-400 text-xs">5秒后生效</span>
         </div>
+      )}
+
+      {/* Refund Dialog */}
+      {refundTarget && (
+        <RefundDialog
+          originalAmount={refundTarget.amount}
+          accounts={accounts}
+          defaultAccountId={refundTarget.account_id}
+          onConfirm={handleRefundConfirm}
+          onCancel={() => setRefundTarget(null)}
+        />
       )}
     </main>
   )
