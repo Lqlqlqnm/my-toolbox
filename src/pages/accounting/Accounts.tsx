@@ -116,20 +116,22 @@ export default function Accounts() {
       </div>
 
       {/* Net Worth */}
-      <div className="bg-white dark:bg-[#141416] rounded-xl p-4 mb-4 shadow-sm border border-gray-100 dark:border-white/[0.06] text-center">
+      <div className="rounded-xl p-4 mb-4 shadow-sm text-center relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #1f2937, #111827)' }}>
         <p className="text-xs text-gray-400 mb-1">净资产</p>
-        <p className={`text-2xl font-bold ${totalBalance >= 0 ? 'text-gray-800 dark:text-white' : 'text-red-500'}`}>
+        <p className={`text-2xl font-bold ${totalBalance >= 0 ? 'text-white' : 'text-red-400'}`}>
           ¥{totalBalance.toFixed(2)}
         </p>
       </div>
 
       {/* Account List */}
-      <div className="bg-white dark:bg-[#141416] rounded-xl overflow-hidden shadow-sm border border-gray-100 dark:border-white/[0.06]">
+      <p className="text-[11px] text-gray-400 dark:text-gray-600 mb-2">账户列表</p>
+      <div className="space-y-3">
         {accounts.length === 0 ? (
           <p className="text-gray-400 text-center py-8 text-sm">暂无账户</p>
         ) : (
-          accounts.map((a, i) => (
-            <div key={a.id} className={`flex items-center px-4 py-3 ${i > 0 ? 'border-t border-gray-50 dark:border-white/[0.06]' : ''} ${a.is_hidden ? 'opacity-40' : ''}`}>
+          accounts.map((a) => (
+            <div key={a.id} className={`relative overflow-hidden bg-white dark:bg-[#141416] rounded-xl shadow-sm border border-gray-100 dark:border-white/[0.06] flex items-center px-4 py-3 ${a.is_hidden ? 'opacity-40' : ''}`}>
+              <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-amber-400 dark:hidden" />
               <span className="mr-3 text-gray-600 dark:text-gray-300"><CategoryIcon icon={a.icon} size={22} /></span>
               <div className="flex-1">
                 <p className="text-sm text-gray-800 dark:text-white">{a.name}</p>

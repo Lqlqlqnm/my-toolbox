@@ -99,21 +99,21 @@ export default function Budgets() {
       </div>
 
       {/* Overview */}
-      <div className="bg-white dark:bg-[#141416] rounded-xl p-4 mb-4 shadow-sm border border-gray-100 dark:border-white/[0.06]">
+      <div className="rounded-xl p-4 mb-4 shadow-sm relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #1f2937, #111827)' }}>
         <div className="flex justify-between items-end mb-2">
           <div>
-            <p className="text-xs text-gray-400">本月总预算</p>
-            <p className="text-xl font-bold text-gray-800 dark:text-white">¥{totalBudget.toFixed(0)}</p>
+            <p className="text-xs text-gray-400 mb-1">本月总预算</p>
+            <p className="text-xl font-bold text-white">¥{totalBudget.toFixed(0)}</p>
           </div>
           <div className="text-right">
             <p className="text-xs text-gray-400">已花费</p>
-            <p className={`text-lg font-semibold ${totalSpent > totalBudget && totalBudget > 0 ? 'text-red-500' : 'text-gray-600 dark:text-gray-300'}`}>
+            <p className={`text-lg font-semibold ${totalSpent > totalBudget && totalBudget > 0 ? 'text-red-400' : 'text-gray-300'}`}>
               ¥{totalSpent.toFixed(0)}
             </p>
           </div>
         </div>
         {totalBudget > 0 && (
-          <div className="h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+          <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
             <div
               className={`h-full rounded-full transition-all ${totalSpent / totalBudget > 1 ? 'bg-red-500' : totalSpent / totalBudget > 0.8 ? 'bg-amber-500' : 'bg-green-500'}`}
               style={{ width: `${Math.min((totalSpent / totalBudget) * 100, 100)}%` }}
@@ -128,6 +128,7 @@ export default function Budgets() {
       </div>
 
       {/* Budget List */}
+      <p className="text-[11px] text-gray-400 dark:text-gray-600 mb-2">预算明细</p>
       {budgets.length === 0 ? (
         <p className="text-gray-400 text-center py-16 text-sm">暂未设置预算，点击右上角添加</p>
       ) : (
@@ -138,7 +139,8 @@ export default function Budgets() {
             const percent = b.amount > 0 ? (spent / b.amount) * 100 : 0
             const isOver = percent > 100
             return (
-              <div key={b.id} className="bg-white dark:bg-[#141416] rounded-xl p-4 shadow-sm border border-gray-100 dark:border-white/[0.06]">
+              <div key={b.id} className="relative overflow-hidden bg-white dark:bg-[#141416] rounded-xl p-4 shadow-sm border border-gray-100 dark:border-white/[0.06]">
+                <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-amber-400 dark:hidden" />
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
                     <span className="text-gray-600 dark:text-gray-300"><CategoryIcon icon={cat?.icon || 'pin'} size={20} /></span>

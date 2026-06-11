@@ -138,7 +138,7 @@ export default function Recurring() {
       </div>
 
       {/* Info */}
-      <p className="text-xs text-gray-400 mb-4">设置周期规则，手动触发生成记录到流水中。</p>
+      <p className="text-[11px] text-gray-400 dark:text-gray-600 mb-4">设置周期规则，手动触发生成记录到流水中。</p>
 
       {/* Rules List */}
       {rules.length === 0 ? (
@@ -149,7 +149,8 @@ export default function Recurring() {
             const cat = r.category_id ? catMap.get(r.category_id) : null
             const acct = r.account_id ? acctMap.get(r.account_id) : null
             return (
-              <div key={r.id} className={`bg-white dark:bg-[#141416] rounded-xl p-4 shadow-sm border border-gray-100 dark:border-white/[0.06] ${!r.is_active ? 'opacity-50' : ''}`}>
+              <div key={r.id} className={`relative overflow-hidden bg-white dark:bg-[#141416] rounded-xl p-4 shadow-sm border border-gray-100 dark:border-white/[0.06] ${!r.is_active ? 'opacity-50' : ''}`}>
+                <div className={`absolute left-0 top-0 bottom-0 w-0.5 ${r.type === 'expense' ? 'bg-red-400' : 'bg-green-400'} dark:hidden`} />
                 <div className="flex items-center justify-between mb-1">
                   <div className="flex items-center gap-2">
                     <span className="text-gray-600 dark:text-gray-300"><CategoryIcon icon={cat?.icon || 'pin'} size={20} /></span>

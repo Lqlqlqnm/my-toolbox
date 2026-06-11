@@ -344,30 +344,31 @@ export default function Stats() {
       </div>
 
       {/* Total + Overview */}
-      <div className="bg-white dark:bg-[#141416] rounded-xl p-4 mb-4 shadow-sm border border-gray-100 dark:border-white/[0.06]">
+      <div className="rounded-xl p-4 mb-4 shadow-sm relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #1f2937, #111827)' }}>
         <p className="text-xs text-gray-400 mb-1">总{viewType === 'expense' ? '支出' : '收入'}</p>
-        <p className={`text-2xl font-bold ${viewType === 'expense' ? 'text-red-500' : 'text-green-500'}`}>
+        <p className={`text-2xl font-bold ${viewType === 'expense' ? 'text-red-400' : 'text-green-400'}`}>
           ¥{breakdown.total.toFixed(2)}
         </p>
-        <div className="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-gray-100 dark:border-white/[0.06]">
+        <div className="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-white/10">
           <div>
             <p className="text-[10px] text-gray-400">日均</p>
-            <p className="text-sm font-medium text-gray-700 dark:text-gray-200">¥{overview.dailyAvg.toFixed(0)}</p>
+            <p className="text-sm font-medium text-white">¥{overview.dailyAvg.toFixed(0)}</p>
           </div>
           <div>
             <p className="text-[10px] text-gray-400">笔数</p>
-            <p className="text-sm font-medium text-gray-700 dark:text-gray-200">{overview.count}笔</p>
+            <p className="text-sm font-medium text-white">{overview.count}笔</p>
           </div>
           <div>
             <p className="text-[10px] text-gray-400">最大单笔</p>
-            <p className="text-sm font-medium text-gray-700 dark:text-gray-200">¥{overview.maxSingle.toFixed(0)}</p>
+            <p className="text-sm font-medium text-white">¥{overview.maxSingle.toFixed(0)}</p>
           </div>
         </div>
       </div>
 
       {/* Trend Bar Chart */}
-      <div className="bg-white dark:bg-[#141416] rounded-xl p-4 mb-4 shadow-sm border border-gray-100 dark:border-white/[0.06]">
-        <p className="text-xs text-gray-400 mb-3">{viewMode === 'yearly' ? '月度趋势' : '每日趋势'}</p>
+      <div className="relative overflow-hidden bg-white dark:bg-[#141416] rounded-xl p-4 mb-4 shadow-sm border border-gray-100 dark:border-white/[0.06]">
+        <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-amber-400 dark:hidden" />
+        <p className="text-[11px] text-gray-400 dark:text-gray-600 mb-3">{viewMode === 'yearly' ? '月度趋势' : '每日趋势'}</p>
         <div className="flex items-end gap-px h-20">
           {trendData.map((val, i) => (
             <div key={i} className="flex-1 flex flex-col items-center justify-end h-full">
@@ -386,8 +387,9 @@ export default function Stats() {
       </div>
 
       {/* Category Breakdown */}
-      <div className="bg-white dark:bg-[#141416] rounded-xl p-4 shadow-sm border border-gray-100 dark:border-white/[0.06]">
-        <p className="text-xs text-gray-400 mb-3">分类占比</p>
+      <div className="relative overflow-hidden bg-white dark:bg-[#141416] rounded-xl p-4 shadow-sm border border-gray-100 dark:border-white/[0.06]">
+        <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-blue-400 dark:hidden" />
+        <p className="text-[11px] text-gray-400 dark:text-gray-600 mb-3">分类占比</p>
         {breakdown.items.length === 0 ? (
           <p className="text-gray-300 text-sm text-center py-4">暂无数据</p>
         ) : (
@@ -415,8 +417,9 @@ export default function Stats() {
 
       {/* Tag Analysis */}
       {tagBreakdown.length > 0 && (
-        <div className="bg-white dark:bg-[#141416] rounded-xl p-4 mt-4 shadow-sm border border-gray-100 dark:border-white/[0.06]">
-          <p className="text-xs text-gray-400 mb-3">标签/成员分析</p>
+        <div className="relative overflow-hidden bg-white dark:bg-[#141416] rounded-xl p-4 mt-4 shadow-sm border border-gray-100 dark:border-white/[0.06]">
+          <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-purple-400 dark:hidden" />
+          <p className="text-[11px] text-gray-400 dark:text-gray-600 mb-3">标签/成员分析</p>
           <div className="space-y-2">
             {tagBreakdown.slice(0, 8).map(item => (
               <div key={item.tag} className="flex items-center gap-2">
@@ -433,8 +436,9 @@ export default function Stats() {
 
       {/* Account Analysis */}
       {accountBreakdown.length > 0 && (
-        <div className="bg-white dark:bg-[#141416] rounded-xl p-4 mt-4 shadow-sm border border-gray-100 dark:border-white/[0.06]">
-          <p className="text-xs text-gray-400 mb-3">账户/支付方式分布</p>
+        <div className="relative overflow-hidden bg-white dark:bg-[#141416] rounded-xl p-4 mt-4 shadow-sm border border-gray-100 dark:border-white/[0.06]">
+          <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-cyan-400 dark:hidden" />
+          <p className="text-[11px] text-gray-400 dark:text-gray-600 mb-3">账户/支付方式分布</p>
           <div className="space-y-2">
             {accountBreakdown.slice(0, 6).map((item, i) => (
               <div key={i} className="flex items-center gap-2">
@@ -452,8 +456,9 @@ export default function Stats() {
 
       {/* Month Comparison */}
       {viewMode === 'monthly' && monthComparison.length > 0 && (
-        <div className="bg-white dark:bg-[#141416] rounded-xl p-4 mt-4 shadow-sm border border-gray-100 dark:border-white/[0.06]">
-          <p className="text-xs text-gray-400 mb-3">vs 上月对比</p>
+        <div className="relative overflow-hidden bg-white dark:bg-[#141416] rounded-xl p-4 mt-4 shadow-sm border border-gray-100 dark:border-white/[0.06]">
+          <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-orange-400 dark:hidden" />
+          <p className="text-[11px] text-gray-400 dark:text-gray-600 mb-3">vs 上月对比</p>
           <div className="space-y-2">
             {monthComparison.slice(0, 8).map((item, i) => (
               <div key={i} className="flex items-center justify-between text-xs">
@@ -477,8 +482,9 @@ export default function Stats() {
 
       {/* Top Expenses */}
       {topExpenses.length > 0 && (
-        <div className="bg-white dark:bg-[#141416] rounded-xl p-4 mt-4 shadow-sm border border-gray-100 dark:border-white/[0.06]">
-          <p className="text-xs text-gray-400 mb-3">Top {viewType === 'expense' ? '支出' : '收入'}</p>
+        <div className="relative overflow-hidden bg-white dark:bg-[#141416] rounded-xl p-4 mt-4 shadow-sm border border-gray-100 dark:border-white/[0.06]">
+          <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-rose-400 dark:hidden" />
+          <p className="text-[11px] text-gray-400 dark:text-gray-600 mb-3">Top {viewType === 'expense' ? '支出' : '收入'}</p>
           <div className="space-y-2">
             {topExpenses.map((t, i) => {
               const cat = categoryMap.get(t.category_id!)
@@ -505,8 +511,9 @@ export default function Stats() {
 
       {/* Balance Trend (6 months) */}
       {balanceTrend.length > 0 && (
-        <div className="bg-white dark:bg-[#141416] rounded-xl p-4 mt-4 shadow-sm border border-gray-100 dark:border-white/[0.06]">
-          <p className="text-xs text-gray-400 mb-3">近 6 月收支结余</p>
+        <div className="relative overflow-hidden bg-white dark:bg-[#141416] rounded-xl p-4 mt-4 shadow-sm border border-gray-100 dark:border-white/[0.06]">
+          <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-emerald-400 dark:hidden" />
+          <p className="text-[11px] text-gray-400 dark:text-gray-600 mb-3">近 6 月收支结余</p>
           <div className="space-y-2">
             {balanceTrend.map((m, i) => (
               <div key={i} className="flex items-center justify-between text-xs">

@@ -76,16 +76,17 @@ export default function SavingsGoals() {
 
       {/* Overall Progress */}
       {goals.length > 0 && (
-        <div className="bg-white dark:bg-[#141416] rounded-xl p-4 mb-4 shadow-sm border border-gray-100 dark:border-white/[0.06] text-center">
+        <div className="rounded-xl p-4 mb-4 shadow-sm text-center relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #1f2937, #111827)' }}>
           <p className="text-xs text-gray-400 mb-1">总进度</p>
-          <p className="text-xl font-bold text-amber-500">¥{totalSaved.toFixed(0)} <span className="text-sm text-gray-400 font-normal">/ ¥{totalTarget.toFixed(0)}</span></p>
-          <div className="mt-2 h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+          <p className="text-xl font-bold text-amber-400">¥{totalSaved.toFixed(0)} <span className="text-sm text-gray-400 font-normal">/ ¥{totalTarget.toFixed(0)}</span></p>
+          <div className="mt-2 h-2 bg-gray-700 rounded-full overflow-hidden">
             <div className="h-full bg-amber-400 rounded-full" style={{ width: `${totalTarget > 0 ? Math.min((totalSaved / totalTarget) * 100, 100) : 0}%` }} />
           </div>
         </div>
       )}
 
       {/* Goals List */}
+      <p className="text-[11px] text-gray-400 dark:text-gray-600 mb-2">目标列表</p>
       {goals.length === 0 ? (
         <p className="text-gray-400 text-center py-16 text-sm">设一个攒钱目标，开始存钱吧</p>
       ) : (
@@ -94,7 +95,8 @@ export default function SavingsGoals() {
             const percent = g.target > 0 ? (g.current / g.target) * 100 : 0
             const isComplete = percent >= 100
             return (
-              <div key={g.id} className={`bg-white dark:bg-[#141416] rounded-xl p-4 shadow-sm border ${isComplete ? 'border-green-200 dark:border-green-800' : 'border-gray-100 dark:border-white/[0.06]'}`}>
+              <div key={g.id} className={`relative overflow-hidden bg-white dark:bg-[#141416] rounded-xl p-4 shadow-sm border ${isComplete ? 'border-green-200 dark:border-green-800' : 'border-gray-100 dark:border-white/[0.06]'}`}>
+                <div className={`absolute left-0 top-0 bottom-0 w-0.5 ${isComplete ? 'bg-green-400' : 'bg-amber-400'} dark:hidden`} />
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
                     <span className="text-gray-600 dark:text-gray-300"><CategoryIcon icon={g.icon} size={26} /></span>

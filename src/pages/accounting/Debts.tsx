@@ -126,13 +126,13 @@ export default function Debts() {
 
       {/* Summary */}
       <div className="grid grid-cols-2 gap-3 mb-4">
-        <div className="bg-white dark:bg-[#141416] rounded-xl p-3 shadow-sm border border-gray-100 dark:border-white/[0.06] text-center">
+        <div className="rounded-xl p-3 shadow-sm text-center relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #1f2937, #111827)' }}>
           <p className="text-xs text-gray-400">我借入的</p>
-          <p className="text-lg font-bold text-red-500">¥{totalBorrowed.toFixed(0)}</p>
+          <p className="text-lg font-bold text-red-400">¥{totalBorrowed.toFixed(0)}</p>
         </div>
-        <div className="bg-white dark:bg-[#141416] rounded-xl p-3 shadow-sm border border-gray-100 dark:border-white/[0.06] text-center">
+        <div className="rounded-xl p-3 shadow-sm text-center relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #1f2937, #111827)' }}>
           <p className="text-xs text-gray-400">我借出的</p>
-          <p className="text-lg font-bold text-green-500">¥{totalLent.toFixed(0)}</p>
+          <p className="text-lg font-bold text-green-400">¥{totalLent.toFixed(0)}</p>
         </div>
       </div>
 
@@ -156,8 +156,10 @@ export default function Debts() {
         <>
           {active.length > 0 && (
             <div className="space-y-3 mb-6">
+              <p className="text-[11px] text-gray-400 dark:text-gray-600 mb-2">进行中</p>
               {active.map(d => (
-                <div key={d.id} className={`bg-white dark:bg-[#141416] rounded-xl p-4 shadow-sm border ${isOverdue(d) ? 'border-red-200 dark:border-red-800' : 'border-gray-100 dark:border-white/[0.06]'}`}>
+                <div key={d.id} className={`relative overflow-hidden bg-white dark:bg-[#141416] rounded-xl p-4 shadow-sm border ${isOverdue(d) ? 'border-red-200 dark:border-red-800' : 'border-gray-100 dark:border-white/[0.06]'}`}>
+                  <div className={`absolute left-0 top-0 bottom-0 w-0.5 ${d.type === 'borrow' ? 'bg-red-400' : 'bg-green-400'} dark:hidden`} />
                   <div className="flex items-center justify-between mb-1">
                     <div className="flex items-center gap-2">
                       <span className="text-lg">{d.type === 'borrow' ? '📥' : '📤'}</span>
@@ -203,10 +205,11 @@ export default function Debts() {
 
           {settled.length > 0 && (
             <>
-              <p className="text-xs text-gray-400 mb-2">已结清</p>
+              <p className="text-[11px] text-gray-400 dark:text-gray-600 mb-2">已结清</p>
               <div className="space-y-2">
                 {settled.map(d => (
-                  <div key={d.id} className="bg-white dark:bg-[#141416] rounded-xl p-3 shadow-sm border border-gray-100 dark:border-white/[0.06] opacity-60">
+                  <div key={d.id} className="relative overflow-hidden bg-white dark:bg-[#141416] rounded-xl p-3 shadow-sm border border-gray-100 dark:border-white/[0.06] opacity-60">
+                    <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-gray-300 dark:hidden" />
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <span>{d.type === 'borrow' ? '📥' : '📤'}</span>
