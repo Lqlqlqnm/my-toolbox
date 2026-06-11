@@ -262,26 +262,32 @@ export default function TransactionList() {
                   {(() => { let e = 0, i = 0; group.items.forEach(t => { if (t.type === 'expense') e += t.amount; else if (t.type === 'income') i += t.amount }); const p: string[] = []; if (e) p.push(`支 ${e.toFixed(0)}`); if (i) p.push(`收 ${i.toFixed(0)}`); return p.join(' | ') })()}
                 </span>
               </div>
-              <div className="bg-white dark:bg-[#141416] rounded-xl overflow-hidden border border-gray-100 dark:border-white/[0.06]">
-                {group.items.map((t, idx) => {
+              <div className="space-y-2">
+                {group.items.map(t => {
                   const cat = t.category_id ? categoryMap.get(t.category_id) : null
                   const acct = t.account_id ? accountMap.get(t.account_id) : null
+                  const iconBg = t.type === 'income' ? 'bg-green-500/10' : t.type === 'transfer' ? 'bg-blue-500/10' : 'bg-red-500/10'
+                  const barColor = t.type === 'income' ? 'bg-green-400' : t.type === 'transfer' ? 'bg-blue-400' : 'bg-red-400'
+                  const textColor = t.type === 'income' ? 'text-green-500 dark:text-green-400' : t.type === 'transfer' ? 'text-blue-500 dark:text-blue-400' : 'text-red-500 dark:text-red-400'
                   return (
-                    <div key={t.id} className={`flex items-center px-4 py-3 ${idx > 0 ? 'border-t border-gray-50 dark:border-white/[0.06]' : ''}`}>
-                      <span className="text-gray-600 dark:text-gray-300 mr-3">{t.type === 'transfer' ? '🔄' : <CategoryIcon icon={cat?.icon || 'pin'} size={22} />}</span>
+                    <div key={t.id} className="flex items-center gap-3 p-3 rounded-xl bg-white dark:bg-[#141416] border border-gray-100 dark:border-white/[0.06] shadow-sm relative overflow-hidden">
+                      <div className={`absolute left-0 top-0 bottom-0 w-0.5 ${barColor} dark:hidden`} />
+                      <div className={`w-8 h-8 rounded-lg ${iconBg} flex items-center justify-center shrink-0`}>
+                        {t.type === 'transfer' ? <span className="text-sm">🔄</span> : <CategoryIcon icon={cat?.icon || 'pin'} size={18} />}
+                      </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm text-gray-800 dark:text-white truncate">
+                        <p className="text-sm text-gray-900 dark:text-white truncate">
                           {t.type === 'transfer' ? '转账' : cat?.name || '未分类'}
                           {t.note && <span className="text-gray-400 ml-1">- {t.note}</span>}
                         </p>
                         <div className="flex items-center gap-1.5 mt-0.5">
-                          <span className="text-xs text-gray-400">{acct?.name || ''}</span>
+                          <span className="text-[10px] text-gray-400 dark:text-gray-600">{acct?.name || ''}</span>
                           {t.tags?.length > 0 && t.tags.map(tag => <span key={tag} className="text-[10px] px-1 bg-blue-50 text-blue-500 dark:bg-blue-900/30 dark:text-blue-400 rounded">{`#${tag}`}</span>)}
                           {t.reimbursement && <span className="text-[10px] px-1 bg-orange-50 text-orange-500 rounded">{t.reimbursement === 'pending' ? '待报销' : '已报销'}</span>}
                         </div>
                       </div>
                       <div className="flex items-center gap-1">
-                        <span className={`text-sm font-medium ${t.type === 'income' ? 'text-green-500' : t.type === 'expense' ? 'text-red-500' : 'text-blue-500'}`}>
+                        <span className={`text-sm font-medium ${textColor}`}>
                           {t.type === 'income' ? '+' : t.type === 'expense' ? '-' : ''}{t.amount.toFixed(2)}
                         </span>
                         {t.type === 'expense' && (
