@@ -125,21 +125,34 @@ export default function TransactionList() {
 
   async function refundTransaction(tx: Transaction) {
     if (!tx.id) return
+    // 1. 退款金额
     const refundAmount = await showPrompt(`退款金额（原金额 ¥${tx.amount}）`, { defaultValue: String(tx.amount), inputType: 'number' })
     if (refundAmount === null) return
     const amount = parseFloat(refundAmount)
     if (!amount || amount <= 0 || amount > tx.amount) { await showAlert('退款金额无效'); return }
+
+    // 2. 退款日期
+    const refundDate = await showPrompt('退款日期', { defaultValue: new Date().toISOString().slice(0, 10), inputType: 'date' })
+    if (refundDate === null) return
+
+    // 3. 退款账户（默认原账户，可选其他）
+    const accountOptions = accounts.map(a => `${a.name}`).join('/')
+    const origAccount = accounts.find(a => a.id === tx.account_id)
+    const refundAccName = await showPrompt(`退入账户（${accountOptions}）`, { defaultValue: origAccount?.name || '' })
+    if (refundAccName === null) return
+    const refundAccount = accounts.find(a => a.name === refundAccName.trim()) || origAccount
+    const refundAccountId = refundAccount?.id || tx.account_id
+
     const now = new Date().toISOString()
-    // 创建一条负数支出（同分类），统计时自动抵消
     const refundTx = {
       type: 'expense' as const,
       amount: -amount,
       category_id: tx.category_id,
-      account_id: tx.account_id,
+      account_id: refundAccountId,
       to_account_id: null,
-      tags: [...(tx.tags || []), '退款'],
+      tags: [...(tx.tags || []).filter(t => !/^(分期|手续费|退款)/.test(t)), '退款'],
       note: `退款: ${tx.note || ''}`.trim(),
-      date: new Date().toISOString().slice(0, 10),
+      date: refundDate,
       book_id: tx.book_id,
       is_excluded: false,
       is_reconciled: false,
@@ -152,9 +165,9 @@ export default function TransactionList() {
       updated_at: now,
     }
     await db.transactions.add(refundTx)
-    // 回滚账户余额（退款 = 钱回来了，余额增加）
-    if (tx.account_id) {
-      await db.accounts.where('id').equals(tx.account_id).modify(a => { a.balance += amount })
+    // 退款入指定账户
+    if (refundAccountId) {
+      await db.accounts.where('id').equals(refundAccountId).modify(a => { a.balance += amount })
     }
     await loadData()
   }

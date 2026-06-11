@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { Eye, EyeOff, AlertTriangle, Crown, CreditCard, PieChart, Repeat, Handshake, Target, Calendar, TrendingUp, Zap, Settings, ChevronUp, ChevronDown, EyeOff as EyeOffIcon, Eye as EyeIcon } from 'lucide-react'
-import { db, type Account, type Transaction, type Budget } from '../../lib/db'
+import { db, type Account, type Transaction, type Budget, type Category } from '../../lib/db'
 
 interface ModuleItem {
   key: string
@@ -29,6 +29,7 @@ export default function Overview() {
   const [accounts, setAccounts] = useState<Account[]>([])
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [budgets, setBudgets] = useState<Budget[]>([])
+  const [categories, setCategories] = useState<Map<number, Category>>(new Map())
   const [hideAmount, setHideAmount] = useState(false)
   const [modules, setModules] = useState<ModuleItem[]>(() => {
     const saved = localStorage.getItem('overview_modules')
@@ -55,14 +56,16 @@ export default function Overview() {
       ? `${now.getFullYear() + 1}-01-01`
       : `${now.getFullYear()}-${String(now.getMonth() + 2).padStart(2, '0')}-01`
 
-    const [accts, txns, bdgs] = await Promise.all([
+    const [accts, txns, bdgs, cats] = await Promise.all([
       db.accounts.orderBy('sort_order').toArray(),
       db.transactions.where('date').between(startDate, endDate, true, false).toArray(),
       db.budgets.toArray(),
+      db.categories.toArray(),
     ])
     setAccounts(accts)
     setTransactions(txns)
     setBudgets(bdgs)
+    setCategories(new Map(cats.map(c => [c.id!, c])))
   }
 
   const totalAssets = useMemo(() => accounts.reduce((s, a) => s + a.balance, 0), [accounts])
@@ -281,18 +284,23 @@ export default function Overview() {
         <p className="text-gray-400 text-center py-8 text-sm">暂无记录</p>
       ) : (
         <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 divide-y divide-gray-50 dark:divide-gray-700">
-          {recent.map(t => (
+          {recent.map(t => {
+            const cat = t.category_id ? categories.get(t.category_id) : null
+            return (
             <Link key={t.id} to={`/accounting/edit/${t.id}`} className="flex items-center px-3 py-3">
-              <span className="text-xl mr-3">{t.type === 'transfer' ? '🔄' : '📌'}</span>
+              <span className="text-xl mr-3">{t.type === 'transfer' ? '🔄' : (cat?.icon || '📌')}</span>
               <div className="flex-1 min-w-0">
-                <p className="text-sm text-gray-800 dark:text-gray-100 truncate">{t.note || (t.type === 'transfer' ? '转账' : '未分类')}</p>
+                <p className="text-sm text-gray-800 dark:text-gray-100 truncate">
+                  {t.note || (t.type === 'transfer' ? '转账' : cat?.name || '未分类')}
+                </p>
                 <p className="text-xs text-gray-400">{t.date}</p>
               </div>
               <span className={`text-sm font-medium ${t.type === 'income' ? 'text-green-500' : t.type === 'expense' ? 'text-red-500' : 'text-blue-500'}`}>
                 {t.type === 'income' ? '+' : t.type === 'expense' ? '-' : ''}{hideAmount ? '****' : t.amount.toFixed(2)}
               </span>
             </Link>
-          ))}
+            )
+          })}
         </div>
       )}
     </main>

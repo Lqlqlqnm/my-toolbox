@@ -1,9 +1,18 @@
 import { Link } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { db } from '../lib/db'
+import { fetchQuotes } from '../lib/quotes'
+
+const ETF_CACHE_KEY = 'home_etf_cache'
+
+interface EtfCache {
+  totalValue: number
+  changePct: number
+  time: string
+}
 
 function useHomeStats() {
-  const [stats, setStats] = useState({ monthExpense: 0, nextTrip: '' })
+  const [stats, setStats] = useState({ monthExpense: 0, nextTrip: '', etfLabel: '', etfValue: '', etfColor: '' })
 
   useEffect(() => {
     async function load() {
@@ -24,7 +33,63 @@ function useHomeStats() {
       const next = checklists[0]
       const nextTrip = next ? `${next.name} ${next.trip_date?.slice(5).replace('-', '/')}` : ''
 
-      setStats({ monthExpense, nextTrip })
+      // ETF: 先用缓存，再后台刷新
+      const positions = await db.activePositions.where('status').equals('holding').toArray()
+      const portfolio = await db.portfolios.toCollection().first()
+
+      let etfLabel = ''
+      let etfValue = ''
+      let etfColor = ''
+
+      if (positions.length === 0 && portfolio) {
+        // 无持仓，显示现金
+        const cash = portfolio.cash
+        etfLabel = '可用资金'
+        etfValue = `¥${(cash / 10000).toFixed(1)}万`
+        etfColor = 'text-gray-700 dark:text-gray-300'
+      } else if (positions.length > 0) {
+        // 有持仓：先显示缓存
+        const cached = localStorage.getItem(ETF_CACHE_KEY)
+        if (cached) {
+          const c: EtfCache = JSON.parse(cached)
+          etfLabel = `持仓 ${positions.length} 只`
+          etfValue = `${c.changePct >= 0 ? '+' : ''}${c.changePct.toFixed(2)}%`
+          etfColor = c.changePct >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-500 dark:text-red-400'
+        } else {
+          // 无缓存，用兜底
+          etfLabel = ''
+          etfValue = `持仓 ${positions.length} 只`
+          etfColor = 'text-gray-600 dark:text-gray-400'
+        }
+
+        // 后台静默刷新行情
+        const codes = [...new Set(positions.map(p => p.code))]
+        fetchQuotes(codes).then(quotes => {
+          let totalCost = 0
+          let totalMarketValue = 0
+          for (const pos of positions) {
+            const q = quotes[pos.code]
+            const price = q?.price || pos.buy_price
+            totalCost += pos.buy_price * pos.remaining_shares
+            totalMarketValue += price * pos.remaining_shares
+          }
+          const changePct = totalCost > 0 ? ((totalMarketValue - totalCost) / totalCost) * 100 : 0
+
+          // 更新缓存
+          const cache: EtfCache = { totalValue: totalMarketValue, changePct, time: new Date().toISOString() }
+          localStorage.setItem(ETF_CACHE_KEY, JSON.stringify(cache))
+
+          // 更新显示
+          setStats(prev => ({
+            ...prev,
+            etfLabel: `持仓 ${positions.length} 只`,
+            etfValue: `${changePct >= 0 ? '+' : ''}${changePct.toFixed(2)}%`,
+            etfColor: changePct >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-500 dark:text-red-400',
+          }))
+        })
+      }
+
+      setStats({ monthExpense, nextTrip, etfLabel, etfValue, etfColor })
     }
     load()
   }, [])
@@ -33,7 +98,7 @@ function useHomeStats() {
 }
 
 export default function Home() {
-  const { monthExpense, nextTrip } = useHomeStats()
+  const { monthExpense, nextTrip, etfLabel, etfValue, etfColor } = useHomeStats()
 
   const tools = [
     {
@@ -49,9 +114,9 @@ export default function Home() {
       lightBorder: 'from-blue-500 to-purple-500',
       glowColor: 'bg-blue-500/10 dark:bg-blue-500/10',
       iconColor: 'text-blue-600 dark:text-blue-400',
-      stat: '',
-      statColor: 'text-green-600 dark:text-green-400',
-      statLabel: '',
+      stat: etfValue,
+      statColor: etfColor || 'text-green-600 dark:text-green-400',
+      statLabel: etfLabel,
     },
     {
       name: '记账本',
