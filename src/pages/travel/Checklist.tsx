@@ -9,7 +9,8 @@ interface Props {
 
 export default function Checklist({ checklistId, onBack }: Props) {
   const [checklist, setChecklist] = useState<TravelChecklist | null>(null)
-  const { showConfirm } = useModal()
+  const [editMode, setEditMode] = useState(false)
+  const { showConfirm, showPrompt } = useModal()
 
   useEffect(() => { loadChecklist() }, [checklistId])
 
@@ -18,20 +19,88 @@ export default function Checklist({ checklistId, onBack }: Props) {
     setChecklist(cl || null)
   }
 
-  async function toggleItem(catIndex: number, itemIndex: number) {
-    if (!checklist) return
-    const updated = { ...checklist }
-    updated.categories = [...updated.categories]
-    updated.categories[catIndex] = { ...updated.categories[catIndex] }
-    updated.categories[catIndex].items = [...updated.categories[catIndex].items]
-    updated.categories[catIndex].items[itemIndex] = {
-      ...updated.categories[catIndex].items[itemIndex],
-      checked: !updated.categories[catIndex].items[itemIndex].checked,
-    }
-    setChecklist(updated)
-    await db.travelChecklists.update(checklistId, { categories: updated.categories })
+  async function saveCategories(categories: TravelChecklist['categories']) {
+    setChecklist(prev => prev ? { ...prev, categories } : null)
+    await db.travelChecklists.update(checklistId, { categories })
   }
 
+  async function toggleItem(catIndex: number, itemIndex: number) {
+    if (!checklist) return
+    const updated = checklist.categories.map((cat, ci) =>
+      ci === catIndex ? {
+        ...cat,
+        items: cat.items.map((item, ii) =>
+          ii === itemIndex ? { ...item, checked: !item.checked } : item
+        ),
+      } : cat
+    )
+    await saveCategories(updated)
+  }
+
+  // ===== Category CRUD =====
+  async function addCategory() {
+    const name = await showPrompt('新增分类', { placeholder: '分类名称' })
+    if (!name?.trim() || !checklist) return
+    const icon = await showPrompt('分类图标', { placeholder: '输入一个 emoji', defaultValue: '📦' }) || '📦'
+    const updated = [...checklist.categories, { name: name.trim(), icon, items: [] }]
+    await saveCategories(updated)
+  }
+
+  async function editCategory(catIndex: number) {
+    if (!checklist) return
+    const cat = checklist.categories[catIndex]
+    const name = await showPrompt('编辑分类名称', { placeholder: '分类名称', defaultValue: cat.name })
+    if (!name?.trim()) return
+    const icon = await showPrompt('分类图标', { placeholder: 'emoji', defaultValue: cat.icon })
+    const updated = checklist.categories.map((c, i) =>
+      i === catIndex ? { ...c, name: name.trim(), icon: icon || c.icon } : c
+    )
+    await saveCategories(updated)
+  }
+
+  async function deleteCategory(catIndex: number) {
+    if (!checklist) return
+    const cat = checklist.categories[catIndex]
+    const ok = await showConfirm('删除分类', `删除「${cat.name}」及其所有物品？`)
+    if (!ok) return
+    const updated = checklist.categories.filter((_, i) => i !== catIndex)
+    await saveCategories(updated)
+  }
+
+  // ===== Item CRUD =====
+  async function addItem(catIndex: number) {
+    if (!checklist) return
+    const text = await showPrompt('添加物品', { placeholder: '物品名称' })
+    if (!text?.trim()) return
+    const updated = checklist.categories.map((cat, ci) =>
+      ci === catIndex ? { ...cat, items: [...cat.items, { text: text.trim(), checked: false }] } : cat
+    )
+    await saveCategories(updated)
+  }
+
+  async function editItem(catIndex: number, itemIndex: number) {
+    if (!checklist) return
+    const item = checklist.categories[catIndex].items[itemIndex]
+    const text = await showPrompt('编辑物品', { placeholder: '物品名称', defaultValue: item.text })
+    if (!text?.trim()) return
+    const updated = checklist.categories.map((cat, ci) =>
+      ci === catIndex ? {
+        ...cat,
+        items: cat.items.map((it, ii) => ii === itemIndex ? { ...it, text: text.trim() } : it),
+      } : cat
+    )
+    await saveCategories(updated)
+  }
+
+  async function deleteItem(catIndex: number, itemIndex: number) {
+    if (!checklist) return
+    const updated = checklist.categories.map((cat, ci) =>
+      ci === catIndex ? { ...cat, items: cat.items.filter((_, ii) => ii !== itemIndex) } : cat
+    )
+    await saveCategories(updated)
+  }
+
+  // ===== Batch actions =====
   async function resetAll() {
     if (!checklist) return
     const ok = await showConfirm('重置', '重置所有打勾状态？')
@@ -40,8 +109,7 @@ export default function Checklist({ checklistId, onBack }: Props) {
       ...cat,
       items: cat.items.map(item => ({ ...item, checked: false })),
     }))
-    setChecklist({ ...checklist, categories: updated })
-    await db.travelChecklists.update(checklistId, { categories: updated })
+    await saveCategories(updated)
   }
 
   async function archiveChecklist() {
@@ -76,7 +144,12 @@ export default function Checklist({ checklistId, onBack }: Props) {
           </button>
           <h1 className="text-lg font-bold text-gray-800 dark:text-white">{checklist.icon} {checklist.name}</h1>
         </div>
-        <span className="text-sm text-gray-500">{checked}/{total}</span>
+        <div className="flex items-center gap-2">
+          <button onClick={() => setEditMode(!editMode)} className={`text-xs px-2 py-1 rounded ${editMode ? 'bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400' : 'text-gray-400 hover:text-amber-500'}`}>
+            {editMode ? '完成' : '编辑'}
+          </button>
+          <span className="text-sm text-gray-500">{checked}/{total}</span>
+        </div>
       </div>
 
       {/* Progress card - gradient */}
@@ -105,40 +178,74 @@ export default function Checklist({ checklistId, onBack }: Props) {
             <div key={catIndex}>
               <div className="flex justify-between items-center mb-1">
                 <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">{cat.icon} {cat.name}</h3>
-                <span className="text-xs text-gray-400">{catChecked}/{cat.items.length}</span>
+                <div className="flex items-center gap-2">
+                  {editMode && (
+                    <>
+                      <button onClick={() => editCategory(catIndex)} className="text-xs text-blue-500 hover:text-blue-600">改名</button>
+                      <button onClick={() => deleteCategory(catIndex)} className="text-xs text-red-400 hover:text-red-500">删除</button>
+                    </>
+                  )}
+                  <span className="text-xs text-gray-400">{catChecked}/{cat.items.length}</span>
+                </div>
               </div>
               <div className="space-y-2">
                 {cat.items.map((item, itemIndex) => (
-                  <button
-                    key={itemIndex}
-                    onClick={() => toggleItem(catIndex, itemIndex)}
-                    className={`w-full flex items-center gap-3 px-3 py-3 rounded-xl border shadow-sm relative overflow-hidden text-left ${
-                      item.checked
-                        ? 'bg-white/50 dark:bg-[#141416]/50 border-gray-100 dark:border-white/[0.04] opacity-50'
-                        : 'bg-white dark:bg-[#141416] border-gray-100 dark:border-white/[0.06]'
-                    }`}
-                  >
-                    <div className={`absolute left-0 top-0 bottom-0 w-0.5 ${item.checked ? 'bg-emerald-300' : 'bg-gray-200'} dark:hidden`} />
-                    <span className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
-                      item.checked
-                        ? 'bg-emerald-500 border-emerald-500 text-white'
-                        : 'border-gray-300 dark:border-gray-600'
-                    }`}>
-                      {item.checked && (
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                        </svg>
-                      )}
-                    </span>
-                    <span className={`text-sm ${item.checked ? 'text-gray-400 line-through' : 'text-gray-900 dark:text-white'}`}>
-                      {item.text}
-                    </span>
-                  </button>
+                  <div key={itemIndex} className="flex items-center gap-1">
+                    <button
+                      onClick={() => toggleItem(catIndex, itemIndex)}
+                      className={`flex-1 flex items-center gap-3 px-3 py-3 rounded-xl border shadow-sm relative overflow-hidden text-left ${
+                        item.checked
+                          ? 'bg-white/50 dark:bg-[#141416]/50 border-gray-100 dark:border-white/[0.04] opacity-50'
+                          : 'bg-white dark:bg-[#141416] border-gray-100 dark:border-white/[0.06]'
+                      }`}
+                    >
+                      <div className={`absolute left-0 top-0 bottom-0 w-0.5 ${item.checked ? 'bg-emerald-300' : 'bg-gray-200'} dark:hidden`} />
+                      <span className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
+                        item.checked
+                          ? 'bg-emerald-500 border-emerald-500 text-white'
+                          : 'border-gray-300 dark:border-gray-600'
+                      }`}>
+                        {item.checked && (
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                          </svg>
+                        )}
+                      </span>
+                      <span className={`text-sm ${item.checked ? 'text-gray-400 line-through' : 'text-gray-900 dark:text-white'}`}>
+                        {item.text}
+                      </span>
+                    </button>
+                    {editMode && (
+                      <div className="flex items-center gap-0.5 shrink-0">
+                        <button onClick={() => editItem(catIndex, itemIndex)} className="p-1.5 text-gray-300 hover:text-blue-500">
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                        </button>
+                        <button onClick={() => deleteItem(catIndex, itemIndex)} className="p-1.5 text-gray-300 hover:text-red-500">
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"/></svg>
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 ))}
+                {/* Add item button */}
+                {editMode && (
+                  <button onClick={() => addItem(catIndex)} className="w-full flex items-center justify-center gap-1 px-3 py-2.5 rounded-xl border border-dashed border-gray-200 dark:border-white/[0.08] text-gray-400 hover:text-amber-500 hover:border-amber-300">
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+                    <span className="text-xs">添加物品</span>
+                  </button>
+                )}
               </div>
             </div>
           )
         })}
+
+        {/* Add category button */}
+        {editMode && (
+          <button onClick={addCategory} className="w-full flex items-center justify-center gap-1 px-4 py-3 rounded-xl border border-dashed border-gray-300 dark:border-white/[0.1] text-gray-400 hover:text-amber-500 hover:border-amber-400">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+            <span className="text-sm">添加分类</span>
+          </button>
+        )}
       </div>
 
       {/* Actions */}

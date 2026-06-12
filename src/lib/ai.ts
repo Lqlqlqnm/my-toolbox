@@ -161,7 +161,12 @@ export async function analyzeArticles(articles: string[], images: ImageInput[] =
   if (!content) throw new Error('AI 返回为空')
 
   try {
-    return JSON.parse(content) as AnalysisResult
+    // Strip markdown code fences if present (```json ... ```)
+    let jsonStr = content.trim()
+    if (jsonStr.startsWith('```')) {
+      jsonStr = jsonStr.replace(/^```(?:json)?\s*\n?/, '').replace(/\n?```\s*$/, '')
+    }
+    return JSON.parse(jsonStr) as AnalysisResult
   } catch {
     throw new Error('AI 返回格式错误')
   }
