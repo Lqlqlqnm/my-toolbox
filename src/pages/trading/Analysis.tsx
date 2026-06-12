@@ -2,6 +2,21 @@ import { useState, useEffect, useRef } from 'react'
 import { analyzeArticles, type AnalysisResult, type ImageInput } from '../../lib/ai'
 import { getAnalyses, submitAnalysis, uploadImage, fetchArticleUrl } from '../../lib/api'
 
+interface ServerOrder {
+  code: string
+  name: string
+  trigger_price: number
+  trigger_reason: string
+  signals: Array<{ name: string; strength: string; description: string }>
+  levels: { currentPrice: number; ma5: number; recentHigh: number; recentLow: number }
+  position_pct: number
+  stop_loss_pct: number
+  trailing_pct: number
+  activation_pct: number
+  max_hold_days: number
+  reason: string
+}
+
 interface InputItem {
   type: 'text' | 'image' | 'url'
   content: string // text content, base64, or url
@@ -16,6 +31,7 @@ export default function Analysis() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [result, setResult] = useState<AnalysisResult | null>(null)
+  const [serverOrders, setServerOrders] = useState<ServerOrder[]>([])
   const [history, setHistory] = useState<any[]>([])
   const [showHistory, setShowHistory] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -54,8 +70,8 @@ export default function Analysis() {
 
     for (const file of Array.from(files)) {
       if (!file.type.startsWith('image/')) continue
-      if (file.size > 2 * 1024 * 1024) {
-        setError('图片不能超过 2MB')
+      if (file.size > 5 * 1024 * 1024) {
+        setError('图片不能超过 5MB')
         continue
       }
 
@@ -141,15 +157,15 @@ export default function Analysis() {
       const analysisResult = await analyzeArticles(articles, images)
       setResult(analysisResult)
 
-      const { createdCount } = await submitAnalysis({
+      const { createdCount, orders: genOrders } = await submitAnalysis({
         articles,
         market_view: analysisResult.market_view,
         main_sectors: analysisResult.main_sectors,
         core_logic: analysisResult.core_logic,
-        etf_mapping: analysisResult.etf_mapping,
-        orders: analysisResult.orders,
+        etf_recommendations: analysisResult.etf_recommendations,
       })
 
+      setServerOrders(genOrders || [])
       await loadHistory()
     } catch (e) {
       setError(e instanceof Error ? e.message : '分析失败')
@@ -263,18 +279,49 @@ export default function Analysis() {
             <p className="text-[10px] text-gray-400 dark:text-gray-600 mb-1">核心逻辑</p>
             <p className="text-sm text-gray-700 dark:text-gray-300">{result.core_logic}</p>
           </div>
-          {result.orders.length > 0 && (
+          {result.risk_level && (
+            <div className={`rounded-xl p-4 bg-white dark:bg-[#141416] border shadow-sm relative overflow-hidden ${
+              result.risk_level === 'high' ? 'border-red-200 dark:border-red-800' : 'border-gray-100 dark:border-white/[0.06]'
+            }`}>
+              <div className={`absolute left-0 top-0 bottom-0 w-0.5 ${result.risk_level === 'high' ? 'bg-red-400' : result.risk_level === 'medium' ? 'bg-amber-400' : 'bg-green-400'} dark:hidden`} />
+              <p className="text-[10px] text-gray-400 dark:text-gray-600 mb-1">风险评级</p>
+              <div className="flex items-center gap-2">
+                <span className={`px-2 py-0.5 text-xs rounded-full ${
+                  result.risk_level === 'high' ? 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400' :
+                  result.risk_level === 'medium' ? 'bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400' :
+                  'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400'
+                }`}>{result.risk_level === 'high' ? '高风险' : result.risk_level === 'medium' ? '中等' : '低风险'}</span>
+                <span className="text-xs text-gray-500">{result.risk_reason}</span>
+              </div>
+            </div>
+          )}
+          {serverOrders.length > 0 && (
             <div>
-              <p className="text-[11px] text-gray-400 dark:text-gray-600 mb-2">条件单（已自动创建）</p>
+              <p className="text-[11px] text-gray-400 dark:text-gray-600 mb-2">条件单（技术面定价）</p>
               <div className="space-y-2">
-                {result.orders.map((order, i) => (
+                {serverOrders.map((order, i) => (
                   <div key={i} className="rounded-xl p-3 bg-white dark:bg-[#141416] border border-gray-100 dark:border-white/[0.06] shadow-sm relative overflow-hidden">
                     <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-green-400 dark:hidden" />
                     <div className="flex justify-between items-center">
                       <span className="text-sm font-medium text-gray-900 dark:text-white">{order.name}({order.code})</span>
-                      <span className="text-[10px] px-2 py-0.5 bg-green-500/10 text-green-600 dark:text-green-400 rounded-full">买入 @{order.trigger_price}</span>
+                      <span className="text-[10px] px-2 py-0.5 bg-green-500/10 text-green-600 dark:text-green-400 rounded-full">
+                        买入 @¥{order.trigger_price.toFixed(3)}
+                      </span>
                     </div>
-                    <div className="text-[10px] text-gray-400 dark:text-gray-600 mt-1">仓位{order.position_pct}% | 止损{order.stop_loss_pct}% | 止盈回撤{order.trailing_pct}% | 最长{order.max_hold_days}天</div>
+                    <div className="text-[10px] text-gray-400 dark:text-gray-600 mt-1">
+                      现价 ¥{order.levels?.currentPrice?.toFixed(3)} | 仓位{order.position_pct}% | 止损{order.stop_loss_pct}% | 止盈回撤{order.trailing_pct}% | 最长{order.max_hold_days}天
+                    </div>
+                    <div className="text-[10px] text-blue-500 mt-0.5">{order.trigger_reason}</div>
+                    {order.signals && order.signals.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {order.signals.map((sig, j) => (
+                          <span key={j} className={`px-1.5 py-0.5 rounded text-[9px] ${
+                            sig.strength === 'strong' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
+                            'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
+                          }`}>{sig.name}</span>
+                        ))}
+                      </div>
+                    )}
                     <div className="text-[10px] text-gray-400 dark:text-gray-600 mt-0.5">{order.reason}</div>
                   </div>
                 ))}

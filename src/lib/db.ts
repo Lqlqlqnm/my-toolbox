@@ -200,6 +200,78 @@ export interface WatchlistItem {
   added_at: string
 }
 
+// ===== 储物定位器模块 =====
+export interface StorageLocation {
+  id?: number
+  name: string
+  parent_id: number | null
+  icon: string
+  sort_order: number
+}
+
+export interface StorageItem {
+  id?: number
+  name: string
+  location_id: number
+  quantity: number
+  tags: string[]
+  note: string
+  created_at: string
+  updated_at: string
+}
+
+// ===== 订阅管理器模块 =====
+export interface Subscription {
+  id?: number
+  name: string
+  amount: number
+  currency: string // CNY/USD
+  cycle: 'monthly' | 'yearly' | 'weekly'
+  billing_day: number | null
+  start_date: string
+  next_billing_date: string
+  owner: string // 我/爱人/共用
+  platform: string // App Store/微信/支付宝/信用卡直扣
+  pay_account_id: number | null
+  category: string // 视频/音乐/工具/云服务/其他
+  icon: string
+  color: string
+  auto_renew: boolean
+  is_active: boolean
+  note: string
+  created_at: string
+}
+
+// ===== 相关性发现器模块 =====
+export type VariableType = 'rating' | 'number' | 'boolean' | 'category'
+
+export interface CorrelationVariable {
+  id?: number
+  name: string
+  type: VariableType
+  options?: string[] // for category type
+  icon: string
+  unit?: string // h, 杯, 步, etc.
+  min?: number
+  max?: number
+  step?: number
+  sort_order: number
+  is_active: boolean
+}
+
+export interface CorrelationRecord {
+  id?: number
+  date: string
+  variable_id: number
+  value: number // rating:1-5, number:any, boolean:0/1, category:index
+}
+
+export interface CorrelationNote {
+  id?: number
+  date: string
+  note: string
+}
+
 // ===== 旅行清单模块 =====
 export interface TemplateCategory {
   name: string
@@ -232,6 +304,24 @@ export interface TravelChecklist {
   created_at: string
 }
 
+// ===== 食材库存模块 =====
+export type StorageZone = 'fridge' | 'freezer' | 'pantry'
+export type FoodCategory = '蔬菜' | '水果' | '肉类' | '乳制品' | '调味料' | '饮品' | '主食' | '其他'
+
+export interface FoodItem {
+  id?: number
+  name: string
+  icon: string
+  zone: StorageZone
+  category: FoodCategory
+  quantity: string // "1盒", "300g", "2个"
+  purchase_date: string // ISO date
+  expiry_date: string // ISO date
+  is_consumed: boolean
+  created_at: string
+  updated_at: string
+}
+
 // ===== 数据库类 =====
 class ToolboxDB extends Dexie {
   // 记账
@@ -253,6 +343,17 @@ class ToolboxDB extends Dexie {
   // 旅行
   travelTemplates!: Table<TravelTemplate>
   travelChecklists!: Table<TravelChecklist>
+  // 相关性发现器
+  correlationVariables!: Table<CorrelationVariable>
+  correlationRecords!: Table<CorrelationRecord>
+  correlationNotes!: Table<CorrelationNote>
+  // 订阅管理器
+  subscriptions!: Table<Subscription>
+  // 储物定位器
+  storageLocations!: Table<StorageLocation>
+  storageItems!: Table<StorageItem>
+  // 食材库存
+  foodItems!: Table<FoodItem>
 
   constructor() {
     super('my-toolbox')
@@ -289,6 +390,25 @@ class ToolboxDB extends Dexie {
 
     this.version(4).stores({
       transactions: '++id, type, date, category_id, account_id, book_id, is_reconciled, is_pending',
+    })
+
+    this.version(5).stores({
+      correlationVariables: '++id, type, sort_order, is_active',
+      correlationRecords: '++id, date, variable_id, [date+variable_id]',
+      correlationNotes: '++id, &date',
+    })
+
+    this.version(6).stores({
+      subscriptions: '++id, category, owner, is_active, next_billing_date',
+    })
+
+    this.version(7).stores({
+      storageLocations: '++id, parent_id, sort_order',
+      storageItems: '++id, location_id, *tags',
+    })
+
+    this.version(8).stores({
+      foodItems: '++id, zone, category, expiry_date, is_consumed',
     })
   }
 }
@@ -340,6 +460,9 @@ export async function initDefaultData() {
 
   // 默认旅行模板
   await initTravelTemplates()
+
+  // 默认相关性变量
+  await initCorrelationVariables()
 }
 
 // ===== 初始化旅行模板（独立函数，可重复调用） =====
@@ -394,4 +517,36 @@ export async function getPendingInstallmentSummary(): Promise<Map<number, { tota
     map.set(accId, curr)
   }
   return map
+}
+
+// ===== 初始化相关性发现器默认变量 =====
+export async function initCorrelationVariables() {
+  const count = await db.correlationVariables.count()
+  if (count > 0) return
+
+  const defaults: Omit<CorrelationVariable, 'id'>[] = [
+    // 评分型
+    { name: '情绪', type: 'rating', icon: 'smile', sort_order: 1, is_active: true },
+    { name: '精力', type: 'rating', icon: 'zap', sort_order: 2, is_active: true },
+    { name: '效率', type: 'rating', icon: 'target', sort_order: 3, is_active: true },
+    { name: '压力', type: 'rating', icon: 'alert-triangle', sort_order: 4, is_active: true },
+    { name: '睡眠质量', type: 'rating', icon: 'moon', sort_order: 5, is_active: true },
+    // 数值型
+    { name: '睡眠时长', type: 'number', icon: 'bed-double', unit: 'h', min: 0, max: 14, step: 0.5, sort_order: 6, is_active: true },
+    { name: '午睡时长', type: 'number', icon: 'sunset', unit: 'min', min: 0, max: 120, step: 5, sort_order: 7, is_active: true },
+    { name: '咖啡', type: 'number', icon: 'coffee', unit: '杯', min: 0, max: 5, step: 1, sort_order: 8, is_active: true },
+    { name: '喝水', type: 'number', icon: 'droplets', unit: '杯', min: 0, max: 12, step: 1, sort_order: 9, is_active: true },
+    { name: '屏幕时长', type: 'number', icon: 'smartphone', unit: 'h', min: 0, max: 16, step: 0.5, sort_order: 10, is_active: true },
+    { name: '步数', type: 'number', icon: 'footprints', unit: '步', min: 0, max: 30000, step: 500, sort_order: 11, is_active: true },
+    { name: '久坐时长', type: 'number', icon: 'armchair', unit: 'h', min: 0, max: 16, step: 0.5, sort_order: 12, is_active: true },
+    // 布尔型
+    { name: '运动', type: 'boolean', icon: 'dumbbell', sort_order: 13, is_active: true },
+    { name: '喝酒', type: 'boolean', icon: 'beer', sort_order: 14, is_active: true },
+    { name: '社交', type: 'boolean', icon: 'users', sort_order: 15, is_active: true },
+    // 分类型
+    { name: '天气', type: 'category', icon: 'cloud-sun', options: ['晴', '阴', '雨', '雪'], sort_order: 16, is_active: true },
+    { name: '工作地点', type: 'category', icon: 'map-pin', options: ['公司', '家', '外出'], sort_order: 17, is_active: true },
+  ]
+
+  await db.correlationVariables.bulkAdd(defaults as CorrelationVariable[])
 }

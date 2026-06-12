@@ -38,12 +38,11 @@ export interface AnalysisResult {
   market_view: string
   main_sectors: string[]
   core_logic: string
-  etf_mapping: Record<string, string[]>
-  orders: Array<{
+  risk_level: 'low' | 'medium' | 'high'
+  risk_reason: string
+  etf_recommendations: Array<{
     code: string
     name: string
-    direction: 'buy'
-    trigger_price: number
     position_pct: number
     stop_loss_pct: number
     trailing_pct: number
@@ -59,6 +58,49 @@ export interface ImageInput {
   mime_type: string
 }
 
+// Helper: Compress image to ensure base64 stays under maxBytes (default 4.5MB to stay safe under 5MB API limit)
+async function compressImage(base64: string, mimeType: string, maxBytes = 4.5 * 1024 * 1024): Promise<{ base64: string; mime_type: string }> {
+  // Check if already small enough
+  const currentBytes = base64.length * 0.75 // base64 → bytes approximation
+  if (currentBytes <= maxBytes) return { base64, mime_type: mimeType }
+
+  // Decode and draw to canvas to resize
+  const img = new Image()
+  const dataUrl = `data:${mimeType};base64,${base64}`
+  await new Promise<void>((resolve, reject) => {
+    img.onload = () => resolve()
+    img.onerror = reject
+    img.src = dataUrl
+  })
+
+  let { width, height } = img
+  const canvas = document.createElement('canvas')
+  const ctx = canvas.getContext('2d')!
+
+  // Iteratively reduce size until under limit
+  let quality = 0.8
+  let scale = 1
+  let result = base64
+
+  for (let attempt = 0; attempt < 5; attempt++) {
+    const newW = Math.floor(width * scale)
+    const newH = Math.floor(height * scale)
+    canvas.width = newW
+    canvas.height = newH
+    ctx.drawImage(img, 0, 0, newW, newH)
+
+    const compressed = canvas.toDataURL('image/jpeg', quality).split(',')[1]
+    if (compressed.length * 0.75 <= maxBytes) {
+      return { base64: compressed, mime_type: 'image/jpeg' }
+    }
+    result = compressed
+    scale *= 0.7
+    quality = Math.max(0.5, quality - 0.1)
+  }
+
+  return { base64: result, mime_type: 'image/jpeg' }
+}
+
 export async function analyzeArticles(articles: string[], images: ImageInput[] = []): Promise<AnalysisResult> {
   const config = getAIConfig()
   if (!config) throw new Error('请先在设置中配置 AI API Key')
@@ -66,48 +108,52 @@ export async function analyzeArticles(articles: string[], images: ImageInput[] =
   const cleanedArticles = articles.map(extractText).filter(Boolean)
   if (cleanedArticles.length === 0 && images.length === 0) throw new Error('请至少提供一篇文章内容或一张图片')
 
-  const systemPrompt = `你是一位专业的ETF投资策略分析师，擅长从公众号文章中提取投资方向和交易信号。
+  const systemPrompt = `你是一位专业的A股场内ETF投资策略分析师，擅长从公众号文章中提取投资方向和交易信号。
 
-请分析用户提供的文章（文字和/或图片截图），输出以下结构化JSON（不要输出其他内容）：
+## 你的任务
+分析用户提供的文章（文字和/或图片截图），判断市场方向和推荐的ETF品种。
+注意：你只负责判断"买什么"和"为什么买"，具体买入价格由系统根据技术面自动计算，你不需要给出价格。
+
+## 输出格式（纯JSON，不要markdown代码块）
 {
   "market_view": "看多/震荡/看空 + 一句话理由",
   "main_sectors": ["主线方向1", "主线方向2"],
   "core_logic": "核心逻辑一段话概述",
-  "etf_mapping": {
-    "方向名": ["ETF代码1", "ETF代码2"]
-  },
-  "orders": [
+  "risk_level": "low/medium/high",
+  "risk_reason": "风险评级理由",
+  "etf_recommendations": [
     {
       "code": "ETF代码(6位数字)",
       "name": "ETF名称",
-      "direction": "buy",
-      "trigger_price": 1.234,
-      "position_pct": 20,
+      "position_pct": 15,
       "stop_loss_pct": 5,
-      "trailing_pct": 3,
+      "trailing_pct": 4,
       "activation_pct": 8,
       "max_hold_days": 15,
-      "reason": "买入理由"
+      "reason": "推荐理由"
     }
   ]
 }
 
-参数说明与要求：
-- code: ETF代码为6位数字（如510300、159919）
-- direction: 固定为 "buy"（卖出由系统规则自动管理）
-- trigger_price: 建议买入触发价位
-- position_pct: 建议仓位百分比（5-30）
+## 参数说明
+- code: ETF代码为6位数字（如510300、159919、159995）
+- position_pct: 建议仓位百分比（5-25），风险越高给越低
 - stop_loss_pct: 止损比例，宽基ETF给3-5%，行业ETF给5-8%
 - trailing_pct: 移动止盈回撤比例，宽基ETF给3%，行业ETF给4-5%
 - activation_pct: 移动止盈启动门槛，信号强给8-15%，信号弱给5-8%
 - max_hold_days: 最大持仓天数，短期逻辑给5-10天，中期逻辑给10-20天
-- reason: 一句话说明买入理由
+- reason: 一句话说明推荐理由
 
-注意：
-- 请根据ETF品种特性（宽基vs行业vs跨境）灵活调整参数
-- 信号越强，activation_pct越高（给更多上涨空间），trailing_pct越宽（容忍更大回撤）
-- 如果文章没有明确交易信号，orders 可以为空数组
+## 风险评级标准
+- low: 板块已充分调整（距高点>15%），估值合理
+- medium: 板块小幅调整（距高点5-15%），短期有波动
+- high: 板块接近高点（距高点<5%），追入风险大
+
+## 注意
+- 最多推荐3-4只最相关的ETF
+- 如果文章没有明确交易信号，etf_recommendations 可以为空数组
 - 请基于文章内容给出合理判断，不要编造
+- 如果文章有营销号/杀猪盘特征，risk_level设为high并在risk_reason中说明
 - 如果输入包含图片，请先识别图片中的文字内容再进行分析`
 
   // Build multimodal content array
@@ -121,11 +167,12 @@ export async function analyzeArticles(articles: string[], images: ImageInput[] =
     userContent.push({ type: 'text', text: articleTexts })
   }
 
-  // Add images
+  // Add images (compressed if needed)
   for (const img of images) {
+    const compressed = await compressImage(img.base64, img.mime_type)
     userContent.push({
       type: 'image_url',
-      image_url: { url: `data:${img.mime_type};base64,${img.base64}` },
+      image_url: { url: `data:${compressed.mime_type};base64,${compressed.base64}` },
     })
   }
 

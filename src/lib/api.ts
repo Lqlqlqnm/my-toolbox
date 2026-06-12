@@ -47,10 +47,9 @@ export async function submitAnalysis(data: {
   market_view: string
   main_sectors: string[]
   core_logic: string
-  etf_mapping: Record<string, string[]>
-  orders: any[]
+  etf_recommendations: any[]
 }) {
-  return request<{ analysisId: number; createdCount: number }>('analyses', {
+  return request<{ analysisId: number; createdCount: number; orders: any[] }>('analyses', {
     method: 'POST',
     body: JSON.stringify(data),
   })
@@ -108,5 +107,30 @@ export async function fetchArticleUrl(url: string): Promise<{ text: string; leng
   return request<{ text: string; length: number }>('fetch-url', {
     method: 'POST',
     body: JSON.stringify({ url }),
+  })
+}
+
+// ===== Web Push =====
+
+export async function getVapidPublicKey(): Promise<string> {
+  const data = await request<{ publicKey: string }>('push/vapid-key')
+  return data.publicKey
+}
+
+export async function subscribePush(subscription: PushSubscription): Promise<void> {
+  const json = subscription.toJSON()
+  await request('push/subscribe', {
+    method: 'POST',
+    body: JSON.stringify({
+      endpoint: json.endpoint,
+      keys: json.keys,
+    }),
+  })
+}
+
+export async function unsubscribePush(endpoint: string): Promise<void> {
+  await request('push/unsubscribe', {
+    method: 'POST',
+    body: JSON.stringify({ endpoint }),
   })
 }

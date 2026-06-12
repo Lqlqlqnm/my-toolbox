@@ -129,7 +129,7 @@ export default function Accounts() {
         {accounts.length === 0 ? (
           <p className="text-gray-400 text-center py-8 text-sm">暂无账户</p>
         ) : (
-          accounts.map((a) => (
+          accounts.map((a, i) => (
             <div key={a.id} className={`relative overflow-hidden bg-white dark:bg-[#141416] rounded-xl shadow-sm border border-gray-100 dark:border-white/[0.06] flex items-center px-4 py-3 ${a.is_hidden ? 'opacity-40' : ''}`}>
               <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-amber-400 dark:hidden" />
               <span className="mr-3 text-gray-600 dark:text-gray-300"><CategoryIcon icon={a.icon} size={22} /></span>

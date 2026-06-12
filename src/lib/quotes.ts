@@ -18,11 +18,11 @@ function jsonp<T>(url: string, callbackParam = 'cb'): Promise<T> {
 
     function cleanup() {
       clearTimeout(timeout)
-      delete (window as Record<string, unknown>)[callbackName]
+      delete (window as unknown as Record<string, unknown>)[callbackName]
       script.remove()
     }
 
-    ;(window as Record<string, unknown>)[callbackName] = (data: T) => {
+    ;(window as unknown as Record<string, unknown>)[callbackName] = (data: T) => {
       cleanup()
       resolve(data)
     }

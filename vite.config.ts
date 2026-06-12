@@ -7,12 +7,16 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
+      workbox: {
+        skipWaiting: true,
+        clientsClaim: true,
+      },
       manifest: {
         name: 'My Toolbox',
         short_name: 'Toolbox',
         description: '个人工具箱 — 记账 · ETF策略 · 旅行清单',
-        theme_color: '#f59e0b',
-        background_color: '#ffffff',
+        theme_color: '#f9fafb',
+        background_color: '#f9fafb',
         display: 'standalone',
         start_url: '/',
         icons: [

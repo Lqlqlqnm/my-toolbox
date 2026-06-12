@@ -1,14 +1,39 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { getAIConfig, saveAIConfig } from '../lib/ai'
 import { shareBackup, importBackup, type BackupData } from '../lib/backup'
 import { getThemeMode, setThemeMode, type ThemeMode } from '../lib/theme'
+import { registerPush, unregisterPush, getPushStatus } from '../lib/notify'
 
 export default function Settings() {
   const [aiConfig, setAiConfig] = useState(() => getAIConfig() || { apiKey: '', baseUrl: 'https://bmc-llm-relay.bluemediagroup.cn/v1', model: 'gpt-4o-mini' })
   const [message, setMessage] = useState('')
   const [backupInterval, setBackupInterval] = useState(() => localStorage.getItem('backup_interval_days') || '7')
   const [theme, setTheme] = useState<ThemeMode>(() => getThemeMode())
+  const [pushStatus, setPushStatus] = useState<'active' | 'inactive' | 'unsupported' | 'loading'>('loading')
+
+  useEffect(() => {
+    getPushStatus().then(setPushStatus)
+  }, [])
+
+  const handleTogglePush = async () => {
+    if (pushStatus === 'active') {
+      await unregisterPush()
+      setPushStatus('inactive')
+      setMessage('已关闭推送通知')
+    } else {
+      const result = await registerPush()
+      if (result === 'granted') {
+        setPushStatus('active')
+        setMessage('推送通知已开启')
+      } else if (result === 'denied') {
+        setMessage('通知权限被拒绝，请在系统设置中允许')
+      } else {
+        setMessage('当前浏览器不支持推送通知')
+      }
+    }
+    setTimeout(() => setMessage(''), 3000)
+  }
 
   const handleSaveAI = () => {
     saveAIConfig(aiConfig)
@@ -42,6 +67,18 @@ export default function Settings() {
     setTimeout(() => setMessage(''), 2000)
   }
 
+  const handleClearCloudImages = async () => {
+    if (!confirm('确定清空所有云端图片？')) return
+    try {
+      const resp = await fetch('/api/images/all', { method: 'DELETE' })
+      const data = await resp.json() as any
+      setMessage(`已清空 ${data.deleted} 张云端图片`)
+    } catch {
+      setMessage('清空失败')
+    }
+    setTimeout(() => setMessage(''), 3000)
+  }
+
   return (
     <main className="max-w-lg mx-auto px-4 py-4 pb-20">
       <div className="flex items-center gap-3 mb-6">
@@ -71,6 +108,34 @@ export default function Settings() {
             </button>
           ))}
         </div>
+      </section>
+
+      {/* Push Notifications */}
+      <section className="mb-6">
+        <h2 className="text-sm font-medium text-gray-700 dark:text-gray-200 mb-3">推送通知</h2>
+        {pushStatus === 'unsupported' ? (
+          <p className="text-xs text-gray-400">当前浏览器不支持推送通知。iOS 需添加到主屏幕后才能使用。</p>
+        ) : (
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-700 dark:text-gray-200">
+                {pushStatus === 'active' ? '已开启' : '未开启'}
+              </p>
+              <p className="text-xs text-gray-400">条件单成交、止损止盈等事件将推送到手机</p>
+            </div>
+            <button
+              onClick={handleTogglePush}
+              disabled={pushStatus === 'loading'}
+              className={`relative w-12 h-6 rounded-full transition-colors shrink-0 ${
+                pushStatus === 'active' ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-600'
+              }`}
+            >
+              <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${
+                pushStatus === 'active' ? 'translate-x-6' : 'translate-x-0'
+              }`} />
+            </button>
+          </div>
+        )}
       </section>
 
       {/* AI Config */}
@@ -111,6 +176,7 @@ export default function Settings() {
             导入恢复
             <input type="file" accept=".json" onChange={handleImport} className="hidden" />
           </label>
+          <button onClick={handleClearCloudImages} className="w-full py-2.5 bg-red-50 dark:bg-red-900/20 text-red-500 rounded-lg text-sm border border-red-200 dark:border-red-800">清空云端图片</button>
         </div>
       </section>
 

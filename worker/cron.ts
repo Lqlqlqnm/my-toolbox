@@ -2,6 +2,7 @@
 
 import type { Env } from './index'
 import { cleanupExpiredImages } from './api'
+import { sendPushToAll } from './push'
 
 const FEE_RATE = 0.0001
 
@@ -114,9 +115,13 @@ async function executeBuy(env: Env, order: any, currentPrice: number): Promise<v
   ).bind(order.portfolio_id, order.code, order.name, shares, currentPrice, fee, order.id, meta.last_row_id, today, now).run()
 
   // 通知
+  const notifyBody = `${order.name}(${order.code}) ${shares}股 @ ¥${currentPrice.toFixed(3)}`
   await env.DB.prepare(
     `INSERT INTO notifications (type, title, body, created_at) VALUES ('buy_executed', '买入成交', ?, ?)`
-  ).bind(`${order.name}(${order.code}) ${shares}股 @ ¥${currentPrice.toFixed(3)}`, now).run()
+  ).bind(notifyBody, now).run()
+
+  // Web Push
+  await sendPushToAll(env, '买入成交', notifyBody, 'buy')
 }
 
 // ===== 卖出执行 =====
@@ -158,13 +163,14 @@ async function executeSell(env: Env, position: any, currentPrice: number, sellSh
   // 通知
   const pnlStr = pnlPct >= 0 ? `+${pnlPct.toFixed(1)}%` : `${pnlPct.toFixed(1)}%`
   const reasonMap: Record<string, string> = { stop_loss: '止损', trailing_stop: '移动止盈', extreme_rally: '极端加速', max_hold: '到期', manual: '手动' }
+  const sellTitle = `卖出[${reasonMap[reason] || reason}]`
+  const sellBody = `${position.name}(${position.code}) ${sellShares}股 @ ¥${currentPrice.toFixed(3)} 盈亏${pnlStr}`
   await env.DB.prepare(
     `INSERT INTO notifications (type, title, body, created_at) VALUES ('sell_executed', ?, ?, ?)`
-  ).bind(
-    `卖出[${reasonMap[reason] || reason}]`,
-    `${position.name}(${position.code}) ${sellShares}股 @ ¥${currentPrice.toFixed(3)} 盈亏${pnlStr}`,
-    now
-  ).run()
+  ).bind(sellTitle, sellBody, now).run()
+
+  // Web Push
+  await sendPushToAll(env, sellTitle, sellBody, 'sell')
 }
 
 // ===== 主逻辑 =====

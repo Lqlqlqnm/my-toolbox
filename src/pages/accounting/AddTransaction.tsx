@@ -592,10 +592,10 @@ export default function AddTransaction() {
       </button>
 
       {/* Save as Template */}
-      {!isEditing && amount && parseFloat(amount) > 0 && note && (
+      {!isEditing && amount && parseFloat(amount) > 0 && note && txType !== 'transfer' && (
         <button
           onClick={() => {
-            addTemplate({ name: note, type: txType, amount: parseFloat(amount), category_id: categoryId, account_id: accountId, note })
+            addTemplate({ name: note, type: txType as 'expense' | 'income', amount: parseFloat(amount), category_id: categoryId, account_id: accountId, note })
             setTemplates(getTemplates())
             showAlert('已保存为模板')
           }}

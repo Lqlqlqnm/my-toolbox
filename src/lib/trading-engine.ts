@@ -2,15 +2,27 @@
 
 import { db, type PendingOrder, type ActivePosition } from './db'
 import { notifyOrderCreated, notifyBuyExecuted, notifySellExecuted } from './notify'
-import type { AnalysisResult } from './ai'
 
 const FEE_RATE = 0.0001 // 万1手续费
 
 // ===== 条件单创建 =====
 
+export interface OrderInput {
+  code: string
+  name: string
+  direction: string
+  trigger_price: number
+  position_pct: number
+  stop_loss_pct: number
+  trailing_pct: number
+  activation_pct: number
+  max_hold_days: number
+  reason: string
+}
+
 export async function createOrdersFromAnalysis(
   analysisId: number,
-  orders: AnalysisResult['orders'],
+  orders: OrderInput[],
   portfolioId: number
 ): Promise<number[]> {
   const createdIds: number[] = []

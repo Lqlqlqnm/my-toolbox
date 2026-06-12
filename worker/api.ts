@@ -26,11 +26,22 @@ export async function handleApiRequest(request: Request, env: Env): Promise<Resp
       if (path === 'watchlist') return addWatchlist(request, env)
       if (path === 'images/upload') return uploadImage(request, env)
       if (path === 'fetch-url') return fetchUrl(request, env)
+      if (path === 'push/subscribe') return pushSubscribe(request, env)
+      if (path === 'push/unsubscribe') return pushUnsubscribe(request, env)
+    }
+
+    // GET push vapid key
+    if (method === 'GET' && path === 'push/vapid-key') {
+      return json({ publicKey: env.VAPID_PUBLIC_KEY })
     }
 
     // DELETE routes
     if (method === 'DELETE') {
       if (path.startsWith('watchlist/')) return deleteWatchlist(path, env)
+      if (path === 'images/all') {
+        const { meta } = await env.DB.prepare('DELETE FROM analysis_images').run()
+        return json({ deleted: meta.changes || 0 })
+      }
     }
 
     // GET images
@@ -146,8 +157,8 @@ async function postAnalysis(request: Request, env: Env): Promise<Response> {
     body.market_view,
     JSON.stringify(body.main_sectors),
     body.core_logic,
-    JSON.stringify(body.etf_mapping),
-    JSON.stringify(body.orders),
+    JSON.stringify(body.etf_recommendations || []),
+    '[]', // orders will be populated below
     new Date().toISOString()
   ).run()
 
@@ -157,22 +168,31 @@ async function postAnalysis(request: Request, env: Env): Promise<Response> {
   const portfolio = await env.DB.prepare('SELECT id FROM portfolios LIMIT 1').first<{ id: number }>()
   if (!portfolio) return json({ error: 'No portfolio' }, 400)
 
-  // 自动创建条件单
+  // 对每个推荐ETF进行技术面分析，生成条件单
+  const { analyzeMultiple } = await import('./technical')
+  const etfs = (body.etf_recommendations || []).map((r: any) => ({ code: r.code, name: r.name }))
+  const technicalResults = await analyzeMultiple(etfs)
+
   let createdCount = 0
-  for (const order of body.orders || []) {
-    if (order.direction !== 'buy') continue
+  const generatedOrders: any[] = []
+
+  for (const rec of body.etf_recommendations || []) {
+    const tech = technicalResults.find(t => t.code === rec.code)
+    if (!tech) continue
 
     // 检查已有持仓
     const existing = await env.DB.prepare(
       'SELECT id FROM active_positions WHERE portfolio_id = ? AND code = ? AND status = ?'
-    ).bind(portfolio.id, order.code, 'holding').first()
+    ).bind(portfolio.id, rec.code, 'holding').first()
     if (existing) continue
 
     // 取消旧的 pending 单
     await env.DB.prepare(
       `UPDATE pending_orders SET status = 'cancelled', cancel_reason = 'superseded'
        WHERE portfolio_id = ? AND code = ? AND status = 'pending'`
-    ).bind(portfolio.id, order.code).run()
+    ).bind(portfolio.id, rec.code).run()
+
+    const triggerPrice = tech.suggested_trigger
 
     // 创建新条件单
     await env.DB.prepare(
@@ -181,9 +201,9 @@ async function postAnalysis(request: Request, env: Env): Promise<Response> {
        executed_price, executed_shares, executed_at, created_at)
        VALUES (?, ?, ?, ?, 'buy', ?, ?, ?, ?, ?, ?, ?, 'pending', NULL, NULL, NULL, NULL, ?)`
     ).bind(
-      portfolio.id, analysisId, order.code, order.name, order.trigger_price, order.position_pct,
-      order.stop_loss_pct, order.trailing_pct, order.activation_pct, order.max_hold_days,
-      order.reason, new Date().toISOString()
+      portfolio.id, analysisId, rec.code, rec.name, triggerPrice, rec.position_pct,
+      rec.stop_loss_pct, rec.trailing_pct, rec.activation_pct, rec.max_hold_days,
+      rec.reason, new Date().toISOString()
     ).run()
 
     // 写入通知
@@ -191,14 +211,33 @@ async function postAnalysis(request: Request, env: Env): Promise<Response> {
       `INSERT INTO notifications (type, title, body, created_at)
        VALUES ('order_created', '条件单已创建', ?, ?)`
     ).bind(
-      `${order.name}(${order.code}) 触发价 ¥${order.trigger_price.toFixed(3)}`,
+      `${rec.name}(${rec.code}) 触发价 ¥${triggerPrice.toFixed(3)} [${tech.trigger_reason}]`,
       new Date().toISOString()
     ).run()
+
+    generatedOrders.push({
+      code: rec.code,
+      name: rec.name,
+      trigger_price: triggerPrice,
+      trigger_reason: tech.trigger_reason,
+      signals: tech.signals,
+      levels: tech.levels,
+      position_pct: rec.position_pct,
+      stop_loss_pct: rec.stop_loss_pct,
+      trailing_pct: rec.trailing_pct,
+      activation_pct: rec.activation_pct,
+      max_hold_days: rec.max_hold_days,
+      reason: rec.reason,
+    })
 
     createdCount++
   }
 
-  return json({ analysisId, createdCount })
+  // 更新 orders 字段
+  await env.DB.prepare('UPDATE analyses SET orders = ? WHERE id = ?')
+    .bind(JSON.stringify(generatedOrders), analysisId).run()
+
+  return json({ analysisId, createdCount, orders: generatedOrders })
 }
 
 async function cancelOrder(path: string, env: Env): Promise<Response> {
@@ -223,6 +262,31 @@ async function deleteWatchlist(path: string, env: Env): Promise<Response> {
   return json({ ok: true })
 }
 
+// ===== Push Subscription =====
+
+async function pushSubscribe(request: Request, env: Env): Promise<Response> {
+  const body = await request.json() as any
+  const { endpoint, keys } = body
+  if (!endpoint || !keys?.p256dh || !keys?.auth) {
+    return json({ error: 'Invalid subscription' }, 400)
+  }
+
+  await env.DB.prepare(
+    `INSERT OR REPLACE INTO push_subscriptions (endpoint, p256dh, auth, created_at) VALUES (?, ?, ?, ?)`
+  ).bind(endpoint, keys.p256dh, keys.auth, new Date().toISOString()).run()
+
+  return json({ ok: true })
+}
+
+async function pushUnsubscribe(request: Request, env: Env): Promise<Response> {
+  const body = await request.json() as any
+  const { endpoint } = body
+  if (!endpoint) return json({ error: 'Missing endpoint' }, 400)
+
+  await env.DB.prepare('DELETE FROM push_subscriptions WHERE endpoint = ?').bind(endpoint).run()
+  return json({ ok: true })
+}
+
 // ===== Helpers =====
 
 function json(data: any, status = 200): Response {
@@ -243,7 +307,7 @@ async function uploadImage(request: Request, env: Env): Promise<Response> {
     if (!file) return json({ error: 'No file provided' }, 400)
 
     const buffer = await file.arrayBuffer()
-    if (buffer.byteLength > 2 * 1024 * 1024) return json({ error: 'File too large (max 2MB)' }, 400)
+    if (buffer.byteLength > 5 * 1024 * 1024) return json({ error: 'File too large (max 5MB)' }, 400)
 
     const { meta } = await env.DB.prepare(
       'INSERT INTO analysis_images (filename, mime_type, data, created_at) VALUES (?, ?, ?, ?)'
@@ -260,7 +324,7 @@ async function uploadImage(request: Request, env: Env): Promise<Response> {
   const bytes = new Uint8Array(binaryStr.length)
   for (let i = 0; i < binaryStr.length; i++) bytes[i] = binaryStr.charCodeAt(i)
 
-  if (bytes.byteLength > 2 * 1024 * 1024) return json({ error: 'File too large (max 2MB)' }, 400)
+  if (bytes.byteLength > 5 * 1024 * 1024) return json({ error: 'File too large (max 5MB)' }, 400)
 
   const { meta } = await env.DB.prepare(
     'INSERT INTO analysis_images (filename, mime_type, data, created_at) VALUES (?, ?, ?, ?)'

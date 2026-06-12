@@ -6,6 +6,8 @@ import { handleScheduled } from './cron'
 export interface Env {
   DB: D1Database
   ASSETS: Fetcher
+  VAPID_PUBLIC_KEY: string
+  VAPID_PRIVATE_KEY: string
 }
 
 export default {
