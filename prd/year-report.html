@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>我的年报 PRD</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', -apple-system, sans-serif; background: #e8e4df; padding: 48px 24px; display: flex; flex-wrap: wrap; justify-content: center; gap: 56px; min-height: 100vh; }
+  .column { display: flex; flex-direction: column; align-items: center; }
+  .frame-label { font-size: 11px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: #9a9590; margin-bottom: 16px; }
+  .phone { width: 393px; height: 852px; border-radius: 55px; position: relative; overflow: hidden; box-shadow: 0 0 0 1px rgba(0,0,0,0.06), 0 40px 100px -20px rgba(0,0,0,0.15); }
+  .phone::before { content: ''; position: absolute; top: 12px; left: 50%; transform: translateX(-50%); width: 126px; height: 37px; background: #000; border-radius: 20px; z-index: 100; }
+  .screen { width: 100%; height: 100%; overflow-y: auto; padding: 72px 0 40px; }
+  .screen::-webkit-scrollbar { display: none; }
+  .home-indicator { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); width: 134px; height: 5px; border-radius: 3px; z-index: 50; }
+
+  .year-hero { text-align: center; padding: 0 24px; margin-bottom: 28px; }
+  .year-number { font-size: 56px; font-weight: 900; letter-spacing: -3px; line-height: 1; }
+  .year-subtitle { font-size: 13px; font-weight: 400; margin-top: 8px; }
+
+  .report-card { margin: 0 16px 14px; border-radius: 18px; padding: 20px; }
+  .report-card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .report-card-icon { font-size: 20px; }
+  .report-card-title { font-size: 14px; font-weight: 700; }
+  .report-amount { font-size: 28px; font-weight: 900; letter-spacing: -1px; text-align: center; margin-bottom: 4px; }
+  .report-amount-label { font-size: 11px; font-weight: 400; text-align: center; margin-bottom: 14px; }
+  .report-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 13px; }
+  .report-row-label { font-weight: 400; }
+  .report-row-value { font-weight: 700; }
+  .divider { height: 1px; margin: 4px 0; }
+
+  /* LIGHT */
+  .light .screen { background: #f6f4f1; }
+  .light .home-indicator { background: rgba(0,0,0,0.18); }
+  .light .year-number { color: #6a5090; }
+  .light .year-subtitle { color: #9a9590; }
+  .light .report-card { background: #fff; border: 0.5px solid rgba(0,0,0,0.04); }
+  .light .report-card-title { color: #1a1816; }
+  .light .report-amount { color: #1a1816; }
+  .light .report-amount-label { color: #9a9590; }
+  .light .report-row-label { color: #8a8580; }
+  .light .report-row-value { color: #2c2825; }
+  .light .report-row-value.green { color: #4a8a5a; }
+  .light .divider { background: rgba(0,0,0,0.04); }
+
+  /* DARK */
+  .dark .screen { background: #111110; }
+  .dark .home-indicator { background: rgba(255,255,255,0.2); }
+  .dark .year-number { color: #c8a0e0; }
+  .dark .year-subtitle { color: #5a5550; }
+  .dark .report-card { background: rgba(255,255,255,0.02); border: 0.5px solid rgba(255,255,255,0.05); }
+  .dark .report-card-title { color: #f0ece8; }
+  .dark .report-amount { color: #f0ece8; }
+  .dark .report-amount-label { color: #5a5550; }
+  .dark .report-row-label { color: #5a5550; }
+  .dark .report-row-value { color: #c0bab5; }
+  .dark .report-row-value.green { color: #7aba95; }
+  .dark .divider { background: rgba(255,255,255,0.04); }
+</style>
+</head>
+<body>
+
+<!-- LIGHT -->
+<div class="column">
+  <div class="frame-label">Light · 年报</div>
+  <div class="phone light">
+    <div class="screen">
+      <div class="year-hero"><div class="year-number">2026</div><div class="year-subtitle">你的年度数据回顾</div></div>
+      <div class="report-card">
+        <div class="report-card-header"><span class="report-card-icon">💰</span><span class="report-card-title">收支总览</span></div>
+        <div class="report-amount">¥0</div>
+        <div class="report-amount-label">年度总支出</div>
+        <div class="divider"></div>
+        <div class="report-row"><span class="report-row-label">年度总收入</span><span class="report-row-value green">¥0</span></div>
+        <div class="report-row"><span class="report-row-label">年度储蓄</span><span class="report-row-value green">¥0 (0%)</span></div>
+        <div class="report-row"><span class="report-row-label">月均支出</span><span class="report-row-value">¥0</span></div>
+        <div class="report-row"><span class="report-row-label">日均支出</span><span class="report-row-value">¥0</span></div>
+      </div>
+      <div class="report-card">
+        <div class="report-card-header"><span class="report-card-icon">🔄</span><span class="report-card-title">订阅支出</span></div>
+        <div class="report-row"><span class="report-row-label">年度订阅总支出</span><span class="report-row-value">¥0</span></div>
+        <div class="report-row"><span class="report-row-label">活跃订阅数</span><span class="report-row-value">0 个</span></div>
+      </div>
+      <div class="report-card">
+        <div class="report-card-header"><span class="report-card-icon">✅</span><span class="report-card-title">习惯完成</span></div>
+        <div class="report-row"><span class="report-row-label">总打卡天数</span><span class="report-row-value">0 天</span></div>
+        <div class="report-row"><span class="report-row-label">最长连续</span><span class="report-row-value">0 天</span></div>
+        <div class="report-row"><span class="report-row-label">完成率</span><span class="report-row-value">0%</span></div>
+      </div>
+    </div>
+    <div class="home-indicator"></div>
+  </div>
+</div>
+
+<!-- DARK -->
+<div class="column">
+  <div class="frame-label">Dark · 年报</div>
+  <div class="phone dark">
+    <div class="screen">
+      <div class="year-hero"><div class="year-number">2026</div><div class="year-subtitle">你的年度数据回顾</div></div>
+      <div class="report-card">
+        <div class="report-card-header"><span class="report-card-icon">💰</span><span class="report-card-title">收支总览</span></div>
+        <div class="report-amount">¥0</div>
+        <div class="report-amount-label">年度总支出</div>
+        <div class="divider"></div>
+        <div class="report-row"><span class="report-row-label">年度总收入</span><span class="report-row-value green">¥0</span></div>
+        <div class="report-row"><span class="report-row-label">年度储蓄</span><span class="report-row-value green">¥0 (0%)</span></div>
+        <div class="report-row"><span class="report-row-label">月均支出</span><span class="report-row-value">¥0</span></div>
+        <div class="report-row"><span class="report-row-label">日均支出</span><span class="report-row-value">¥0</span></div>
+      </div>
+      <div class="report-card">
+        <div class="report-card-header"><span class="report-card-icon">🔄</span><span class="report-card-title">订阅支出</span></div>
+        <div class="report-row"><span class="report-row-label">年度订阅总支出</span><span class="report-row-value">¥0</span></div>
+        <div class="report-row"><span class="report-row-label">活跃订阅数</span><span class="report-row-value">0 个</span></div>
+      </div>
+      <div class="report-card">
+        <div class="report-card-header"><span class="report-card-icon">✅</span><span class="report-card-title">习惯完成</span></div>
+        <div class="report-row"><span class="report-row-label">总打卡天数</span><span class="report-row-value">0 天</span></div>
+        <div class="report-row"><span class="report-row-label">最长连续</span><span class="report-row-value">0 天</span></div>
+        <div class="report-row"><span class="report-row-label">完成率</span><span class="report-row-value">0%</span></div>
+      </div>
+    </div>
+    <div class="home-indicator"></div>
+  </div>
+</div>
+
+</body>
+</html>

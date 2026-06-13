@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>记账本 · 工具页 PRD</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', -apple-system, sans-serif; background: #e8e4df; padding: 48px 24px; display: flex; flex-wrap: wrap; justify-content: center; gap: 56px; min-height: 100vh; }
+  .column { display: flex; flex-direction: column; align-items: center; }
+  .frame-label { font-size: 11px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: #9a9590; margin-bottom: 16px; }
+  .phone { width: 393px; height: 852px; border-radius: 55px; position: relative; overflow: hidden; box-shadow: 0 0 0 1px rgba(0,0,0,0.06), 0 40px 100px -20px rgba(0,0,0,0.15); }
+  .phone::before { content: ''; position: absolute; top: 12px; left: 50%; transform: translateX(-50%); width: 126px; height: 37px; background: #000; border-radius: 20px; z-index: 100; }
+  .screen { width: 100%; height: 100%; overflow-y: auto; padding: 72px 0 72px; }
+  .screen::-webkit-scrollbar { display: none; }
+  .home-indicator { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); width: 134px; height: 5px; border-radius: 3px; z-index: 50; }
+  .tab-bar { position: absolute; bottom: 20px; left: 24px; right: 24px; display: flex; align-items: center; justify-content: space-around; padding: 10px 4px; border-radius: 16px; z-index: 90; }
+  .tab-item { font-size: 12px; font-weight: 500; padding: 6px 12px; border-radius: 10px; cursor: pointer; }
+
+  .hero { padding: 0 24px; margin-bottom: 24px; }
+  .hero-eyebrow { font-size: 11px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; }
+  .hero-title { font-size: 28px; font-weight: 800; letter-spacing: -0.8px; }
+
+  /* 高频工具 - 大卡片 */
+  .quick-section { padding: 0 16px; margin-bottom: 20px; }
+  .quick-title { font-size: 12px; font-weight: 600; margin-bottom: 12px; }
+  .quick-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .quick-card { border-radius: 16px; padding: 18px 16px; display: flex; align-items: center; gap: 12px; cursor: pointer; }
+  .quick-icon { font-size: 22px; }
+  .quick-info {}
+  .quick-name { font-size: 14px; font-weight: 600; }
+  .quick-desc { font-size: 10px; font-weight: 400; margin-top: 2px; }
+
+  /* 其他工具 - 紧凑列表 */
+  .tools-section { padding: 0 16px; }
+  .tools-title { font-size: 12px; font-weight: 600; margin-bottom: 12px; }
+  .tools-list { display: flex; flex-direction: column; gap: 4px; }
+  .tool-row { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 12px; cursor: pointer; }
+  .tool-emoji { font-size: 18px; }
+  .tool-name { font-size: 13px; font-weight: 500; flex: 1; }
+  .tool-arrow { font-size: 14px; }
+
+  /* LIGHT */
+  .light .screen { background: #f6f4f1; }
+  .light .home-indicator { background: rgba(0,0,0,0.18); }
+  .light .tab-bar { background: rgba(255,255,255,0.72); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); border: 0.5px solid rgba(255,255,255,0.8); box-shadow: 0 4px 24px rgba(0,0,0,0.08); }
+  .light .tab-item { color: #a0998f; }
+  .light .tab-item.active { color: #8a6d3b; background: rgba(138,109,59,0.08); }
+  .light .hero-eyebrow { color: #b49a5e; }
+  .light .hero-title { color: #1a1816; }
+  .light .quick-title { color: #8a8580; }
+  .light .quick-card { background: #fff; border: 0.5px solid rgba(0,0,0,0.04); }
+  .light .quick-name { color: #1a1816; }
+  .light .quick-desc { color: #9a9590; }
+  .light .tools-title { color: #8a8580; }
+  .light .tool-row { background: #fff; border: 0.5px solid rgba(0,0,0,0.03); }
+  .light .tool-name { color: #3a3530; }
+  .light .tool-arrow { color: #b0aaa5; }
+
+  /* DARK */
+  .dark .screen { background: #111110; }
+  .dark .home-indicator { background: rgba(255,255,255,0.2); }
+  .dark .tab-bar { background: rgba(30,30,28,0.8); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); border: 0.5px solid rgba(255,255,255,0.06); box-shadow: 0 4px 24px rgba(0,0,0,0.3); }
+  .dark .tab-item { color: #4a4540; }
+  .dark .tab-item.active { color: #c8a960; background: rgba(200,169,96,0.08); }
+  .dark .hero-eyebrow { color: #c8a960; }
+  .dark .hero-title { color: #f0ece8; }
+  .dark .quick-title { color: #5a5550; }
+  .dark .quick-card { background: rgba(255,255,255,0.03); border: 0.5px solid rgba(255,255,255,0.05); }
+  .dark .quick-name { color: #f0ece8; }
+  .dark .quick-desc { color: #5a5550; }
+  .dark .tools-title { color: #5a5550; }
+  .dark .tool-row { background: rgba(255,255,255,0.02); border: 0.5px solid rgba(255,255,255,0.04); }
+  .dark .tool-name { color: #b0aaa5; }
+  .dark .tool-arrow { color: #4a4540; }
+</style>
+</head>
+<body>
+
+<!-- LIGHT -->
+<div class="column">
+  <div class="frame-label">Light · 记账工具</div>
+  <div class="phone light">
+    <div class="screen">
+      <div class="hero"><div class="hero-eyebrow">记账本</div><div class="hero-title">工具箱</div></div>
+      <div class="quick-section">
+        <div class="quick-title">常用</div>
+        <div class="quick-grid">
+          <div class="quick-card"><span class="quick-icon">⏱</span><div class="quick-info"><div class="quick-name">预算</div><div class="quick-desc">设定月度上限</div></div></div>
+          <div class="quick-card"><span class="quick-icon">🔁</span><div class="quick-info"><div class="quick-name">周期记账</div><div class="quick-desc">房租/工资自动记</div></div></div>
+          <div class="quick-card"><span class="quick-icon">🎯</span><div class="quick-info"><div class="quick-name">攒钱目标</div><div class="quick-desc">可视化进度</div></div></div>
+          <div class="quick-card"><span class="quick-icon">⚡</span><div class="quick-info"><div class="quick-name">常用模板</div><div class="quick-desc">一键快速记录</div></div></div>
+        </div>
+      </div>
+      <div class="tools-section">
+        <div class="tools-title">更多</div>
+        <div class="tools-list">
+          <div class="tool-row"><span class="tool-emoji">🤝</span><span class="tool-name">借还</span><span class="tool-arrow">›</span></div>
+          <div class="tool-row"><span class="tool-emoji">📅</span><span class="tool-name">日历</span><span class="tool-arrow">›</span></div>
+          <div class="tool-row"><span class="tool-emoji">📈</span><span class="tool-name">资产趋势</span><span class="tool-arrow">›</span></div>
+          <div class="tool-row"><span class="tool-emoji">💳</span><span class="tool-name">信用卡</span><span class="tool-arrow">›</span></div>
+          <div class="tool-row"><span class="tool-emoji">⬇️</span><span class="tool-name">导入</span><span class="tool-arrow">›</span></div>
+          <div class="tool-row"><span class="tool-emoji">⬆️</span><span class="tool-name">导出</span><span class="tool-arrow">›</span></div>
+          <div class="tool-row"><span class="tool-emoji">📒</span><span class="tool-name">账本管理</span><span class="tool-arrow">›</span></div>
+          <div class="tool-row"><span class="tool-emoji">🏷</span><span class="tool-name">分类管理</span><span class="tool-arrow">›</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="tab-bar"><div class="tab-item">首页</div><div class="tab-item">流水</div><div class="tab-item">统计</div><div class="tab-item">资产</div><div class="tab-item active">工具</div></div>
+    <div class="home-indicator"></div>
+  </div>
+</div>
+
+<!-- DARK -->
+<div class="column">
+  <div class="frame-label">Dark · 记账工具</div>
+  <div class="phone dark">
+    <div class="screen">
+      <div class="hero"><div class="hero-eyebrow">记账本</div><div class="hero-title">工具箱</div></div>
+      <div class="quick-section">
+        <div class="quick-title">常用</div>
+        <div class="quick-grid">
+          <div class="quick-card"><span class="quick-icon">⏱</span><div class="quick-info"><div class="quick-name">预算</div><div class="quick-desc">设定月度上限</div></div></div>
+          <div class="quick-card"><span class="quick-icon">🔁</span><div class="quick-info"><div class="quick-name">周期记账</div><div class="quick-desc">房租/工资自动记</div></div></div>
+          <div class="quick-card"><span class="quick-icon">🎯</span><div class="quick-info"><div class="quick-name">攒钱目标</div><div class="quick-desc">可视化进度</div></div></div>
+          <div class="quick-card"><span class="quick-icon">⚡</span><div class="quick-info"><div class="quick-name">常用模板</div><div class="quick-desc">一键快速记录</div></div></div>
+        </div>
+      </div>
+      <div class="tools-section">
+        <div class="tools-title">更多</div>
+        <div class="tools-list">
+          <div class="tool-row"><span class="tool-emoji">🤝</span><span class="tool-name">借还</span><span class="tool-arrow">›</span></div>
+          <div class="tool-row"><span class="tool-emoji">📅</span><span class="tool-name">日历</span><span class="tool-arrow">›</span></div>
+          <div class="tool-row"><span class="tool-emoji">📈</span><span class="tool-name">资产趋势</span><span class="tool-arrow">›</span></div>
+          <div class="tool-row"><span class="tool-emoji">💳</span><span class="tool-name">信用卡</span><span class="tool-arrow">›</span></div>
+          <div class="tool-row"><span class="tool-emoji">⬇️</span><span class="tool-name">导入</span><span class="tool-arrow">›</span></div>
+          <div class="tool-row"><span class="tool-emoji">⬆️</span><span class="tool-name">导出</span><span class="tool-arrow">›</span></div>
+          <div class="tool-row"><span class="tool-emoji">📒</span><span class="tool-name">账本管理</span><span class="tool-arrow">›</span></div>
+          <div class="tool-row"><span class="tool-emoji">🏷</span><span class="tool-name">分类管理</span><span class="tool-arrow">›</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="tab-bar"><div class="tab-item">首页</div><div class="tab-item">流水</div><div class="tab-item">统计</div><div class="tab-item">资产</div><div class="tab-item active">工具</div></div>
+    <div class="home-indicator"></div>
+  </div>
+</div>
+
+</body>
+</html>

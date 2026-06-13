@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>记账本 · 首页+流水+统计 PRD</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', -apple-system, sans-serif; background: #e8e4df; padding: 48px 24px; display: flex; flex-wrap: wrap; justify-content: center; gap: 56px; min-height: 100vh; }
+  .column { display: flex; flex-direction: column; align-items: center; }
+  .frame-label { font-size: 11px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: #9a9590; margin-bottom: 16px; }
+  .phone { width: 393px; height: 852px; border-radius: 55px; position: relative; overflow: hidden; box-shadow: 0 0 0 1px rgba(0,0,0,0.06), 0 40px 100px -20px rgba(0,0,0,0.15); }
+  .phone::before { content: ''; position: absolute; top: 12px; left: 50%; transform: translateX(-50%); width: 126px; height: 37px; background: #000; border-radius: 20px; z-index: 100; }
+  .screen { width: 100%; height: 100%; overflow-y: auto; padding: 72px 0 72px; }
+  .screen::-webkit-scrollbar { display: none; }
+  .home-indicator { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); width: 134px; height: 5px; border-radius: 3px; z-index: 50; }
+  .tab-bar { position: absolute; bottom: 20px; left: 24px; right: 24px; display: flex; align-items: center; justify-content: space-around; padding: 10px 4px; border-radius: 16px; z-index: 90; }
+  .tab-item { font-size: 12px; font-weight: 500; padding: 6px 12px; border-radius: 10px; cursor: pointer; }
+
+  /* Hero */
+  .hero { padding: 0 24px; margin-bottom: 24px; }
+  .hero-eyebrow { font-size: 11px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; }
+  .hero-title { font-size: 32px; font-weight: 800; letter-spacing: -1px; line-height: 1.1; }
+
+  /* Balance card */
+  .balance-card { margin: 0 16px 20px; border-radius: 22px; padding: 24px; position: relative; overflow: hidden; }
+  .balance-card::after { content: ''; position: absolute; top: -40px; right: -40px; width: 120px; height: 120px; border-radius: 50%; opacity: 0.06; }
+  .balance-label { font-size: 12px; font-weight: 500; margin-bottom: 8px; }
+  .balance-amount { font-size: 38px; font-weight: 900; letter-spacing: -1.5px; line-height: 1; margin-bottom: 16px; }
+  .balance-meta { display: flex; gap: 24px; font-size: 13px; font-weight: 500; }
+  .balance-meta-item { display: flex; flex-direction: column; gap: 2px; }
+  .balance-meta-label { font-size: 11px; font-weight: 400; }
+
+  /* Trend card */
+  .trend-card { margin: 0 16px 16px; border-radius: 18px; padding: 18px 20px; }
+  .trend-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .trend-title { font-size: 14px; font-weight: 600; }
+  .trend-chart { height: 60px; display: flex; align-items: flex-end; gap: 3px; padding: 0 4px; }
+  .trend-bar { flex: 1; border-radius: 3px 3px 0 0; min-height: 4px; }
+  .trend-footer { font-size: 11px; font-weight: 400; margin-top: 8px; }
+
+  /* Transaction section */
+  .section { margin: 0 16px; padding: 16px 0; }
+  .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .section-title { font-size: 14px; font-weight: 700; }
+  .section-link { font-size: 12px; font-weight: 500; }
+  .empty-msg { text-align: center; padding: 32px; font-size: 13px; font-weight: 400; border-radius: 14px; }
+
+  /* FAB */
+  .fab { position: absolute; bottom: 80px; right: 24px; width: 52px; height: 52px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 300; z-index: 80; cursor: pointer; }
+
+  /* ===== LIGHT ===== */
+  .light .screen { background: #f6f4f1; }
+  .light .home-indicator { background: rgba(0,0,0,0.18); }
+  .light .tab-bar { background: rgba(255,255,255,0.72); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); border: 0.5px solid rgba(255,255,255,0.8); box-shadow: 0 4px 24px rgba(0,0,0,0.08); }
+  .light .tab-item { color: #a0998f; }
+  .light .tab-item.active { color: #8a6d3b; background: rgba(138,109,59,0.08); }
+
+  .light .hero-eyebrow { color: #b49a5e; }
+  .light .hero-title { color: #1a1816; }
+
+  .light .balance-card { background: linear-gradient(145deg, #3a3025 0%, #2a2218 100%); }
+  .light .balance-card::after { background: #c8a960; }
+  .light .balance-label { color: rgba(255,255,255,0.5); }
+  .light .balance-amount { color: #fff; }
+  .light .balance-meta-label { color: rgba(255,255,255,0.4); }
+  .light .balance-meta .income { color: #7aba95; }
+  .light .balance-meta .expense { color: #c87a7a; }
+  .light .balance-meta .surplus { color: rgba(255,255,255,0.7); }
+
+  .light .trend-card { background: #fff; border: 0.5px solid rgba(0,0,0,0.04); }
+  .light .trend-title { color: #1a1816; }
+  .light .trend-bar { background: rgba(138,109,59,0.15); }
+  .light .trend-bar.active { background: #8a6d3b; }
+  .light .trend-footer { color: #b0aaa5; }
+
+  .light .section-title { color: #1a1816; }
+  .light .section-link { color: #8a6d3b; }
+  .light .empty-msg { color: #b0aaa5; background: rgba(255,255,255,0.5); }
+
+  .light .fab { background: #8a6d3b; color: #fff; box-shadow: 0 6px 20px rgba(138,109,59,0.3); }
+
+  /* ===== DARK ===== */
+  .dark .screen { background: #111110; }
+  .dark .home-indicator { background: rgba(255,255,255,0.2); }
+  .dark .tab-bar { background: rgba(30,30,28,0.8); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); border: 0.5px solid rgba(255,255,255,0.06); box-shadow: 0 4px 24px rgba(0,0,0,0.3); }
+  .dark .tab-item { color: #4a4540; }
+  .dark .tab-item.active { color: #c8a960; background: rgba(200,169,96,0.08); }
+
+  .dark .hero-eyebrow { color: #c8a960; }
+  .dark .hero-title { color: #f0ece8; }
+
+  .dark .balance-card { background: linear-gradient(145deg, #1e1a14 0%, #151210 100%); border: 0.5px solid rgba(200,169,96,0.1); }
+  .dark .balance-card::after { background: #c8a960; }
+  .dark .balance-label { color: #5a5550; }
+  .dark .balance-amount { color: #f0ece8; }
+  .dark .balance-meta-label { color: #4a4540; }
+  .dark .balance-meta .income { color: #7aba95; }
+  .dark .balance-meta .expense { color: #c87a7a; }
+  .dark .balance-meta .surplus { color: #8a8580; }
+
+  .dark .trend-card { background: rgba(255,255,255,0.02); border: 0.5px solid rgba(255,255,255,0.05); }
+  .dark .trend-title { color: #f0ece8; }
+  .dark .trend-bar { background: rgba(200,169,96,0.1); }
+  .dark .trend-bar.active { background: #c8a960; }
+  .dark .trend-footer { color: #4a4540; }
+
+  .dark .section-title { color: #f0ece8; }
+  .dark .section-link { color: #c8a960; }
+  .dark .empty-msg { color: #4a4540; background: rgba(255,255,255,0.02); }
+
+  .dark .fab { background: #c8a960; color: #1a1816; box-shadow: 0 6px 20px rgba(200,169,96,0.2); }
+</style>
+</head>
+<body>
+
+<!-- LIGHT -->
+<div class="column">
+  <div class="frame-label">Light · 记账本首页</div>
+  <div class="phone light">
+    <div class="screen">
+      <div class="hero">
+        <div class="hero-eyebrow">记账本</div>
+        <div class="hero-title">2026年6月</div>
+      </div>
+
+      <div class="balance-card">
+        <div class="balance-label">净资产</div>
+        <div class="balance-amount">¥0.00</div>
+        <div class="balance-meta">
+          <div class="balance-meta-item"><span class="balance-meta-label">收入</span><span class="income">+0.00</span></div>
+          <div class="balance-meta-item"><span class="balance-meta-label">支出</span><span class="expense">-0.00</span></div>
+          <div class="balance-meta-item"><span class="balance-meta-label">结余</span><span class="surplus">0.00</span></div>
+        </div>
+      </div>
+
+      <div class="trend-card">
+        <div class="trend-header">
+          <div class="trend-title">资产趋势</div>
+        </div>
+        <div class="trend-chart">
+          <div class="trend-bar" style="height:20%"></div>
+          <div class="trend-bar" style="height:35%"></div>
+          <div class="trend-bar" style="height:25%"></div>
+          <div class="trend-bar" style="height:40%"></div>
+          <div class="trend-bar active" style="height:30%"></div>
+          <div class="trend-bar" style="height:45%"></div>
+          <div class="trend-bar" style="height:50%"></div>
+        </div>
+        <div class="trend-footer">最近 7 天支出</div>
+      </div>
+
+      <div class="section">
+        <div class="section-header">
+          <span class="section-title">最近交易</span>
+          <span class="section-link">全部 →</span>
+        </div>
+        <div class="empty-msg">暂无记录</div>
+      </div>
+    </div>
+
+    <div class="fab">+</div>
+    <div class="tab-bar">
+      <div class="tab-item active">首页</div>
+      <div class="tab-item">流水</div>
+      <div class="tab-item">统计</div>
+      <div class="tab-item">资产</div>
+      <div class="tab-item">工具</div>
+    </div>
+    <div class="home-indicator"></div>
+  </div>
+</div>
+
+<!-- DARK -->
+<div class="column">
+  <div class="frame-label">Dark · 记账本首页</div>
+  <div class="phone dark">
+    <div class="screen">
+      <div class="hero">
+        <div class="hero-eyebrow">记账本</div>
+        <div class="hero-title">2026年6月</div>
+      </div>
+
+      <div class="balance-card">
+        <div class="balance-label">净资产</div>
+        <div class="balance-amount">¥0.00</div>
+        <div class="balance-meta">
+          <div class="balance-meta-item"><span class="balance-meta-label">收入</span><span class="income">+0.00</span></div>
+          <div class="balance-meta-item"><span class="balance-meta-label">支出</span><span class="expense">-0.00</span></div>
+          <div class="balance-meta-item"><span class="balance-meta-label">结余</span><span class="surplus">0.00</span></div>
+        </div>
+      </div>
+
+      <div class="trend-card">
+        <div class="trend-header">
+          <div class="trend-title">资产趋势</div>
+        </div>
+        <div class="trend-chart">
+          <div class="trend-bar" style="height:20%"></div>
+          <div class="trend-bar" style="height:35%"></div>
+          <div class="trend-bar" style="height:25%"></div>
+          <div class="trend-bar" style="height:40%"></div>
+          <div class="trend-bar active" style="height:30%"></div>
+          <div class="trend-bar" style="height:45%"></div>
+          <div class="trend-bar" style="height:50%"></div>
+        </div>
+        <div class="trend-footer">最近 7 天支出</div>
+      </div>
+
+      <div class="section">
+        <div class="section-header">
+          <span class="section-title">最近交易</span>
+          <span class="section-link">全部 →</span>
+        </div>
+        <div class="empty-msg">暂无记录</div>
+      </div>
+    </div>
+
+    <div class="fab">+</div>
+    <div class="tab-bar">
+      <div class="tab-item active">首页</div>
+      <div class="tab-item">流水</div>
+      <div class="tab-item">统计</div>
+      <div class="tab-item">资产</div>
+      <div class="tab-item">工具</div>
+    </div>
+    <div class="home-indicator"></div>
+  </div>
+</div>
+
+</body>
+</html>

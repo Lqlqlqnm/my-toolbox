@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>储物定位 PRD</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', -apple-system, sans-serif; background: #e8e4df; padding: 48px 24px; display: flex; flex-wrap: wrap; justify-content: center; gap: 56px; min-height: 100vh; }
+  .column { display: flex; flex-direction: column; align-items: center; }
+  .frame-label { font-size: 11px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: #9a9590; margin-bottom: 16px; }
+  .phone { width: 393px; height: 852px; border-radius: 55px; position: relative; overflow: hidden; box-shadow: 0 0 0 1px rgba(0,0,0,0.06), 0 40px 100px -20px rgba(0,0,0,0.15); }
+  .phone::before { content: ''; position: absolute; top: 12px; left: 50%; transform: translateX(-50%); width: 126px; height: 37px; background: #000; border-radius: 20px; z-index: 100; }
+  .screen { width: 100%; height: 100%; overflow-y: auto; padding: 72px 0 40px; }
+  .screen::-webkit-scrollbar { display: none; }
+  .home-indicator { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); width: 134px; height: 5px; border-radius: 3px; z-index: 50; }
+
+  .hero { padding: 0 24px; margin-bottom: 20px; }
+  .hero-eyebrow { font-size: 11px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; }
+  .hero-title { font-size: 28px; font-weight: 800; letter-spacing: -0.8px; }
+
+  /* Search - 搜索是核心功能，突出 */
+  .search-card { margin: 0 16px 24px; border-radius: 16px; padding: 16px 20px; display: flex; align-items: center; gap: 12px; }
+  .search-icon { font-size: 18px; opacity: 0.5; }
+  .search-text { font-size: 15px; font-weight: 400; }
+
+  /* Space overview - 嵌套层级可视化 */
+  .space-overview { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 0 16px; margin-bottom: 24px; }
+  .space-stat { border-radius: 14px; padding: 18px 12px; text-align: center; }
+  .space-number { font-size: 28px; font-weight: 900; letter-spacing: -1px; }
+  .space-label { font-size: 10px; font-weight: 500; margin-top: 4px; letter-spacing: 0.3px; }
+
+  /* Room cards - 层级嵌套感 */
+  .rooms-section { padding: 0 16px; }
+  .rooms-title { font-size: 12px; font-weight: 600; letter-spacing: 0.5px; margin-bottom: 12px; }
+  .room-card { border-radius: 18px; padding: 18px; margin-bottom: 10px; position: relative; overflow: hidden; }
+  .room-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; }
+  .room-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .room-emoji { font-size: 24px; }
+  .room-name { font-size: 16px; font-weight: 700; }
+  .room-meta { font-size: 11px; font-weight: 400; margin-top: 2px; }
+  /* 嵌套位置列表 */
+  .location-list { display: flex; flex-wrap: wrap; gap: 6px; }
+  .location-chip { padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 500; display: flex; align-items: center; gap: 4px; }
+  .location-count { font-size: 10px; font-weight: 700; padding: 2px 5px; border-radius: 4px; }
+
+  /* Empty room */
+  .room-empty { font-size: 12px; font-weight: 400; padding: 4px 0; }
+
+  /* FAB */
+  .fab-row { position: absolute; bottom: 28px; right: 20px; display: flex; gap: 10px; z-index: 80; }
+  .fab { width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; }
+
+  /* ===== LIGHT ===== */
+  .light .screen { background: #f6f4f1; }
+  .light .home-indicator { background: rgba(0,0,0,0.18); }
+  .light .hero-eyebrow { color: #6a8a9a; }
+  .light .hero-title { color: #1a1816; }
+
+  .light .search-card { background: #fff; border: 1px solid rgba(0,0,0,0.06); box-shadow: 0 4px 20px rgba(0,0,0,0.04); }
+  .light .search-icon { color: #8a8580; }
+  .light .search-text { color: #b0aaa5; }
+
+  .light .space-stat { background: #fff; border: 0.5px solid rgba(0,0,0,0.04); }
+  .light .space-number { color: #1a1816; }
+  .light .space-label { color: #b0aaa5; }
+
+  .light .rooms-title { color: #8a8580; }
+  .light .room-card { background: #fff; border: 0.5px solid rgba(0,0,0,0.04); }
+  .light .room-card::before { background: linear-gradient(180deg, #6a8a9a 0%, #4a6a7a 100%); }
+  .light .room-name { color: #1a1816; }
+  .light .room-meta { color: #9a9590; }
+  .light .location-chip { background: rgba(106,138,154,0.06); color: #4a6a7a; }
+  .light .location-count { background: rgba(106,138,154,0.1); color: #4a6a7a; }
+  .light .room-empty { color: #b0aaa5; }
+
+  .light .fab { background: #2c2825; color: #fff; box-shadow: 0 4px 16px rgba(0,0,0,0.15); }
+  .light .fab.secondary { background: #fff; color: #2c2825; border: 0.5px solid rgba(0,0,0,0.08); box-shadow: 0 4px 16px rgba(0,0,0,0.06); }
+
+  /* ===== DARK ===== */
+  .dark .screen { background: #111110; }
+  .dark .home-indicator { background: rgba(255,255,255,0.2); }
+  .dark .hero-eyebrow { color: #8aafc8; }
+  .dark .hero-title { color: #f0ece8; }
+
+  .dark .search-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); }
+  .dark .search-icon { color: #5a5550; }
+  .dark .search-text { color: #4a4540; }
+
+  .dark .space-stat { background: rgba(255,255,255,0.02); border: 0.5px solid rgba(255,255,255,0.05); }
+  .dark .space-number { color: #f0ece8; }
+  .dark .space-label { color: #4a4540; }
+
+  .dark .rooms-title { color: #5a5550; }
+  .dark .room-card { background: rgba(255,255,255,0.02); border: 0.5px solid rgba(255,255,255,0.05); }
+  .dark .room-card::before { background: linear-gradient(180deg, #8aafc8 0%, #5a8aa8 100%); }
+  .dark .room-name { color: #f0ece8; }
+  .dark .room-meta { color: #5a5550; }
+  .dark .location-chip { background: rgba(138,175,200,0.06); color: #8aafc8; }
+  .dark .location-count { background: rgba(138,175,200,0.1); color: #8aafc8; }
+  .dark .room-empty { color: #4a4540; }
+
+  .dark .fab { background: #f0ece8; color: #111110; box-shadow: 0 4px 16px rgba(0,0,0,0.3); }
+  .dark .fab.secondary { background: rgba(255,255,255,0.06); color: #f0ece8; }
+</style>
+</head>
+<body>
+
+<!-- LIGHT -->
+<div class="column">
+  <div class="frame-label">Light · 储物定位</div>
+  <div class="phone light">
+    <div class="screen">
+      <div class="hero">
+        <div class="hero-eyebrow">储物定位</div>
+        <div class="hero-title">东西放哪了？</div>
+      </div>
+
+      <div class="search-card">
+        <span class="search-icon">🔍</span>
+        <span class="search-text">搜索物品名称或标签...</span>
+      </div>
+
+      <div class="space-overview">
+        <div class="space-stat"><div class="space-number">2</div><div class="space-label">房间</div></div>
+        <div class="space-stat"><div class="space-number">5</div><div class="space-label">储物位置</div></div>
+        <div class="space-stat"><div class="space-number">23</div><div class="space-label">物品</div></div>
+      </div>
+
+      <div class="rooms-section">
+        <div class="rooms-title">我的空间</div>
+        <div class="room-card">
+          <div class="room-header">
+            <span class="room-emoji">🛏</span>
+            <div><div class="room-name">卧室</div><div class="room-meta">3个位置 · 15件物品</div></div>
+          </div>
+          <div class="location-list">
+            <div class="location-chip">衣柜 <span class="location-count">8</span></div>
+            <div class="location-chip">床头柜 <span class="location-count">4</span></div>
+            <div class="location-chip">书桌 <span class="location-count">3</span></div>
+          </div>
+        </div>
+        <div class="room-card">
+          <div class="room-header">
+            <span class="room-emoji">🍳</span>
+            <div><div class="room-name">厨房</div><div class="room-meta">2个位置 · 8件物品</div></div>
+          </div>
+          <div class="location-list">
+            <div class="location-chip">橱柜 <span class="location-count">5</span></div>
+            <div class="location-chip">抽屉 <span class="location-count">3</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="fab-row">
+      <div class="fab secondary">📍</div>
+      <div class="fab">+</div>
+    </div>
+    <div class="home-indicator"></div>
+  </div>
+</div>
+
+<!-- DARK -->
+<div class="column">
+  <div class="frame-label">Dark · 储物定位</div>
+  <div class="phone dark">
+    <div class="screen">
+      <div class="hero">
+        <div class="hero-eyebrow">储物定位</div>
+        <div class="hero-title">东西放哪了？</div>
+      </div>
+
+      <div class="search-card">
+        <span class="search-icon">🔍</span>
+        <span class="search-text">搜索物品名称或标签...</span>
+      </div>
+
+      <div class="space-overview">
+        <div class="space-stat"><div class="space-number">2</div><div class="space-label">房间</div></div>
+        <div class="space-stat"><div class="space-number">5</div><div class="space-label">储物位置</div></div>
+        <div class="space-stat"><div class="space-number">23</div><div class="space-label">物品</div></div>
+      </div>
+
+      <div class="rooms-section">
+        <div class="rooms-title">我的空间</div>
+        <div class="room-card">
+          <div class="room-header">
+            <span class="room-emoji">🛏</span>
+            <div><div class="room-name">卧室</div><div class="room-meta">3个位置 · 15件物品</div></div>
+          </div>
+          <div class="location-list">
+            <div class="location-chip">衣柜 <span class="location-count">8</span></div>
+            <div class="location-chip">床头柜 <span class="location-count">4</span></div>
+            <div class="location-chip">书桌 <span class="location-count">3</span></div>
+          </div>
+        </div>
+        <div class="room-card">
+          <div class="room-header">
+            <span class="room-emoji">🍳</span>
+            <div><div class="room-name">厨房</div><div class="room-meta">2个位置 · 8件物品</div></div>
+          </div>
+          <div class="location-list">
+            <div class="location-chip">橱柜 <span class="location-count">5</span></div>
+            <div class="location-chip">抽屉 <span class="location-count">3</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="fab-row">
+      <div class="fab secondary">📍</div>
+      <div class="fab">+</div>
+    </div>
+    <div class="home-indicator"></div>
+  </div>
+</div>
+
+</body>
+</html>

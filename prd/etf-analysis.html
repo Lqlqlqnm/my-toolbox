@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ETF 策略助手 · 分析页 PRD</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', -apple-system, sans-serif; background: #e8e4df; padding: 48px 24px; display: flex; flex-wrap: wrap; justify-content: center; gap: 56px; min-height: 100vh; }
+  .column { display: flex; flex-direction: column; align-items: center; }
+  .frame-label { font-size: 11px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: #9a9590; margin-bottom: 16px; }
+  .phone { width: 393px; height: 852px; border-radius: 55px; position: relative; overflow: hidden; box-shadow: 0 0 0 1px rgba(0,0,0,0.06), 0 40px 100px -20px rgba(0,0,0,0.15); }
+  .phone::before { content: ''; position: absolute; top: 12px; left: 50%; transform: translateX(-50%); width: 126px; height: 37px; background: #000; border-radius: 20px; z-index: 100; }
+  .screen { width: 100%; height: 100%; overflow-y: auto; padding: 72px 0 72px; }
+  .screen::-webkit-scrollbar { display: none; }
+  .home-indicator { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); width: 134px; height: 5px; border-radius: 3px; z-index: 50; }
+  .tab-bar { position: absolute; bottom: 20px; left: 24px; right: 24px; display: flex; align-items: center; justify-content: space-around; padding: 10px 4px; border-radius: 16px; z-index: 90; }
+  .tab-item { font-size: 12px; font-weight: 500; padding: 6px 12px; border-radius: 10px; cursor: pointer; }
+
+  .hero { padding: 0 24px; margin-bottom: 24px; }
+  .hero-eyebrow { font-size: 11px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; }
+  .hero-title { font-size: 32px; font-weight: 800; letter-spacing: -1px; line-height: 1.1; }
+  .hero-sub { font-size: 13px; font-weight: 400; margin-top: 4px; }
+
+  /* Input card */
+  .input-card { margin: 0 16px 16px; border-radius: 20px; padding: 20px; position: relative; }
+  .input-placeholder { font-size: 15px; line-height: 1.6; min-height: 80px; }
+  .chip-row { display: flex; gap: 8px; margin-top: 16px; padding-top: 16px; }
+  .chip { padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 500; cursor: pointer; }
+
+  /* CTA */
+  .cta-btn { margin: 8px 16px 20px; width: calc(100% - 32px); padding: 17px; border-radius: 16px; border: none; font-size: 17px; font-weight: 600; cursor: pointer; }
+
+  /* History */
+  .history-section { margin: 0 16px; padding: 16px 0; }
+  .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .section-title { font-size: 13px; font-weight: 600; letter-spacing: 0.3px; }
+  .section-count { font-size: 12px; padding: 3px 10px; border-radius: 10px; }
+  .history-item { padding: 14px 16px; border-radius: 14px; display: flex; align-items: center; gap: 12px; }
+  .history-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .history-text { font-size: 14px; }
+  .history-time { font-size: 12px; margin-left: auto; }
+
+  /* LIGHT */
+  .light .screen { background: #f6f4f1; }
+  .light .home-indicator { background: rgba(0,0,0,0.18); }
+  .light .tab-bar { background: rgba(255,255,255,0.72); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); border: 0.5px solid rgba(255,255,255,0.8); box-shadow: 0 4px 24px rgba(0,0,0,0.08); }
+  .light .tab-item { color: #a0998f; }
+  .light .tab-item.active { color: #3d6b55; background: rgba(61,107,85,0.08); }
+  .light .hero-eyebrow { color: #7a9a88; }
+  .light .hero-title { color: #1a1816; }
+  .light .hero-sub { color: #9a9590; }
+  .light .input-card { background: rgba(255,255,255,0.65); backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px); border: 0.5px solid rgba(255,255,255,0.8); box-shadow: 0 4px 24px rgba(0,0,0,0.03); }
+  .light .input-placeholder { color: #b5b0aa; }
+  .light .chip-row { border-top: 0.5px solid rgba(0,0,0,0.06); }
+  .light .chip { background: rgba(107,140,174,0.08); color: #5d7f99; }
+  .light .cta-btn { background: #4a7a96; color: #fff; box-shadow: 0 8px 24px -4px rgba(74,122,150,0.35); }
+  .light .section-title { color: #8a8580; }
+  .light .section-count { background: rgba(0,0,0,0.03); color: #b5b0aa; }
+  .light .history-item { background: rgba(255,255,255,0.5); border: 0.5px solid rgba(0,0,0,0.04); }
+  .light .history-dot { background: #7aa08c; }
+  .light .history-text { color: #4a4540; }
+  .light .history-time { color: #b5b0aa; }
+
+  /* DARK */
+  .dark .screen { background: #111110; }
+  .dark .home-indicator { background: rgba(255,255,255,0.2); }
+  .dark .tab-bar { background: rgba(30,30,28,0.8); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); border: 0.5px solid rgba(255,255,255,0.06); box-shadow: 0 4px 24px rgba(0,0,0,0.3); }
+  .dark .tab-item { color: #4a4540; }
+  .dark .tab-item.active { color: #7aba95; background: rgba(122,186,149,0.08); }
+  .dark .hero-eyebrow { color: #7aba95; }
+  .dark .hero-title { color: #f0ece8; }
+  .dark .hero-sub { color: #4a4540; }
+  .dark .input-card { background: rgba(255,255,255,0.03); backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px); border: 0.5px solid rgba(255,255,255,0.06); }
+  .dark .input-placeholder { color: #4a4540; }
+  .dark .chip-row { border-top: 0.5px solid rgba(255,255,255,0.06); }
+  .dark .chip { background: rgba(138,175,200,0.08); color: #8aafc8; }
+  .dark .cta-btn { background: linear-gradient(135deg, #3d6a85 0%, #2d5068 100%); color: #e8e4df; box-shadow: 0 8px 24px -4px rgba(45,80,104,0.5); }
+  .dark .section-title { color: #5a5550; }
+  .dark .section-count { background: rgba(255,255,255,0.04); color: #4a4540; }
+  .dark .history-item { background: rgba(255,255,255,0.03); border: 0.5px solid rgba(255,255,255,0.04); }
+  .dark .history-dot { background: #5a9a7a; }
+  .dark .history-text { color: #b5b0aa; }
+  .dark .history-time { color: #4a4540; }
+</style>
+</head>
+<body>
+
+<!-- LIGHT -->
+<div class="column">
+  <div class="frame-label">Light · 分析</div>
+  <div class="phone light">
+    <div class="screen">
+      <div class="hero">
+        <div class="hero-eyebrow">分析</div>
+        <div class="hero-title">ETF 策略助手</div>
+        <div class="hero-sub">AI 驱动的 ETF 投资分析</div>
+      </div>
+      <div class="input-card">
+        <div class="input-placeholder">粘贴文章正文（支持 HTML，自动清洗）</div>
+        <div class="chip-row">
+          <div class="chip">+ 文章</div>
+          <div class="chip">+ 链接</div>
+          <div class="chip">+ 图片</div>
+        </div>
+      </div>
+      <button class="cta-btn">AI 分析</button>
+      <div class="history-section">
+        <div class="section-header"><span class="section-title">历史分析</span><span class="section-count">1</span></div>
+        <div class="history-item"><div class="history-dot"></div><span class="history-text">半导体行业周报分析</span><span class="history-time">昨天</span></div>
+      </div>
+    </div>
+    <div class="tab-bar">
+      <div class="tab-item active">分析</div>
+      <div class="tab-item">持仓</div>
+      <div class="tab-item">条件单</div>
+      <div class="tab-item">自选</div>
+      <div class="tab-item">统计</div>
+    </div>
+    <div class="home-indicator"></div>
+  </div>
+</div>
+
+<!-- DARK -->
+<div class="column">
+  <div class="frame-label">Dark · 分析</div>
+  <div class="phone dark">
+    <div class="screen">
+      <div class="hero">
+        <div class="hero-eyebrow">分析</div>
+        <div class="hero-title">ETF 策略助手</div>
+        <div class="hero-sub">AI 驱动的 ETF 投资分析</div>
+      </div>
+      <div class="input-card">
+        <div class="input-placeholder">粘贴文章正文（支持 HTML，自动清洗）</div>
+        <div class="chip-row">
+          <div class="chip">+ 文章</div>
+          <div class="chip">+ 链接</div>
+          <div class="chip">+ 图片</div>
+        </div>
+      </div>
+      <button class="cta-btn">AI 分析</button>
+      <div class="history-section">
+        <div class="section-header"><span class="section-title">历史分析</span><span class="section-count">1</span></div>
+        <div class="history-item"><div class="history-dot"></div><span class="history-text">半导体行业周报分析</span><span class="history-time">昨天</span></div>
+      </div>
+    </div>
+    <div class="tab-bar">
+      <div class="tab-item active">分析</div>
+      <div class="tab-item">持仓</div>
+      <div class="tab-item">条件单</div>
+      <div class="tab-item">自选</div>
+      <div class="tab-item">统计</div>
+    </div>
+    <div class="home-indicator"></div>
+  </div>
+</div>
+
+</body>
+</html>

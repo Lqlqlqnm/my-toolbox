@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>习惯打卡 PRD</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', -apple-system, sans-serif; background: #e8e4df; padding: 48px 24px; display: flex; flex-wrap: wrap; justify-content: center; gap: 56px; min-height: 100vh; }
+  .column { display: flex; flex-direction: column; align-items: center; }
+  .frame-label { font-size: 11px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: #9a9590; margin-bottom: 16px; }
+  .phone { width: 393px; height: 852px; border-radius: 55px; position: relative; overflow: hidden; box-shadow: 0 0 0 1px rgba(0,0,0,0.06), 0 40px 100px -20px rgba(0,0,0,0.15); }
+  .phone::before { content: ''; position: absolute; top: 12px; left: 50%; transform: translateX(-50%); width: 126px; height: 37px; background: #000; border-radius: 20px; z-index: 100; }
+  .screen { width: 100%; height: 100%; overflow-y: auto; padding: 72px 0 40px; }
+  .screen::-webkit-scrollbar { display: none; }
+  .home-indicator { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); width: 134px; height: 5px; border-radius: 3px; z-index: 50; }
+
+  /* Hero - 连续天数为核心数字 */
+  .hero { padding: 0 24px; margin-bottom: 8px; }
+  .hero-eyebrow { font-size: 11px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; }
+  .hero-title { font-size: 28px; font-weight: 800; letter-spacing: -0.8px; }
+
+  /* Streak - 大面积视觉焦点 */
+  .streak-card { margin: 0 16px 20px; border-radius: 22px; padding: 28px 24px; text-align: center; position: relative; overflow: hidden; }
+  .streak-card::after { content: ''; position: absolute; top: -60px; right: -60px; width: 160px; height: 160px; border-radius: 50%; opacity: 0.06; }
+  .streak-number { font-size: 64px; font-weight: 900; letter-spacing: -3px; line-height: 1; }
+  .streak-label { font-size: 13px; font-weight: 500; margin-top: 6px; }
+  .streak-sub { font-size: 11px; font-weight: 400; margin-top: 12px; display: flex; justify-content: center; gap: 20px; }
+
+  /* Heatmap - 占据主视觉 */
+  .heatmap { margin: 0 16px 20px; border-radius: 18px; padding: 18px; }
+  .heatmap-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+  .heatmap-title { font-size: 13px; font-weight: 600; }
+  .heatmap-legend { display: flex; align-items: center; gap: 4px; font-size: 9px; font-weight: 500; }
+  .legend-cell { width: 10px; height: 10px; border-radius: 2px; }
+  .heatmap-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
+  .hm-weekday { font-size: 9px; font-weight: 600; text-align: center; padding-bottom: 6px; }
+  .hm-cell { aspect-ratio: 1; border-radius: 5px; position: relative; }
+  .hm-cell.today { box-shadow: inset 0 0 0 2px; }
+
+  /* Habit list - 今日打卡任务 */
+  .habit-section { padding: 0 16px; }
+  .habit-title { font-size: 13px; font-weight: 600; margin-bottom: 12px; }
+  .habit-item { display: flex; align-items: center; gap: 14px; padding: 16px; border-radius: 14px; margin-bottom: 8px; }
+  .habit-check { width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  .habit-check.done::after { content: '✓'; font-size: 14px; font-weight: 700; }
+  .habit-info { flex: 1; }
+  .habit-name { font-size: 14px; font-weight: 600; }
+  .habit-streak { font-size: 11px; font-weight: 400; margin-top: 2px; }
+  .habit-time { font-size: 11px; font-weight: 500; }
+
+  /* Add */
+  .add-btn { margin: 12px 16px 0; padding: 14px; border-radius: 12px; text-align: center; font-size: 13px; font-weight: 600; cursor: pointer; border: 1.5px dashed; }
+
+  /* ===== LIGHT ===== */
+  .light .screen { background: #f6f4f1; }
+  .light .home-indicator { background: rgba(0,0,0,0.18); }
+  .light .hero-eyebrow { color: #5a8a5a; }
+  .light .hero-title { color: #1a1816; }
+
+  .light .streak-card { background: linear-gradient(145deg, #2a4a2a 0%, #1e3520 100%); }
+  .light .streak-card::after { background: #7aba7a; }
+  .light .streak-number { color: #7aba7a; }
+  .light .streak-label { color: rgba(255,255,255,0.6); }
+  .light .streak-sub { color: rgba(255,255,255,0.35); }
+
+  .light .heatmap { background: #fff; border: 0.5px solid rgba(0,0,0,0.04); }
+  .light .heatmap-title { color: #1a1816; }
+  .light .heatmap-legend { color: #b0aaa5; }
+  .light .legend-cell.l0 { background: rgba(0,0,0,0.04); }
+  .light .legend-cell.l1 { background: rgba(90,138,90,0.2); }
+  .light .legend-cell.l2 { background: rgba(90,138,90,0.45); }
+  .light .legend-cell.l3 { background: rgba(90,138,90,0.75); }
+  .light .hm-weekday { color: #b0aaa5; }
+  .light .hm-cell { background: rgba(0,0,0,0.03); }
+  .light .hm-cell.l1 { background: rgba(90,138,90,0.15); }
+  .light .hm-cell.l2 { background: rgba(90,138,90,0.35); }
+  .light .hm-cell.l3 { background: rgba(90,138,90,0.6); }
+  .light .hm-cell.today { box-shadow: inset 0 0 0 2px #2c2825; }
+
+  .light .habit-title { color: #1a1816; }
+  .light .habit-item { background: #fff; border: 0.5px solid rgba(0,0,0,0.04); }
+  .light .habit-check { border: 2px solid rgba(0,0,0,0.12); }
+  .light .habit-check.done { border-color: #5a8a5a; background: rgba(90,138,90,0.08); color: #5a8a5a; }
+  .light .habit-name { color: #1a1816; }
+  .light .habit-streak { color: #9a9590; }
+  .light .habit-time { color: #5a8a5a; }
+  .light .add-btn { border-color: rgba(0,0,0,0.1); color: #8a8580; }
+
+  /* ===== DARK ===== */
+  .dark .screen { background: #111110; }
+  .dark .home-indicator { background: rgba(255,255,255,0.2); }
+  .dark .hero-eyebrow { color: #7aba7a; }
+  .dark .hero-title { color: #f0ece8; }
+
+  .dark .streak-card { background: linear-gradient(145deg, #152215 0%, #0e180e 100%); border: 0.5px solid rgba(122,186,122,0.1); }
+  .dark .streak-card::after { background: #7aba7a; }
+  .dark .streak-number { color: #7aba7a; }
+  .dark .streak-label { color: #5a5550; }
+  .dark .streak-sub { color: #3a3530; }
+
+  .dark .heatmap { background: rgba(255,255,255,0.02); border: 0.5px solid rgba(255,255,255,0.05); }
+  .dark .heatmap-title { color: #f0ece8; }
+  .dark .heatmap-legend { color: #4a4540; }
+  .dark .legend-cell.l0 { background: rgba(255,255,255,0.04); }
+  .dark .legend-cell.l1 { background: rgba(122,186,122,0.12); }
+  .dark .legend-cell.l2 { background: rgba(122,186,122,0.3); }
+  .dark .legend-cell.l3 { background: rgba(122,186,122,0.55); }
+  .dark .hm-weekday { color: #4a4540; }
+  .dark .hm-cell { background: rgba(255,255,255,0.03); }
+  .dark .hm-cell.l1 { background: rgba(122,186,122,0.1); }
+  .dark .hm-cell.l2 { background: rgba(122,186,122,0.28); }
+  .dark .hm-cell.l3 { background: rgba(122,186,122,0.5); }
+  .dark .hm-cell.today { box-shadow: inset 0 0 0 2px #f0ece8; }
+
+  .dark .habit-title { color: #f0ece8; }
+  .dark .habit-item { background: rgba(255,255,255,0.02); border: 0.5px solid rgba(255,255,255,0.05); }
+  .dark .habit-check { border: 2px solid rgba(255,255,255,0.1); }
+  .dark .habit-check.done { border-color: #7aba7a; background: rgba(122,186,122,0.1); color: #7aba7a; }
+  .dark .habit-name { color: #f0ece8; }
+  .dark .habit-streak { color: #5a5550; }
+  .dark .habit-time { color: #7aba7a; }
+  .dark .add-btn { border-color: rgba(255,255,255,0.08); color: #5a5550; }
+</style>
+</head>
+<body>
+
+<!-- LIGHT -->
+<div class="column">
+  <div class="frame-label">Light · 习惯打卡</div>
+  <div class="phone light">
+    <div class="screen">
+      <div class="hero">
+        <div class="hero-eyebrow">习惯打卡</div>
+        <div class="hero-title">坚持的力量</div>
+      </div>
+
+      <div class="streak-card">
+        <div class="streak-number">0</div>
+        <div class="streak-label">天最长连续</div>
+        <div class="streak-sub">
+          <span>今日 0/0</span>
+          <span>本周 0%</span>
+        </div>
+      </div>
+
+      <div class="heatmap">
+        <div class="heatmap-header">
+          <div class="heatmap-title">6月热力图</div>
+          <div class="heatmap-legend">少 <div class="legend-cell l0"></div><div class="legend-cell l1"></div><div class="legend-cell l2"></div><div class="legend-cell l3"></div> 多</div>
+        </div>
+        <div class="heatmap-grid">
+          <div class="hm-weekday">一</div><div class="hm-weekday">二</div><div class="hm-weekday">三</div><div class="hm-weekday">四</div><div class="hm-weekday">五</div><div class="hm-weekday">六</div><div class="hm-weekday">日</div>
+          <div class="hm-cell"></div><div class="hm-cell"></div><div class="hm-cell"></div><div class="hm-cell"></div><div class="hm-cell"></div><div class="hm-cell"></div><div class="hm-cell"></div>
+          <div class="hm-cell"></div><div class="hm-cell"></div><div class="hm-cell"></div><div class="hm-cell"></div><div class="hm-cell"></div><div class="hm-cell today"></div><div class="hm-cell"></div>
+          <div class="hm-cell"></div><div class="hm-cell"></div><div class="hm-cell"></div><div class="hm-cell"></div><div class="hm-cell"></div><div class="hm-cell"></div><div class="hm-cell"></div>
+          <div class="hm-cell"></div><div class="hm-cell"></div><div class="hm-cell"></div><div class="hm-cell"></div><div class="hm-cell"></div><div class="hm-cell"></div><div class="hm-cell"></div>
+          <div class="hm-cell"></div><div class="hm-cell"></div>
+        </div>
+      </div>
+
+      <div class="habit-section">
+        <div class="habit-title">今日习惯</div>
+        <div class="habit-item">
+          <div class="habit-check done"></div>
+          <div class="habit-info"><div class="habit-name">晨间冥想</div><div class="habit-streak">已连续 5 天</div></div>
+          <div class="habit-time">07:00</div>
+        </div>
+        <div class="habit-item">
+          <div class="habit-check"></div>
+          <div class="habit-info"><div class="habit-name">阅读 30 分钟</div><div class="habit-streak">已连续 2 天</div></div>
+          <div class="habit-time">21:00</div>
+        </div>
+        <div class="habit-item">
+          <div class="habit-check"></div>
+          <div class="habit-info"><div class="habit-name">运动</div><div class="habit-streak">今天开始</div></div>
+          <div class="habit-time">18:00</div>
+        </div>
+      </div>
+
+      <div class="add-btn">+ 添加习惯</div>
+    </div>
+    <div class="home-indicator"></div>
+  </div>
+</div>
+
+<!-- DARK -->
+<div class="column">
+  <div class="frame-label">Dark · 习惯打卡</div>
+  <div class="phone dark">
+    <div class="screen">
+      <div class="hero">
+        <div class="hero-eyebrow">习惯打卡</div>
+        <div class="hero-title">坚持的力量</div>
+      </div>
+
+      <div class="streak-card">
+        <div class="streak-number">0</div>
+        <div class="streak-label">天最长连续</div>
+        <div class="streak-sub">
+          <span>今日 0/0</span>
+          <span>本周 0%</span>
+        </div>
+      </div>
+
+      <div class="heatmap">
+        <div class="heatmap-header">
+          <div class="heatmap-title">6月热力图</div>
+          <div class="heatmap-legend">少 <div class="legend-cell l0"></div><div class="legend-cell l1"></div><div class="legend-cell l2"></div><div class="legend-cell l3"></div> 多</div>
+        </div>
+        <div class="heatmap-grid">
+          <div class="hm-weekday">一</div><div class="hm-weekday">二</div><div class="hm-weekday">三</div><div class="hm-weekday">四</div><div class="hm-weekday">五</div><div class="hm-weekday">六</div><div class="hm-weekday">日</div>
+          <div class="hm-cell"></div><div class="hm-cell"></div><div class="hm-cell"></div><div class="hm-cell"></div><div class="hm-cell"></div><div class="hm-cell"></div><div class="hm-cell"></div>
+          <div class="hm-cell"></div><div class="hm-cell"></div><div class="hm-cell"></div><div class="hm-cell"></div><div class="hm-cell"></div><div class="hm-cell today"></div><div class="hm-cell"></div>
+          <div class="hm-cell"></div><div class="hm-cell"></div><div class="hm-cell"></div><div class="hm-cell"></div><div class="hm-cell"></div><div class="hm-cell"></div><div class="hm-cell"></div>
+          <div class="hm-cell"></div><div class="hm-cell"></div><div class="hm-cell"></div><div class="hm-cell"></div><div class="hm-cell"></div><div class="hm-cell"></div><div class="hm-cell"></div>
+          <div class="hm-cell"></div><div class="hm-cell"></div>
+        </div>
+      </div>
+
+      <div class="habit-section">
+        <div class="habit-title">今日习惯</div>
+        <div class="habit-item">
+          <div class="habit-check done"></div>
+          <div class="habit-info"><div class="habit-name">晨间冥想</div><div class="habit-streak">已连续 5 天</div></div>
+          <div class="habit-time">07:00</div>
+        </div>
+        <div class="habit-item">
+          <div class="habit-check"></div>
+          <div class="habit-info"><div class="habit-name">阅读 30 分钟</div><div class="habit-streak">已连续 2 天</div></div>
+          <div class="habit-time">21:00</div>
+        </div>
+        <div class="habit-item">
+          <div class="habit-check"></div>
+          <div class="habit-info"><div class="habit-name">运动</div><div class="habit-streak">今天开始</div></div>
+          <div class="habit-time">18:00</div>
+        </div>
+      </div>
+
+      <div class="add-btn">+ 添加习惯</div>
+    </div>
+    <div class="home-indicator"></div>
+  </div>
+</div>
+
+</body>
+</html>

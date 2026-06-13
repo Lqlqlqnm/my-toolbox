@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>身体档案 PRD</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', -apple-system, sans-serif; background: #e8e4df; padding: 48px 24px; display: flex; flex-wrap: wrap; justify-content: center; gap: 56px; min-height: 100vh; }
+  .column { display: flex; flex-direction: column; align-items: center; }
+  .frame-label { font-size: 11px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: #9a9590; margin-bottom: 16px; }
+  .phone { width: 393px; height: 852px; border-radius: 55px; position: relative; overflow: hidden; box-shadow: 0 0 0 1px rgba(0,0,0,0.06), 0 40px 100px -20px rgba(0,0,0,0.15); }
+  .phone::before { content: ''; position: absolute; top: 12px; left: 50%; transform: translateX(-50%); width: 126px; height: 37px; background: #000; border-radius: 20px; z-index: 100; }
+  .screen { width: 100%; height: 100%; overflow-y: auto; padding: 72px 0 40px; }
+  .screen::-webkit-scrollbar { display: none; }
+  .home-indicator { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); width: 134px; height: 5px; border-radius: 3px; z-index: 50; }
+
+  .hero { padding: 0 24px; margin-bottom: 24px; }
+  .hero-eyebrow { font-size: 11px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; }
+  .hero-title { font-size: 28px; font-weight: 800; letter-spacing: -0.8px; }
+  .hero-sub { font-size: 13px; font-weight: 400; margin-top: 4px; }
+
+  .person-row { display: flex; gap: 8px; padding: 0 20px; margin-bottom: 24px; }
+  .person-chip { padding: 8px 16px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; }
+
+  .body-card { margin: 0 16px 14px; border-radius: 18px; padding: 20px; }
+  .body-card-title { font-size: 12px; font-weight: 600; letter-spacing: 0.3px; margin-bottom: 12px; }
+  .body-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+  .body-metric-label { font-size: 10px; font-weight: 500; margin-bottom: 3px; }
+  .body-metric-value { font-size: 20px; font-weight: 800; letter-spacing: -0.5px; }
+  .body-metric-unit { font-size: 11px; font-weight: 400; }
+  .body-metric-change { font-size: 11px; font-weight: 500; margin-top: 2px; }
+
+  .trend-placeholder { height: 60px; border-radius: 8px; margin-top: 12px; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+
+  .record-btn { margin: 0 16px; padding: 16px; border-radius: 14px; text-align: center; font-size: 15px; font-weight: 600; cursor: pointer; }
+
+  /* LIGHT */
+  .light .screen { background: #f6f4f1; }
+  .light .home-indicator { background: rgba(0,0,0,0.18); }
+  .light .hero-eyebrow { color: #7a8a6a; }
+  .light .hero-title { color: #1a1816; }
+  .light .hero-sub { color: #9a9590; }
+  .light .person-chip { background: rgba(0,0,0,0.04); color: #8a8580; }
+  .light .person-chip.active { background: #2c2825; color: #fff; }
+  .light .body-card { background: #fff; border: 0.5px solid rgba(0,0,0,0.04); }
+  .light .body-card-title { color: #8a8580; }
+  .light .body-metric-label { color: #b0aaa5; }
+  .light .body-metric-value { color: #1a1816; }
+  .light .body-metric-unit { color: #9a9590; }
+  .light .body-metric-change.up { color: #c87a5a; }
+  .light .body-metric-change.down { color: #5a8a6a; }
+  .light .body-metric-change.normal { color: #8a8580; }
+  .light .trend-placeholder { background: rgba(0,0,0,0.02); color: #b0aaa5; }
+  .light .record-btn { background: #3a5a3a; color: #fff; box-shadow: 0 6px 20px rgba(58,90,58,0.2); }
+
+  /* DARK */
+  .dark .screen { background: #111110; }
+  .dark .home-indicator { background: rgba(255,255,255,0.2); }
+  .dark .hero-eyebrow { color: #8aba7a; }
+  .dark .hero-title { color: #f0ece8; }
+  .dark .hero-sub { color: #4a4540; }
+  .dark .person-chip { background: rgba(255,255,255,0.04); color: #5a5550; }
+  .dark .person-chip.active { background: rgba(255,255,255,0.1); color: #f0ece8; }
+  .dark .body-card { background: rgba(255,255,255,0.02); border: 0.5px solid rgba(255,255,255,0.05); }
+  .dark .body-card-title { color: #5a5550; }
+  .dark .body-metric-label { color: #4a4540; }
+  .dark .body-metric-value { color: #f0ece8; }
+  .dark .body-metric-unit { color: #5a5550; }
+  .dark .body-metric-change.up { color: #d8a080; }
+  .dark .body-metric-change.down { color: #7aba7a; }
+  .dark .body-metric-change.normal { color: #5a5550; }
+  .dark .trend-placeholder { background: rgba(255,255,255,0.02); color: #4a4540; }
+  .dark .record-btn { background: #7aba7a; color: #111110; box-shadow: 0 6px 20px rgba(122,186,122,0.15); }
+</style>
+</head>
+<body>
+
+<!-- LIGHT -->
+<div class="column">
+  <div class="frame-label">Light · 身体档案</div>
+  <div class="phone light">
+    <div class="screen">
+      <div class="hero">
+        <div class="hero-eyebrow">身体档案</div>
+        <div class="hero-title">我的身体数据</div>
+        <div class="hero-sub">追踪变化，看见进步</div>
+      </div>
+      <div class="person-row"><div class="person-chip active">我</div><div class="person-chip">+ 新增</div></div>
+      <div class="body-card">
+        <div class="body-card-title">最新数据</div>
+        <div class="body-grid">
+          <div><div class="body-metric-label">体重</div><div class="body-metric-value">72.5 <span class="body-metric-unit">kg</span></div><div class="body-metric-change down">↓ 0.3</div></div>
+          <div><div class="body-metric-label">体脂率</div><div class="body-metric-value">18.2 <span class="body-metric-unit">%</span></div><div class="body-metric-change down">↓ 0.5</div></div>
+          <div><div class="body-metric-label">BMI</div><div class="body-metric-value">23.1</div><div class="body-metric-change normal">正常</div></div>
+          <div><div class="body-metric-label">肌肉量</div><div class="body-metric-value">56.8 <span class="body-metric-unit">kg</span></div><div class="body-metric-change up">↑ 0.2</div></div>
+        </div>
+      </div>
+      <div class="body-card">
+        <div class="body-card-title">变化趋势 · 近3月</div>
+        <div class="trend-placeholder">数据不足，至少需要 2 次记录</div>
+      </div>
+      <div class="body-card">
+        <div class="body-card-title">各部位尺寸</div>
+        <div class="body-grid">
+          <div><div class="body-metric-label">胸围</div><div class="body-metric-value">96 <span class="body-metric-unit">cm</span></div></div>
+          <div><div class="body-metric-label">腰围</div><div class="body-metric-value">78 <span class="body-metric-unit">cm</span></div></div>
+        </div>
+      </div>
+      <div class="record-btn">+ 记录</div>
+    </div>
+    <div class="home-indicator"></div>
+  </div>
+</div>
+
+<!-- DARK -->
+<div class="column">
+  <div class="frame-label">Dark · 身体档案</div>
+  <div class="phone dark">
+    <div class="screen">
+      <div class="hero">
+        <div class="hero-eyebrow">身体档案</div>
+        <div class="hero-title">我的身体数据</div>
+        <div class="hero-sub">追踪变化，看见进步</div>
+      </div>
+      <div class="person-row"><div class="person-chip active">我</div><div class="person-chip">+ 新增</div></div>
+      <div class="body-card">
+        <div class="body-card-title">最新数据</div>
+        <div class="body-grid">
+          <div><div class="body-metric-label">体重</div><div class="body-metric-value">72.5 <span class="body-metric-unit">kg</span></div><div class="body-metric-change down">↓ 0.3</div></div>
+          <div><div class="body-metric-label">体脂率</div><div class="body-metric-value">18.2 <span class="body-metric-unit">%</span></div><div class="body-metric-change down">↓ 0.5</div></div>
+          <div><div class="body-metric-label">BMI</div><div class="body-metric-value">23.1</div><div class="body-metric-change normal">正常</div></div>
+          <div><div class="body-metric-label">肌肉量</div><div class="body-metric-value">56.8 <span class="body-metric-unit">kg</span></div><div class="body-metric-change up">↑ 0.2</div></div>
+        </div>
+      </div>
+      <div class="body-card">
+        <div class="body-card-title">变化趋势 · 近3月</div>
+        <div class="trend-placeholder">数据不足，至少需要 2 次记录</div>
+      </div>
+      <div class="body-card">
+        <div class="body-card-title">各部位尺寸</div>
+        <div class="body-grid">
+          <div><div class="body-metric-label">胸围</div><div class="body-metric-value">96 <span class="body-metric-unit">cm</span></div></div>
+          <div><div class="body-metric-label">腰围</div><div class="body-metric-value">78 <span class="body-metric-unit">cm</span></div></div>
+        </div>
+      </div>
+      <div class="record-btn">+ 记录</div>
+    </div>
+    <div class="home-indicator"></div>
+  </div>
+</div>
+
+</body>
+</html>

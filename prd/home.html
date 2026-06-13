@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Toolbox · 首页 PRD</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', -apple-system, sans-serif; background: #e8e4df; padding: 48px 24px; display: flex; flex-wrap: wrap; justify-content: center; gap: 56px; min-height: 100vh; }
+  .column { display: flex; flex-direction: column; align-items: center; }
+  .frame-label { font-size: 11px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: #9a9590; margin-bottom: 16px; }
+  .phone { width: 393px; height: 852px; border-radius: 55px; position: relative; overflow: hidden; box-shadow: 0 0 0 1px rgba(0,0,0,0.06), 0 40px 100px -20px rgba(0,0,0,0.15); }
+  .phone::before { content: ''; position: absolute; top: 12px; left: 50%; transform: translateX(-50%); width: 126px; height: 37px; background: #000; border-radius: 20px; z-index: 100; }
+  .screen { width: 100%; height: 100%; overflow-y: auto; padding: 72px 0 40px; }
+  .screen::-webkit-scrollbar { display: none; }
+  .home-indicator { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); width: 134px; height: 5px; border-radius: 3px; z-index: 50; }
+
+  .hero { padding: 0 24px; margin-bottom: 24px; text-align: center; }
+  .hero-title { font-size: 26px; font-weight: 800; letter-spacing: -0.8px; }
+  .hero-sub { font-size: 12px; font-weight: 400; margin-top: 4px; }
+
+  .main-cards { padding: 0 16px; margin-bottom: 16px; display: flex; flex-direction: column; gap: 10px; }
+  .main-card { border-radius: 18px; padding: 18px 20px; display: flex; align-items: center; gap: 16px; position: relative; overflow: hidden; }
+  .main-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; border-radius: 0 4px 4px 0; }
+  .main-icon { width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+  .main-info { flex: 1; }
+  .main-name { font-size: 16px; font-weight: 700; }
+  .main-desc { font-size: 11px; font-weight: 400; margin-top: 2px; }
+  .main-stat { text-align: right; }
+  .main-stat-value { font-size: 18px; font-weight: 800; letter-spacing: -0.5px; }
+  .main-stat-label { font-size: 10px; font-weight: 400; margin-top: 1px; }
+
+  .tools-section { padding: 0 16px; }
+  .tools-title { font-size: 12px; font-weight: 600; margin-bottom: 12px; }
+  .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .tool-item { display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; }
+  .tool-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+  .tool-name { font-size: 10px; font-weight: 500; text-align: center; }
+
+  /* LIGHT */
+  .light .screen { background: #f6f4f1; }
+  .light .home-indicator { background: rgba(0,0,0,0.18); }
+  .light .hero-title { color: #1a1816; }
+  .light .hero-sub { color: #9a9590; }
+  .light .main-card { background: #fff; border: 0.5px solid rgba(0,0,0,0.04); box-shadow: 0 2px 12px rgba(0,0,0,0.02); }
+  .light .main-card:nth-child(1)::before { background: #4a7a96; }
+  .light .main-card:nth-child(2)::before { background: #c8a960; }
+  .light .main-card:nth-child(3)::before { background: #5a9a7a; }
+  .light .main-icon { background: rgba(0,0,0,0.03); }
+  .light .main-name { color: #1a1816; }
+  .light .main-desc { color: #9a9590; }
+  .light .main-stat-value { color: #1a1816; }
+  .light .main-stat-label { color: #b0aaa5; }
+  .light .tools-title { color: #8a8580; }
+  .light .tool-icon { background: rgba(0,0,0,0.03); }
+  .light .tool-name { color: #6a6560; }
+
+  /* DARK */
+  .dark .screen { background: #111110; }
+  .dark .home-indicator { background: rgba(255,255,255,0.2); }
+  .dark .hero-title { color: #f0ece8; }
+  .dark .hero-sub { color: #5a5550; }
+  .dark .main-card { background: rgba(255,255,255,0.02); border: 0.5px solid rgba(255,255,255,0.05); }
+  .dark .main-card:nth-child(1)::before { background: #7aafc8; }
+  .dark .main-card:nth-child(2)::before { background: #c8a960; }
+  .dark .main-card:nth-child(3)::before { background: #7aba95; }
+  .dark .main-icon { background: rgba(255,255,255,0.04); }
+  .dark .main-name { color: #f0ece8; }
+  .dark .main-desc { color: #5a5550; }
+  .dark .main-stat-value { color: #f0ece8; }
+  .dark .main-stat-label { color: #4a4540; }
+  .dark .tools-title { color: #5a5550; }
+  .dark .tool-icon { background: rgba(255,255,255,0.04); }
+  .dark .tool-name { color: #6a6560; }
+</style>
+</head>
+<body>
+
+<!-- LIGHT -->
+<div class="column">
+  <div class="frame-label">Light · 首页</div>
+  <div class="phone light">
+    <div class="screen">
+      <div class="hero"><div class="hero-title">My Toolbox</div><div class="hero-sub">个人工具箱</div></div>
+      <div class="main-cards">
+        <div class="main-card"><div class="main-icon">📈</div><div class="main-info"><div class="main-name">ETF 策略助手</div><div class="main-desc">文章分析 · 模拟仓 · 条件单</div></div><div class="main-stat"><div class="main-stat-value">¥5.0万</div><div class="main-stat-label">可用资金</div></div></div>
+        <div class="main-card"><div class="main-icon">💰</div><div class="main-info"><div class="main-name">记账本</div><div class="main-desc">收支记录 · 多账户 · 统计</div></div><div class="main-stat"><div class="main-stat-value">¥0</div><div class="main-stat-label">本月支出</div></div></div>
+        <div class="main-card"><div class="main-icon">🧳</div><div class="main-info"><div class="main-name">旅行清单</div><div class="main-desc">自定义模板 · 出行打勾</div></div><div class="main-stat"><div class="main-stat-value">0%</div><div class="main-stat-label">进行中</div></div></div>
+      </div>
+      <div class="tools-section">
+        <div class="tools-title">更多工具</div>
+        <div class="tools-grid">
+          <div class="tool-item"><div class="tool-icon">🔬</div><div class="tool-name">相关性</div></div>
+          <div class="tool-item"><div class="tool-icon">🔄</div><div class="tool-name">订阅</div></div>
+          <div class="tool-item"><div class="tool-icon">📦</div><div class="tool-name">储物</div></div>
+          <div class="tool-item"><div class="tool-icon">🥬</div><div class="tool-name">食材</div></div>
+          <div class="tool-item"><div class="tool-icon">📐</div><div class="tool-name">身体</div></div>
+          <div class="tool-item"><div class="tool-icon">✅</div><div class="tool-name">习惯</div></div>
+          <div class="tool-item"><div class="tool-icon">📊</div><div class="tool-name">年报</div></div>
+          <div class="tool-item"><div class="tool-icon">🔒</div><div class="tool-name">密码本</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="home-indicator"></div>
+  </div>
+</div>
+
+<!-- DARK -->
+<div class="column">
+  <div class="frame-label">Dark · 首页</div>
+  <div class="phone dark">
+    <div class="screen">
+      <div class="hero"><div class="hero-title">My Toolbox</div><div class="hero-sub">个人工具箱</div></div>
+      <div class="main-cards">
+        <div class="main-card"><div class="main-icon">📈</div><div class="main-info"><div class="main-name">ETF 策略助手</div><div class="main-desc">文章分析 · 模拟仓 · 条件单</div></div><div class="main-stat"><div class="main-stat-value">¥5.0万</div><div class="main-stat-label">可用资金</div></div></div>
+        <div class="main-card"><div class="main-icon">💰</div><div class="main-info"><div class="main-name">记账本</div><div class="main-desc">收支记录 · 多账户 · 统计</div></div><div class="main-stat"><div class="main-stat-value">¥0</div><div class="main-stat-label">本月支出</div></div></div>
+        <div class="main-card"><div class="main-icon">🧳</div><div class="main-info"><div class="main-name">旅行清单</div><div class="main-desc">自定义模板 · 出行打勾</div></div><div class="main-stat"><div class="main-stat-value">0%</div><div class="main-stat-label">进行中</div></div></div>
+      </div>
+      <div class="tools-section">
+        <div class="tools-title">更多工具</div>
+        <div class="tools-grid">
+          <div class="tool-item"><div class="tool-icon">🔬</div><div class="tool-name">相关性</div></div>
+          <div class="tool-item"><div class="tool-icon">🔄</div><div class="tool-name">订阅</div></div>
+          <div class="tool-item"><div class="tool-icon">📦</div><div class="tool-name">储物</div></div>
+          <div class="tool-item"><div class="tool-icon">🥬</div><div class="tool-name">食材</div></div>
+          <div class="tool-item"><div class="tool-icon">📐</div><div class="tool-name">身体</div></div>
+          <div class="tool-item"><div class="tool-icon">✅</div><div class="tool-name">习惯</div></div>
+          <div class="tool-item"><div class="tool-icon">📊</div><div class="tool-name">年报</div></div>
+          <div class="tool-item"><div class="tool-icon">🔒</div><div class="tool-name">密码本</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="home-indicator"></div>
+  </div>
+</div>
+
+</body>
+</html>
