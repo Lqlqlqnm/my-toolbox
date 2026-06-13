@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>各模块深浅色对比</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  body { background: #e5e5e5; font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif; }
+  .phone { width: 375px; height: 700px; border-radius: 40px; border: 7px solid #1c1c1e; overflow: hidden; position: relative; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
+  .phone::before { content:''; position:absolute; top:0; left:50%; transform:translateX(-50%); width:110px; height:26px; background:#1c1c1e; border-radius:0 0 12px 12px; z-index:50; }
+  .screen { height:100%; overflow-y:auto; padding-top:30px; }
+  .screen::-webkit-scrollbar { display:none; }
+  .pair { display: flex; gap: 24px; align-items: flex-start; }
+</style>
+</head>
+<body class="p-8">
+<h1 class="text-2xl font-bold text-center text-gray-800 mb-1">各模块 深色 / 浅色 对比</h1>
+<p class="text-sm text-gray-400 text-center mb-2">风格: C (Dark) + C-Light 2 (Light)</p>
+<p class="text-xs text-gray-400 text-center mb-10">左深右浅</p>
+
+<!-- ======== 记账本模块 ======== -->
+<h2 class="text-lg font-bold text-gray-700 text-center mb-4">1. 记账本</h2>
+<div class="pair justify-center mb-16">
+
+<!-- 记账 Dark -->
+<div>
+<p class="text-xs text-gray-500 text-center mb-2">Dark</p>
+<div class="phone" style="background:#0c0c0d;">
+<div class="screen px-4 pb-6">
+  <div class="flex items-center justify-between pt-3 mb-4">
+    <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg>
+    <h1 class="text-base font-semibold text-white">记账本</h1>
+    <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+  </div>
+  <!-- 月度概览卡 -->
+  <div class="rounded-xl p-4 mb-4 border border-white/[0.06] bg-[#141416]">
+    <div class="flex justify-between text-xs text-gray-500 mb-2"><span>2026年6月</span><span>预算 ¥5,000</span></div>
+    <div class="flex justify-between items-end">
+      <div><p class="text-[10px] text-gray-500">支出</p><p class="text-lg font-bold text-white">¥3,280</p></div>
+      <div class="text-right"><p class="text-[10px] text-gray-500">收入</p><p class="text-lg font-bold text-green-400">¥8,500</p></div>
+    </div>
+    <div class="mt-3 h-1.5 bg-white/5 rounded-full"><div class="h-1.5 rounded-full" style="width:65%; background: linear-gradient(90deg, #f59e0b, #ef4444);"></div></div>
+  </div>
+  <!-- 流水列表 -->
+  <p class="text-[11px] text-gray-600 mb-2">今天</p>
+  <div class="space-y-2">
+    <div class="rounded-xl p-3 bg-[#141416] border border-white/[0.06] flex items-center gap-3">
+      <div class="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center text-sm">🍜</div>
+      <div class="flex-1"><p class="text-sm text-white">餐饮</p><p class="text-[10px] text-gray-600">午饭 · 微信</p></div>
+      <span class="text-sm font-medium text-red-400">-28</span>
+    </div>
+    <div class="rounded-xl p-3 bg-[#141416] border border-white/[0.06] flex items-center gap-3">
+      <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-sm">🚇</div>
+      <div class="flex-1"><p class="text-sm text-white">交通</p><p class="text-[10px] text-gray-600">地铁 · 支付宝</p></div>
+      <span class="text-sm font-medium text-red-400">-6</span>
+    </div>
+    <div class="rounded-xl p-3 bg-[#141416] border border-white/[0.06] flex items-center gap-3">
+      <div class="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center text-sm">💰</div>
+      <div class="flex-1"><p class="text-sm text-white">工资</p><p class="text-[10px] text-gray-600">6月 · 工商银行</p></div>
+      <span class="text-sm font-medium text-green-400">+8,500</span>
+    </div>
+  </div>
+  <!-- Tab bar -->
+  <div class="mt-6 flex justify-around pt-3 border-t border-white/[0.04]">
+    <div class="text-center"><p class="text-[10px] text-amber-400">流水</p></div>
+    <div class="text-center"><p class="text-[10px] text-gray-600">统计</p></div>
+    <div class="text-center"><p class="text-[10px] text-gray-600">资产</p></div>
+  </div>
+</div>
+</div>
+</div>
+
+<!-- 记账 Light -->
+<div>
+<p class="text-xs text-gray-500 text-center mb-2">Light</p>
+<div class="phone" style="background:#f4f4f5;">
+<div class="screen px-4 pb-6">
+  <div class="flex items-center justify-between pt-3 mb-4">
+    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg>
+    <h1 class="text-base font-semibold text-gray-900">记账本</h1>
+    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+  </div>
+  <!-- 月度概览卡 -->
+  <div class="rounded-xl p-4 mb-4 bg-white border border-gray-100 shadow-sm relative overflow-hidden">
+    <div class="absolute left-0 top-0 bottom-0 w-1 rounded-l-xl" style="background: linear-gradient(180deg, #f59e0b, #ef4444);"></div>
+    <div class="absolute bottom-0 left-4 w-28 h-12 bg-amber-100/40 rounded-full blur-2xl"></div>
+    <div class="relative">
+      <div class="flex justify-between text-xs text-gray-400 mb-2"><span>2026年6月</span><span>预算 ¥5,000</span></div>
+      <div class="flex justify-between items-end">
+        <div><p class="text-[10px] text-gray-400">支出</p><p class="text-lg font-bold text-gray-900">¥3,280</p></div>
+        <div class="text-right"><p class="text-[10px] text-gray-400">收入</p><p class="text-lg font-bold text-green-600">¥8,500</p></div>
+      </div>
+      <div class="mt-3 h-1.5 bg-gray-100 rounded-full"><div class="h-1.5 rounded-full" style="width:65%; background: linear-gradient(90deg, #f59e0b, #ef4444);"></div></div>
+    </div>
+  </div>
+  <!-- 流水列表 -->
+  <p class="text-[11px] text-gray-400 mb-2">今天</p>
+  <div class="space-y-2">
+    <div class="rounded-xl p-3 bg-white border border-gray-100 shadow-sm flex items-center gap-3 relative overflow-hidden">
+      <div class="absolute left-0 top-0 bottom-0 w-0.5 bg-red-400"></div>
+      <div class="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center text-sm">🍜</div>
+      <div class="flex-1"><p class="text-sm text-gray-900">餐饮</p><p class="text-[10px] text-gray-400">午饭 · 微信</p></div>
+      <span class="text-sm font-medium text-red-500">-28</span>
+    </div>
+    <div class="rounded-xl p-3 bg-white border border-gray-100 shadow-sm flex items-center gap-3 relative overflow-hidden">
+      <div class="absolute left-0 top-0 bottom-0 w-0.5 bg-blue-400"></div>
+      <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center text-sm">🚇</div>
+      <div class="flex-1"><p class="text-sm text-gray-900">交通</p><p class="text-[10px] text-gray-400">地铁 · 支付宝</p></div>
+      <span class="text-sm font-medium text-red-500">-6</span>
+    </div>
+    <div class="rounded-xl p-3 bg-white border border-gray-100 shadow-sm flex items-center gap-3 relative overflow-hidden">
+      <div class="absolute left-0 top-0 bottom-0 w-0.5 bg-green-400"></div>
+      <div class="w-8 h-8 rounded-lg bg-green-50 flex items-center justify-center text-sm">💰</div>
+      <div class="flex-1"><p class="text-sm text-gray-900">工资</p><p class="text-[10px] text-gray-400">6月 · 工商银行</p></div>
+      <span class="text-sm font-medium text-green-600">+8,500</span>
+    </div>
+  </div>
+  <!-- Tab bar -->
+  <div class="mt-6 flex justify-around pt-3 border-t border-gray-100">
+    <div class="text-center"><p class="text-[10px] text-amber-500 font-medium">流水</p></div>
+    <div class="text-center"><p class="text-[10px] text-gray-400">统计</p></div>
+    <div class="text-center"><p class="text-[10px] text-gray-400">资产</p></div>
+  </div>
+</div>
+</div>
+</div>
+
+</div>
+
+<!-- ======== ETF 策略助手模块 ======== -->
+<h2 class="text-lg font-bold text-gray-700 text-center mb-4">2. ETF 策略助手</h2>
+<div class="pair justify-center mb-16">
+
+<!-- ETF Dark -->
+<div>
+<p class="text-xs text-gray-500 text-center mb-2">Dark</p>
+<div class="phone" style="background:#0c0c0d;">
+<div class="screen px-4 pb-6">
+  <div class="flex items-center justify-between pt-3 mb-4">
+    <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg>
+    <h1 class="text-base font-semibold text-white">ETF 策略助手</h1>
+    <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+  </div>
+  <!-- 持仓概览 -->
+  <div class="rounded-xl p-4 mb-4 relative overflow-hidden" style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);">
+    <div class="absolute top-0 right-0 w-24 h-24 bg-blue-500/10 rounded-full blur-2xl"></div>
+    <div class="relative">
+      <p class="text-[10px] text-blue-300/50">模拟仓总览</p>
+      <p class="text-2xl font-bold text-white mt-1">¥128,450</p>
+      <div class="flex gap-4 mt-2">
+        <span class="text-xs text-green-400">今日 +1.2%</span>
+        <span class="text-xs text-gray-500">持仓 3 只</span>
+      </div>
+    </div>
+  </div>
+  <!-- 持仓列表 -->
+  <p class="text-[11px] text-gray-600 mb-2">持仓</p>
+  <div class="space-y-2">
+    <div class="rounded-xl p-3 bg-[#141416] border border-white/[0.06] flex items-center gap-3">
+      <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-[10px] text-blue-400 font-bold">沪深</div>
+      <div class="flex-1"><p class="text-sm text-white">沪深300ETF</p><p class="text-[10px] text-gray-600">510300 · 50%仓位</p></div>
+      <div class="text-right"><p class="text-sm font-medium text-green-400">+2.3%</p><p class="text-[10px] text-gray-600">¥64,200</p></div>
+    </div>
+    <div class="rounded-xl p-3 bg-[#141416] border border-white/[0.06] flex items-center gap-3">
+      <div class="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center text-[10px] text-purple-400 font-bold">纳指</div>
+      <div class="flex-1"><p class="text-sm text-white">纳指100ETF</p><p class="text-[10px] text-gray-600">513100 · 30%仓位</p></div>
+      <div class="text-right"><p class="text-sm font-medium text-green-400">+0.8%</p><p class="text-[10px] text-gray-600">¥38,500</p></div>
+    </div>
+    <div class="rounded-xl p-3 bg-[#141416] border border-white/[0.06] flex items-center gap-3">
+      <div class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-[10px] text-amber-400 font-bold">黄金</div>
+      <div class="flex-1"><p class="text-sm text-white">黄金ETF</p><p class="text-[10px] text-gray-600">518880 · 20%仓位</p></div>
+      <div class="text-right"><p class="text-sm font-medium text-red-400">-0.3%</p><p class="text-[10px] text-gray-600">¥25,750</p></div>
+    </div>
+  </div>
+  <!-- 条件单 -->
+  <p class="text-[11px] text-gray-600 mt-4 mb-2">条件单</p>
+  <div class="rounded-xl p-3 bg-[#141416] border border-white/[0.06]">
+    <div class="flex items-center justify-between">
+      <div><p class="text-xs text-white">沪深300 跌破 3800</p><p class="text-[10px] text-gray-600">加仓 10%</p></div>
+      <span class="text-[10px] px-2 py-0.5 rounded-full bg-green-500/10 text-green-400 border border-green-500/20">监控中</span>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+
+<!-- ETF Light -->
+<div>
+<p class="text-xs text-gray-500 text-center mb-2">Light</p>
+<div class="phone" style="background:#f4f4f5;">
+<div class="screen px-4 pb-6">
+  <div class="flex items-center justify-between pt-3 mb-4">
+    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg>
+    <h1 class="text-base font-semibold text-gray-900">ETF 策略助手</h1>
+    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+  </div>
+  <!-- 持仓概览 -->
+  <div class="rounded-xl p-4 mb-4 bg-white border border-gray-100 shadow-sm relative overflow-hidden">
+    <div class="absolute left-0 top-0 bottom-0 w-1 rounded-l-xl" style="background: linear-gradient(180deg, #3b82f6, #8b5cf6);"></div>
+    <div class="absolute bottom-0 left-4 w-28 h-12 bg-blue-100/40 rounded-full blur-2xl"></div>
+    <div class="relative">
+      <p class="text-[10px] text-gray-400">模拟仓总览</p>
+      <p class="text-2xl font-bold text-gray-900 mt-1">¥128,450</p>
+      <div class="flex gap-4 mt-2">
+        <span class="text-xs text-green-600 font-medium">今日 +1.2%</span>
+        <span class="text-xs text-gray-400">持仓 3 只</span>
+      </div>
+    </div>
+  </div>
+  <!-- 持仓列表 -->
+  <p class="text-[11px] text-gray-400 mb-2">持仓</p>
+  <div class="space-y-2">
+    <div class="rounded-xl p-3 bg-white border border-gray-100 shadow-sm flex items-center gap-3 relative overflow-hidden">
+      <div class="absolute left-0 top-0 bottom-0 w-0.5 bg-blue-500"></div>
+      <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center text-[10px] text-blue-600 font-bold">沪深</div>
+      <div class="flex-1"><p class="text-sm text-gray-900">沪深300ETF</p><p class="text-[10px] text-gray-400">510300 · 50%仓位</p></div>
+      <div class="text-right"><p class="text-sm font-medium text-green-600">+2.3%</p><p class="text-[10px] text-gray-400">¥64,200</p></div>
+    </div>
+    <div class="rounded-xl p-3 bg-white border border-gray-100 shadow-sm flex items-center gap-3 relative overflow-hidden">
+      <div class="absolute left-0 top-0 bottom-0 w-0.5 bg-purple-500"></div>
+      <div class="w-8 h-8 rounded-lg bg-purple-50 flex items-center justify-center text-[10px] text-purple-600 font-bold">纳指</div>
+      <div class="flex-1"><p class="text-sm text-gray-900">纳指100ETF</p><p class="text-[10px] text-gray-400">513100 · 30%仓位</p></div>
+      <div class="text-right"><p class="text-sm font-medium text-green-600">+0.8%</p><p class="text-[10px] text-gray-400">¥38,500</p></div>
+    </div>
+    <div class="rounded-xl p-3 bg-white border border-gray-100 shadow-sm flex items-center gap-3 relative overflow-hidden">
+      <div class="absolute left-0 top-0 bottom-0 w-0.5 bg-amber-500"></div>
+      <div class="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center text-[10px] text-amber-600 font-bold">黄金</div>
+      <div class="flex-1"><p class="text-sm text-gray-900">黄金ETF</p><p class="text-[10px] text-gray-400">518880 · 20%仓位</p></div>
+      <div class="text-right"><p class="text-sm font-medium text-red-500">-0.3%</p><p class="text-[10px] text-gray-400">¥25,750</p></div>
+    </div>
+  </div>
+  <!-- 条件单 -->
+  <p class="text-[11px] text-gray-400 mt-4 mb-2">条件单</p>
+  <div class="rounded-xl p-3 bg-white border border-gray-100 shadow-sm relative overflow-hidden">
+    <div class="absolute left-0 top-0 bottom-0 w-0.5 bg-green-400"></div>
+    <div class="flex items-center justify-between">
+      <div><p class="text-xs text-gray-900">沪深300 跌破 3800</p><p class="text-[10px] text-gray-400">加仓 10%</p></div>
+      <span class="text-[10px] px-2 py-0.5 rounded-full bg-green-50 text-green-600 border border-green-200">监控中</span>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+
+</div>
+
+<!-- ======== 旅行清单模块 ======== -->
+<h2 class="text-lg font-bold text-gray-700 text-center mb-4">3. 旅行清单</h2>
+<div class="pair justify-center mb-16">
+
+<!-- 旅行 Dark -->
+<div>
+<p class="text-xs text-gray-500 text-center mb-2">Dark</p>
+<div class="phone" style="background:#0c0c0d;">
+<div class="screen px-4 pb-6">
+  <div class="flex items-center justify-between pt-3 mb-4">
+    <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg>
+    <h1 class="text-base font-semibold text-white">旅行清单</h1>
+    <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+  </div>
+  <!-- 当前行程卡 -->
+  <div class="rounded-xl p-4 mb-4 relative overflow-hidden" style="background: linear-gradient(135deg, #002e1a 0%, #004d2d 100%);">
+    <div class="absolute top-0 right-0 w-24 h-24 bg-emerald-500/10 rounded-full blur-2xl"></div>
+    <div class="relative">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-[10px] text-emerald-300/50">下一趟旅行</p>
+          <p class="text-lg font-bold text-white mt-1">日本 · 东京</p>
+          <p class="text-xs text-emerald-200/40 mt-0.5">7月15日 - 7月22日</p>
+        </div>
+        <div class="text-right">
+          <p class="text-2xl font-bold text-emerald-400">33</p>
+          <p class="text-[10px] text-emerald-300/40">天后出发</p>
+        </div>
+      </div>
+      <div class="mt-3 h-1.5 bg-white/5 rounded-full"><div class="h-1.5 bg-emerald-500/60 rounded-full" style="width:40%"></div></div>
+      <p class="text-[10px] text-gray-500 mt-1">已完成 8/20 项</p>
+    </div>
+  </div>
+  <!-- 清单项目 -->
+  <p class="text-[11px] text-gray-600 mb-2">待办</p>
+  <div class="space-y-2">
+    <div class="rounded-xl p-3 bg-[#141416] border border-white/[0.06] flex items-center gap-3">
+      <div class="w-5 h-5 rounded border border-white/10"></div>
+      <span class="text-sm text-white">预订机票</span>
+      <span class="ml-auto text-[10px] text-red-400">紧急</span>
+    </div>
+    <div class="rounded-xl p-3 bg-[#141416] border border-white/[0.06] flex items-center gap-3">
+      <div class="w-5 h-5 rounded border border-white/10"></div>
+      <span class="text-sm text-white">办理签证</span>
+    </div>
+    <div class="rounded-xl p-3 bg-[#141416] border border-white/[0.06] flex items-center gap-3">
+      <div class="w-5 h-5 rounded border border-white/10"></div>
+      <span class="text-sm text-white">订酒店</span>
+    </div>
+    <div class="rounded-xl p-3 bg-[#141416] border border-white/[0.06] flex items-center gap-3 opacity-50">
+      <div class="w-5 h-5 rounded bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center"><svg class="w-3 h-3 text-emerald-400" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></div>
+      <span class="text-sm text-gray-500 line-through">买转换插头</span>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+
+<!-- 旅行 Light -->
+<div>
+<p class="text-xs text-gray-500 text-center mb-2">Light</p>
+<div class="phone" style="background:#f4f4f5;">
+<div class="screen px-4 pb-6">
+  <div class="flex items-center justify-between pt-3 mb-4">
+    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg>
+    <h1 class="text-base font-semibold text-gray-900">旅行清单</h1>
+    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+  </div>
+  <!-- 当前行程卡 -->
+  <div class="rounded-xl p-4 mb-4 bg-white border border-gray-100 shadow-sm relative overflow-hidden">
+    <div class="absolute left-0 top-0 bottom-0 w-1 rounded-l-xl" style="background: linear-gradient(180deg, #10b981, #06b6d4);"></div>
+    <div class="absolute bottom-0 right-4 w-28 h-12 bg-emerald-100/50 rounded-full blur-2xl"></div>
+    <div class="relative">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-[10px] text-gray-400">下一趟旅行</p>
+          <p class="text-lg font-bold text-gray-900 mt-1">日本 · 东京</p>
+          <p class="text-xs text-gray-400 mt-0.5">7月15日 - 7月22日</p>
+        </div>
+        <div class="text-right">
+          <p class="text-2xl font-bold text-emerald-600">33</p>
+          <p class="text-[10px] text-gray-400">天后出发</p>
+        </div>
+      </div>
+      <div class="mt-3 h-1.5 bg-gray-100 rounded-full"><div class="h-1.5 bg-emerald-400 rounded-full" style="width:40%"></div></div>
+      <p class="text-[10px] text-gray-400 mt-1">已完成 8/20 项</p>
+    </div>
+  </div>
+  <!-- 清单项目 -->
+  <p class="text-[11px] text-gray-400 mb-2">待办</p>
+  <div class="space-y-2">
+    <div class="rounded-xl p-3 bg-white border border-gray-100 shadow-sm flex items-center gap-3 relative overflow-hidden">
+      <div class="absolute left-0 top-0 bottom-0 w-0.5 bg-gray-200"></div>
+      <div class="w-5 h-5 rounded border border-gray-200"></div>
+      <span class="text-sm text-gray-900">预订机票</span>
+      <span class="ml-auto text-[10px] px-1.5 py-0.5 bg-red-50 text-red-500 rounded">紧急</span>
+    </div>
+    <div class="rounded-xl p-3 bg-white border border-gray-100 shadow-sm flex items-center gap-3 relative overflow-hidden">
+      <div class="absolute left-0 top-0 bottom-0 w-0.5 bg-gray-200"></div>
+      <div class="w-5 h-5 rounded border border-gray-200"></div>
+      <span class="text-sm text-gray-900">办理签证</span>
+    </div>
+    <div class="rounded-xl p-3 bg-white border border-gray-100 shadow-sm flex items-center gap-3 relative overflow-hidden">
+      <div class="absolute left-0 top-0 bottom-0 w-0.5 bg-gray-200"></div>
+      <div class="w-5 h-5 rounded border border-gray-200"></div>
+      <span class="text-sm text-gray-900">订酒店</span>
+    </div>
+    <div class="rounded-xl p-3 bg-white border border-gray-100 shadow-sm flex items-center gap-3 relative overflow-hidden opacity-50">
+      <div class="absolute left-0 top-0 bottom-0 w-0.5 bg-emerald-300"></div>
+      <div class="w-5 h-5 rounded bg-emerald-50 border border-emerald-200 flex items-center justify-center"><svg class="w-3 h-3 text-emerald-500" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></div>
+      <span class="text-sm text-gray-400 line-through">买转换插头</span>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+
+</div>
+
+<!-- ======== 仪表盘卡片浅色方案对比 ======== -->
+<h2 class="text-lg font-bold text-gray-700 text-center mt-16 mb-4">4. 浅色模式仪表盘卡片 - 3 种方案</h2>
+<div class="flex flex-wrap justify-center gap-8 mb-16">
+
+<!-- 方案 1: 保留深色渐变底 -->
+<div class="w-[340px]">
+<p class="text-xs text-gray-500 text-center mb-2">方案1: 深色渐变底 (不分深浅)</p>
+<div class="rounded-xl p-5 text-white" style="background: linear-gradient(135deg, #1f2937, #111827);">
+  <div class="flex justify-between text-xs opacity-60 mb-2"><span>净资产</span><span>2026年6月</span></div>
+  <p class="text-2xl font-bold">¥-15.00</p>
+  <div class="flex justify-between mt-3 text-xs">
+    <div><p class="opacity-60">收入</p><p class="text-green-400 font-medium mt-0.5">+0.00</p></div>
+    <div><p class="opacity-60">支出</p><p class="text-red-400 font-medium mt-0.5">-8.34</p></div>
+    <div><p class="opacity-60">结余</p><p class="text-amber-400 font-medium mt-0.5">-8.34</p></div>
+  </div>
+  <div class="mt-3 h-1.5 bg-white/10 rounded-full"><div class="h-1.5 rounded-full" style="width:65%; background: linear-gradient(90deg, #f59e0b, #ef4444);"></div></div>
+</div>
+</div>
+
+<!-- 方案 2: 浅色渐变填充 -->
+<div class="w-[340px]">
+<p class="text-xs text-gray-500 text-center mb-2">方案2: 浅色渐变填充</p>
+<div class="rounded-xl p-5 relative overflow-hidden" style="background: linear-gradient(135deg, #f0f4ff, #ede9fe, #fdf2f8); border: 1px solid #e5e7eb;">
+  <div class="absolute top-0 right-0 w-32 h-32 bg-purple-200/20 rounded-full blur-3xl"></div>
+  <div class="relative">
+    <div class="flex justify-between text-xs text-gray-400 mb-2"><span>净资产</span><span>2026年6月</span></div>
+    <p class="text-2xl font-bold text-gray-900">¥-15.00</p>
+    <div class="flex justify-between mt-3 text-xs">
+      <div><p class="text-gray-400">收入</p><p class="text-green-600 font-medium mt-0.5">+0.00</p></div>
+      <div><p class="text-gray-400">支出</p><p class="text-red-500 font-medium mt-0.5">-8.34</p></div>
+      <div><p class="text-gray-400">结余</p><p class="text-gray-700 font-medium mt-0.5">-8.34</p></div>
+    </div>
+    <div class="mt-3 h-1.5 bg-gray-200/60 rounded-full"><div class="h-1.5 rounded-full" style="width:65%; background: linear-gradient(90deg, #f59e0b, #ef4444);"></div></div>
+  </div>
+</div>
+</div>
+
+<!-- 方案 3: 白卡 + 加粗左条 + 底部光晕 -->
+<div class="w-[340px]">
+<p class="text-xs text-gray-500 text-center mb-2">方案3: 白卡 + 粗左条 + 底部光晕</p>
+<div class="rounded-xl p-5 bg-white relative overflow-hidden shadow-sm" style="border: 1px solid #f3f4f6;">
+  <div class="absolute left-0 top-0 bottom-0 w-1.5 rounded-l-xl" style="background: linear-gradient(180deg, #f59e0b, #ef4444);"></div>
+  <div class="absolute bottom-0 right-4 w-28 h-14 bg-amber-100/40 rounded-full blur-2xl"></div>
+  <div class="relative">
+    <div class="flex justify-between text-xs text-gray-400 mb-2"><span>净资产</span><span>2026年6月</span></div>
+    <p class="text-2xl font-bold text-gray-900">¥-15.00</p>
+    <div class="flex justify-between mt-3 text-xs">
+      <div><p class="text-gray-400">收入</p><p class="text-green-600 font-medium mt-0.5">+0.00</p></div>
+      <div><p class="text-gray-400">支出</p><p class="text-red-500 font-medium mt-0.5">-8.34</p></div>
+      <div><p class="text-gray-400">结余</p><p class="text-gray-700 font-medium mt-0.5">-8.34</p></div>
+    </div>
+    <div class="mt-3 h-1.5 bg-gray-100 rounded-full"><div class="h-1.5 rounded-full" style="width:65%; background: linear-gradient(90deg, #f59e0b, #ef4444);"></div></div>
+  </div>
+</div>
+</div>
+
+</div>
+
+</body>
+</html>
