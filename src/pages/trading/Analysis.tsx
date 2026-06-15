@@ -34,6 +34,7 @@ export default function Analysis() {
   const [serverOrders, setServerOrders] = useState<ServerOrder[]>([])
   const [history, setHistory] = useState<any[]>([])
   const [showHistory, setShowHistory] = useState(false)
+  const [expandedHistoryId, setExpandedHistoryId] = useState<number | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => { loadHistory() }, [])
@@ -338,21 +339,88 @@ export default function Analysis() {
         </button>
         {showHistory && history.length > 0 && (
           <div className="mt-2 space-y-2">
-            {history.map((record: any) => (
-              <div key={record.id} className="rounded-xl p-3 bg-white dark:bg-[#141416] border border-gray-100 dark:border-white/[0.06] shadow-sm relative overflow-hidden text-xs">
+            {history.map((record: any) => {
+              const isExpanded = expandedHistoryId === record.id
+              let orders: any[] = []
+              let sectors: string[] = []
+              let etfMapping: Record<string, any> = {}
+              try { orders = JSON.parse(record.orders || '[]') } catch {}
+              try { sectors = JSON.parse(record.main_sectors || '[]') } catch {}
+              try {
+                const parsed = JSON.parse(record.etf_mapping || '{}')
+                etfMapping = typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed) ? parsed : {}
+              } catch {}
+              return (
+              <div key={record.id} className="rounded-xl bg-white dark:bg-[#141416] border border-gray-100 dark:border-white/[0.06] shadow-sm relative overflow-hidden text-xs">
                 <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-gray-300 dark:hidden" />
-                <div className="flex justify-between mb-1">
-                  <span className="text-gray-400 dark:text-gray-600">{record.created_at?.split('T')[0]}</span>
-                  <span className="text-gray-400">{JSON.parse(record.orders || '[]').length} 个条件单</span>
+                {/* Header - clickable */}
+                <div className="p-3 cursor-pointer" onClick={() => setExpandedHistoryId(isExpanded ? null : record.id)}>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-400 dark:text-gray-600">{record.created_at?.split('T')[0]}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-gray-400">{orders.length} 个条件单</span>
+                      <svg className={`w-3 h-3 text-gray-300 transition-transform ${isExpanded ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </div>
+                  </div>
+                  <p className="text-gray-900 dark:text-white mt-1">{record.market_view}</p>
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    {sectors.map((s: string, i: number) => (
+                      <span key={i} className="px-1.5 py-0.5 bg-gray-500/10 text-gray-600 dark:text-gray-400 rounded-full text-[10px]">{s}</span>
+                    ))}
+                  </div>
                 </div>
-                <p className="text-gray-900 dark:text-white">{record.market_view}</p>
-                <div className="flex flex-wrap gap-1 mt-1">
-                  {JSON.parse(record.main_sectors || '[]').map((s: string, i: number) => (
-                    <span key={i} className="px-1.5 py-0.5 bg-gray-500/10 text-gray-600 dark:text-gray-400 rounded-full text-[10px]">{s}</span>
-                  ))}
-                </div>
+                {/* Expanded detail */}
+                {isExpanded && (
+                  <div className="px-3 pb-3 border-t border-gray-50 dark:border-white/[0.04] pt-2 space-y-2">
+                    {record.core_logic && (
+                      <div>
+                        <p className="text-[10px] text-gray-400 mb-0.5">核心逻辑</p>
+                        <p className="text-gray-700 dark:text-gray-300">{record.core_logic}</p>
+                      </div>
+                    )}
+                    {Object.keys(etfMapping).length > 0 && (
+                      <div>
+                        <p className="text-[10px] text-gray-400 mb-0.5">ETF 映射</p>
+                        {Object.entries(etfMapping).map(([sector, codes]) => (
+                          <div key={sector} className="flex items-center gap-1 mt-0.5 flex-wrap">
+                            <span className="text-gray-600 dark:text-gray-400">{sector}:</span>
+                            {(Array.isArray(codes) ? codes : [String(codes)]).map((c: string, i: number) => (
+                              <span key={i} className="px-1.5 py-0.5 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded text-[10px]">{c}</span>
+                            ))}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    {orders.length > 0 && (
+                      <div>
+                        <p className="text-[10px] text-gray-400 mb-0.5">条件单</p>
+                        {orders.map((o: any, i: number) => (
+                          <div key={i} className="flex justify-between items-center py-1 border-b border-gray-50 dark:border-white/[0.03] last:border-0">
+                            <span className="text-gray-700 dark:text-gray-300">{o.name}({o.code})</span>
+                            <span className="text-green-600 dark:text-green-400">@¥{o.trigger_price?.toFixed(3)}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    <button
+                      onClick={async (e) => {
+                        e.stopPropagation()
+                        if (!confirm('删除此分析记录？')) return
+                        await fetch(`/api/analyses/${record.id}`, { method: 'DELETE' })
+                        await loadHistory()
+                        setExpandedHistoryId(null)
+                      }}
+                      className="text-[10px] text-red-400 hover:text-red-500 mt-1"
+                    >
+                      删除此记录
+                    </button>
+                  </div>
+                )}
               </div>
-            ))}
+              )
+            })}
           </div>
         )}
       </div>

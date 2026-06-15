@@ -220,6 +220,76 @@ export interface StorageItem {
   updated_at: string
 }
 
+// ===== 食材库存模块 =====
+export interface FoodItem {
+  id?: number
+  name: string
+  quantity: number
+  unit: string // 个/g/ml/包/盒
+  category: string // 蔬菜/水果/肉类/乳制品/调味料/零食/饮品/其他
+  storage: 'fridge' | 'freezer' | 'pantry'
+  purchase_date: string | null
+  expiry_date: string | null
+  is_consumed: boolean
+  created_at: string
+}
+
+// ===== 身体尺寸档案模块 =====
+export interface BodyPerson {
+  id?: number
+  name: string
+  is_default: boolean
+  created_at: string
+}
+
+export interface BodyMeasurement {
+  id?: number
+  person_id: number
+  date: string
+  type: string // weight/height/chest/waist/hip/neck/arm/thigh/shoulder
+  value: number
+  unit: string // cm/kg
+}
+
+// ===== 习惯打卡模块 =====
+export interface Habit {
+  id?: number
+  name: string
+  icon: string
+  color: string
+  frequency: 'daily' | 'weekly'
+  target_per_day: number
+  is_active: boolean
+  sort_order: number
+  created_at: string
+}
+
+export interface HabitLog {
+  id?: number
+  habit_id: number
+  date: string
+  count: number
+}
+
+// ===== 账号密码本模块 =====
+export interface VaultEntry {
+  id?: number
+  name: string
+  username: string
+  encrypted_password: string // AES-GCM encrypted, base64
+  iv: string // base64
+  url: string
+  category: string // 社交/购物/工具/金融/游戏/其他
+  note: string
+  created_at: string
+  updated_at: string
+}
+
+export interface VaultMeta {
+  key: string // 'verify' | 'salt'
+  value: string
+}
+
 // ===== 订阅管理器模块 =====
 export interface Subscription {
   id?: number
@@ -304,24 +374,6 @@ export interface TravelChecklist {
   created_at: string
 }
 
-// ===== 食材库存模块 =====
-export type StorageZone = 'fridge' | 'freezer' | 'pantry'
-export type FoodCategory = '蔬菜' | '水果' | '肉类' | '乳制品' | '调味料' | '饮品' | '主食' | '其他'
-
-export interface FoodItem {
-  id?: number
-  name: string
-  icon: string
-  zone: StorageZone
-  category: FoodCategory
-  quantity: string // "1盒", "300g", "2个"
-  purchase_date: string // ISO date
-  expiry_date: string // ISO date
-  is_consumed: boolean
-  created_at: string
-  updated_at: string
-}
-
 // ===== 数据库类 =====
 class ToolboxDB extends Dexie {
   // 记账
@@ -354,6 +406,15 @@ class ToolboxDB extends Dexie {
   storageItems!: Table<StorageItem>
   // 食材库存
   foodItems!: Table<FoodItem>
+  // 身体尺寸
+  bodyPersons!: Table<BodyPerson>
+  bodyMeasurements!: Table<BodyMeasurement>
+  // 习惯打卡
+  habits!: Table<Habit>
+  habitLogs!: Table<HabitLog>
+  // 账号密码本
+  vaultEntries!: Table<VaultEntry>
+  vaultMeta!: Table<VaultMeta>
 
   constructor() {
     super('my-toolbox')
@@ -408,7 +469,22 @@ class ToolboxDB extends Dexie {
     })
 
     this.version(8).stores({
-      foodItems: '++id, zone, category, expiry_date, is_consumed',
+      foodItems: '++id, category, storage, expiry_date, is_consumed',
+    })
+
+    this.version(9).stores({
+      bodyPersons: '++id',
+      bodyMeasurements: '++id, person_id, date, type, [person_id+date+type]',
+    })
+
+    this.version(10).stores({
+      habits: '++id, is_active, sort_order',
+      habitLogs: '++id, habit_id, date, [habit_id+date]',
+    })
+
+    this.version(11).stores({
+      vaultEntries: '++id, category',
+      vaultMeta: '&key',
     })
   }
 }

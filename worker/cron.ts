@@ -182,6 +182,12 @@ export async function handleScheduled(env: Env): Promise<void> {
     await cleanupExpiredImages(env)
   }
 
+  // 收盘后记录 NAV（UTC+8 15:05 = UTC 7:05）
+  const hour = (now.getUTCHours() + 8) % 24
+  if (hour === 15 && minute >= 5 && minute <= 10) {
+    await recordDailyNav(env)
+  }
+
   // 非交易时间不执行
   if (!isTradingTime()) return
 
@@ -264,4 +270,48 @@ export async function handleScheduled(env: Env): Promise<void> {
       await executeBuy(env, order, quote.price)
     }
   }
+}
+
+// ===== 每日收盘记录 NAV =====
+async function recordDailyNav(env: Env): Promise<void> {
+  const portfolio = await env.DB.prepare('SELECT * FROM portfolios LIMIT 1').first<any>()
+  if (!portfolio) return
+
+  const today = new Date().toISOString().split('T')[0]
+
+  // 检查今天是否已记录
+  const existing = await env.DB.prepare(
+    'SELECT id FROM daily_nav WHERE portfolio_id = ? AND date = ?'
+  ).bind(portfolio.id, today).first()
+  if (existing) return
+
+  // 获取所有持仓
+  const { results: positions } = await env.DB.prepare(
+    `SELECT * FROM active_positions WHERE portfolio_id = ? AND status = 'holding'`
+  ).bind(portfolio.id).all<any>()
+
+  // 获取持仓行情
+  let marketValue = 0
+  if (positions && positions.length > 0) {
+    const codes = positions.map((p: any) => p.code)
+    const quotes = await fetchQuotes(codes)
+    for (const pos of positions) {
+      const q = quotes[pos.code]
+      if (q) marketValue += q.price * pos.remaining_shares
+      else marketValue += pos.buy_price * pos.remaining_shares
+    }
+  }
+
+  const nav = portfolio.cash + marketValue
+
+  // 获取昨日 NAV 计算日盈亏
+  const prev = await env.DB.prepare(
+    'SELECT nav FROM daily_nav WHERE portfolio_id = ? AND date < ? ORDER BY date DESC LIMIT 1'
+  ).bind(portfolio.id, today).first<{ nav: number }>()
+  const dailyPnl = prev ? nav - prev.nav : 0
+
+  await env.DB.prepare(
+    `INSERT INTO daily_nav (portfolio_id, date, nav, cash, market_value, daily_pnl, created_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?)`
+  ).bind(portfolio.id, today, nav, portfolio.cash, marketValue, dailyPnl, new Date().toISOString()).run()
 }

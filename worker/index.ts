@@ -32,8 +32,14 @@ export default {
       return response
     }
 
-    // 静态资源（前端）
-    return env.ASSETS.fetch(request)
+    // 静态资源（前端）- SPA fallback
+    const assetResponse = await env.ASSETS.fetch(request)
+    if (assetResponse.status === 404) {
+      // SPA: 返回 index.html 让前端路由处理
+      const indexRequest = new Request(new URL('/', request.url).toString(), request)
+      return env.ASSETS.fetch(indexRequest)
+    }
+    return assetResponse
   },
 
   async scheduled(event: ScheduledEvent, env: Env, ctx: ExecutionContext): Promise<void> {

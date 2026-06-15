@@ -209,6 +209,28 @@ export default function Home() {
         ))}
       </div>
 
+      {/* More tools grid */}
+      <div className="mt-6">
+        <p className="text-xs text-gray-400 dark:text-gray-500 font-medium mb-3 px-1">更多工具</p>
+        <div className="grid grid-cols-4 gap-3">
+          {[
+            { name: '相关性', href: '/correlation', icon: '🔬' },
+            { name: '订阅', href: '/subscriptions', icon: '🔄' },
+            { name: '储物', href: '/storage', icon: '📦' },
+            { name: '食材', href: '/food', icon: '🥬' },
+            { name: '身体', href: '/body', icon: '📐' },
+            { name: '习惯', href: '/habits', icon: '✅' },
+            { name: '年报', href: '/annual', icon: '📊' },
+            { name: '密码本', href: '/vault', icon: '🔐' },
+          ].map(t => (
+            <Link key={t.href} to={t.href} className="flex flex-col items-center gap-1 py-3 rounded-xl bg-white dark:bg-[#141416] border border-gray-100 dark:border-white/[0.04]">
+              <span className="text-xl">{t.icon}</span>
+              <span className="text-[10px] text-gray-500 dark:text-gray-400">{t.name}</span>
+            </Link>
+          ))}
+        </div>
+      </div>
+
       <Link to="/settings" className="block text-center mt-8 text-sm text-gray-400 dark:text-gray-600 hover:text-gray-600 dark:hover:text-gray-400 transition-colors">
         设置
       </Link>

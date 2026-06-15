@@ -108,8 +108,8 @@ export default function StorageIndex() {
     setMoveTarget(null)
   }
 
-  // All non-room locations for item placement
-  const allSubLocations = locations.filter(l => l.parent_id !== null)
+  // All locations for item placement (including rooms)
+  const allPlaceableLocations = locations
 
   return (
     <div className="min-h-screen bg-[#f4f4f5] dark:bg-[#0c0c0d]">
@@ -143,7 +143,7 @@ export default function StorageIndex() {
             <p className="text-[10px] text-gray-400">房间</p>
           </div>
           <div className="flex-1 bg-white dark:bg-[#141416] rounded-xl p-2.5 text-center">
-            <p className="text-base font-bold text-gray-800 dark:text-white">{allSubLocations.length}</p>
+            <p className="text-base font-bold text-gray-800 dark:text-white">{locations.filter(l => l.parent_id !== null).length}</p>
             <p className="text-[10px] text-gray-400">储物位置</p>
           </div>
           <div className="flex-1 bg-white dark:bg-[#141416] rounded-xl p-2.5 text-center">
@@ -176,14 +176,21 @@ export default function StorageIndex() {
 
               return (
                 <div key={room.id} className="bg-white dark:bg-[#141416] rounded-xl overflow-hidden">
-                  <button onClick={() => toggleRoom(room.id!)} className="w-full flex items-center gap-3 px-4 py-3">
-                    <span className="text-lg">{room.icon}</span>
-                    <div className="flex-1 text-left">
-                      <p className="text-sm font-medium text-gray-800 dark:text-gray-100">{room.name}</p>
-                      <p className="text-[10px] text-gray-400">{children.length}个位置 · {roomItemCount}件物品</p>
-                    </div>
-                    <ChevronRight size={14} className={`text-gray-300 transition-transform ${isOpen ? 'rotate-90' : ''}`} />
-                  </button>
+                  <div className="flex items-center">
+                    <button onClick={() => toggleRoom(room.id!)} className="flex-1 flex items-center gap-3 px-4 py-3">
+                      <span className="text-lg">{room.icon}</span>
+                      <div className="flex-1 text-left">
+                        <p className="text-sm font-medium text-gray-800 dark:text-gray-100">{room.name}</p>
+                        <p className="text-[10px] text-gray-400">{children.length}个位置 · {roomItemCount}件物品</p>
+                      </div>
+                      <ChevronRight size={14} className={`text-gray-300 transition-transform ${isOpen ? 'rotate-90' : ''}`} />
+                    </button>
+                    {isOpen && (
+                      <button onClick={(e) => { e.stopPropagation(); handleDeleteLocation(room.id!) }} className="pr-4 text-gray-300 hover:text-red-400">
+                        <Trash2 size={14} />
+                      </button>
+                    )}
+                  </div>
 
                   {isOpen && (
                     <div className="px-4 pb-3 space-y-2">
@@ -249,7 +256,7 @@ export default function StorageIndex() {
               className="flex-1 text-xs px-2 py-1.5 rounded border border-gray-200 dark:border-gray-700 bg-transparent text-gray-700 dark:text-gray-200"
             >
               <option value="">移动到...</option>
-              {allSubLocations.map(l => (
+              {allPlaceableLocations.map(l => (
                 <option key={l.id} value={l.id}>{getLocationPath(l.id!)} </option>
               ))}
             </select>
@@ -284,7 +291,7 @@ export default function StorageIndex() {
                 <input type="number" value={itemQty} onChange={e => setItemQty(e.target.value)} placeholder="数量" min="1" className="w-20 px-3 py-2.5 rounded-lg border border-gray-200 dark:border-white/[0.06] bg-transparent text-sm outline-none text-gray-700 dark:text-gray-200" />
                 <select value={itemLocation ?? ''} onChange={e => setItemLocation(Number(e.target.value) || null)} className="flex-1 px-3 py-2.5 rounded-lg border border-gray-200 dark:border-white/[0.06] bg-transparent text-sm text-gray-700 dark:text-gray-200">
                   <option value="">选择位置</option>
-                  {allSubLocations.map(l => <option key={l.id} value={l.id}>{getLocationPath(l.id!)}</option>)}
+                  {allPlaceableLocations.map(l => <option key={l.id} value={l.id}>{getLocationPath(l.id!)}</option>)}
                 </select>
               </div>
               <input value={itemTags} onChange={e => setItemTags(e.target.value)} placeholder="标签(逗号分隔)" className="w-full px-3 py-2.5 rounded-lg border border-gray-200 dark:border-white/[0.06] bg-transparent text-sm outline-none text-gray-700 dark:text-gray-200" />

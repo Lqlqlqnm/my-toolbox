@@ -27,7 +27,7 @@ function pearson(x: number[], y: number[]): number {
 }
 
 export default function Results() {
-  const variables = useLiveQuery(() => db.correlationVariables.where('is_active').equals(1).toArray())
+  const variables = useLiveQuery(() => db.correlationVariables.filter(v => v.is_active).toArray())
   const records = useLiveQuery(() => db.correlationRecords.toArray())
 
   const [insights, setInsights] = useState<Insight[]>([])

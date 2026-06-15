@@ -1,6 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { useEffect, useState, useRef, useCallback, lazy, Suspense } from 'react'
-import { initDefaultData, initTravelTemplates, processPendingInstallments } from './lib/db'
+import { initDefaultData, initTravelTemplates, processPendingInstallments, initCorrelationVariables } from './lib/db'
 import { shouldRemindBackup, shareBackup } from './lib/backup'
 import { initTheme } from './lib/theme'
 import Home from './pages/Home'
@@ -12,6 +12,11 @@ import Settings from './pages/Settings'
 const Correlation = lazy(() => import('./pages/correlation/Index'))
 const Subscriptions = lazy(() => import('./pages/subscriptions/Index'))
 const Storage = lazy(() => import('./pages/storage/Index'))
+const Food = lazy(() => import('./pages/food/Index'))
+const Body = lazy(() => import('./pages/body/Index'))
+const AnnualReport = lazy(() => import('./pages/annual/Index'))
+const Habits = lazy(() => import('./pages/habits/Index'))
+const Vault = lazy(() => import('./pages/vault/Index'))
 
 function usePullToRefresh() {
   const [pulling, setPulling] = useState(false)
@@ -64,6 +69,7 @@ export default function App() {
   useEffect(() => {
     initDefaultData()
     initTravelTemplates()
+    initCorrelationVariables()
     initTheme()
     processPendingInstallments()
     if (shouldRemindBackup()) setShowBackupReminder(true)
@@ -103,6 +109,11 @@ export default function App() {
         <Route path="/correlation/*" element={<Suspense fallback={<div />}><Correlation /></Suspense>} />
         <Route path="/subscriptions/*" element={<Suspense fallback={<div />}><Subscriptions /></Suspense>} />
         <Route path="/storage/*" element={<Suspense fallback={<div />}><Storage /></Suspense>} />
+        <Route path="/food/*" element={<Suspense fallback={<div />}><Food /></Suspense>} />
+        <Route path="/body/*" element={<Suspense fallback={<div />}><Body /></Suspense>} />
+        <Route path="/annual/*" element={<Suspense fallback={<div />}><AnnualReport /></Suspense>} />
+        <Route path="/habits/*" element={<Suspense fallback={<div />}><Habits /></Suspense>} />
+        <Route path="/vault/*" element={<Suspense fallback={<div />}><Vault /></Suspense>} />
         <Route path="/settings" element={<Settings />} />
       </Routes>
     </div>

@@ -20,7 +20,7 @@ export default function DailyInput() {
   const dateStr = formatDate(currentDate)
 
   const variables = useLiveQuery(() =>
-    db.correlationVariables.where('is_active').equals(1).sortBy('sort_order')
+    db.correlationVariables.filter(v => v.is_active).sortBy('sort_order')
   )
 
   const records = useLiveQuery(

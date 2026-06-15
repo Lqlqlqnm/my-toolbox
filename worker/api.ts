@@ -38,6 +38,11 @@ export async function handleApiRequest(request: Request, env: Env): Promise<Resp
     // DELETE routes
     if (method === 'DELETE') {
       if (path.startsWith('watchlist/')) return deleteWatchlist(path, env)
+      if (path.startsWith('analyses/')) {
+        const id = path.replace('analyses/', '')
+        await env.DB.prepare('DELETE FROM analyses WHERE id = ?').bind(id).run()
+        return json({ ok: true })
+      }
       if (path === 'images/all') {
         const { meta } = await env.DB.prepare('DELETE FROM analysis_images').run()
         return json({ deleted: meta.changes || 0 })
@@ -92,46 +97,95 @@ async function getWatchlist(env: Env): Promise<Response> {
 }
 
 async function getStats(env: Env): Promise<Response> {
+  const portfolio = await env.DB.prepare('SELECT * FROM portfolios LIMIT 1').first<any>()
+  if (!portfolio) return json(null)
+
+  // 已平仓交易
   const { results: closed } = await env.DB.prepare(
     'SELECT * FROM active_positions WHERE status = ?'
-  ).bind('closed').all()
+  ).bind('closed').all<any>()
 
-  if (!closed || closed.length === 0) return json(null)
+  // 所有交易记录
+  const { results: trades } = await env.DB.prepare(
+    'SELECT * FROM trades ORDER BY date ASC'
+  ).all<any>()
 
-  const wins = closed.filter((p: any) => (p.pnl_pct || 0) > 0)
-  const totalPnl = closed.reduce((sum: number, p: any) => sum + (p.pnl || 0), 0)
-  const avgPnlPct = closed.reduce((sum: number, p: any) => sum + (p.pnl_pct || 0), 0) / closed.length
+  // 每日 NAV
+  const { results: navHistory } = await env.DB.prepare(
+    'SELECT * FROM daily_nav WHERE portfolio_id = ? ORDER BY date ASC'
+  ).bind(portfolio.id).all<any>()
 
-  const avgHoldDays = closed.reduce((sum: number, p: any) => {
-    if (!p.close_date) return sum
-    const days = Math.ceil((new Date(p.close_date).getTime() - new Date(p.buy_date).getTime()) / 86400000)
-    return sum + days
-  }, 0) / closed.length
+  // === 核心指标 ===
+  const initialCapital = portfolio.initial_capital || 100000
+  const totalPnl = (closed || []).reduce((sum: number, p: any) => sum + (p.pnl || 0), 0)
+  const totalReturn = (totalPnl / initialCapital) * 100
 
-  const pnlPcts = closed.map((p: any) => p.pnl_pct || 0)
+  // 胜率
+  const wins = (closed || []).filter((p: any) => (p.pnl || 0) > 0)
+  const losses = (closed || []).filter((p: any) => (p.pnl || 0) <= 0)
+  const winRate = closed && closed.length > 0 ? (wins.length / closed.length) * 100 : 0
 
-  const reasonBreakdown: Record<string, { count: number; avgPnl: number }> = {}
-  for (const p of closed as any[]) {
-    const reason = p.close_reason || 'unknown'
-    if (!reasonBreakdown[reason]) reasonBreakdown[reason] = { count: 0, avgPnl: 0 }
-    reasonBreakdown[reason].count++
-    reasonBreakdown[reason].avgPnl += p.pnl_pct || 0
+  // 盈亏比
+  const avgWin = wins.length > 0 ? wins.reduce((s: number, p: any) => s + p.pnl, 0) / wins.length : 0
+  const avgLoss = losses.length > 0 ? Math.abs(losses.reduce((s: number, p: any) => s + p.pnl, 0) / losses.length) : 1
+  const profitRatio = avgLoss > 0 ? avgWin / avgLoss : 0
+
+  // 最大回撤（基于 NAV 历史）
+  let maxDrawdown = 0
+  let peak = 0
+  for (const nav of navHistory || []) {
+    if (nav.nav > peak) peak = nav.nav
+    const dd = peak > 0 ? ((peak - nav.nav) / peak) * 100 : 0
+    if (dd > maxDrawdown) maxDrawdown = dd
   }
-  for (const key of Object.keys(reasonBreakdown)) {
-    reasonBreakdown[key].avgPnl /= reasonBreakdown[key].count
+
+  // 期望值 = 胜率 × 盈亏比
+  const expectancy = (winRate / 100) * profitRatio
+
+  // === 收益日历（每日盈亏） ===
+  const calendar = (navHistory || []).map((n: any) => ({
+    date: n.date,
+    pnl: n.daily_pnl,
+    nav: n.nav,
+  }))
+
+  // === 个股明细 ===
+  const byCode: Record<string, { name: string; totalPnl: number; trades: number; wins: number; totalDays: number }> = {}
+  for (const p of closed || []) {
+    if (!byCode[p.code]) byCode[p.code] = { name: p.name, totalPnl: 0, trades: 0, wins: 0, totalDays: 0 }
+    byCode[p.code].totalPnl += p.pnl || 0
+    byCode[p.code].trades++
+    if ((p.pnl || 0) > 0) byCode[p.code].wins++
+    if (p.buy_date && p.close_date) {
+      byCode[p.code].totalDays += Math.ceil((new Date(p.close_date).getTime() - new Date(p.buy_date).getTime()) / 86400000)
+    }
   }
+  const perStock = Object.entries(byCode).map(([code, d]) => ({
+    code,
+    name: d.name,
+    totalPnl: d.totalPnl,
+    trades: d.trades,
+    winRate: d.trades > 0 ? (d.wins / d.trades) * 100 : 0,
+    avgDays: d.trades > 0 ? Math.round(d.totalDays / d.trades) : 0,
+  })).sort((a, b) => b.totalPnl - a.totalPnl)
 
   return json({
-    totalTrades: closed.length,
-    winCount: wins.length,
-    lossCount: closed.length - wins.length,
-    winRate: (wins.length / closed.length) * 100,
+    // 核心 4 指标
+    totalReturn,
+    maxDrawdown,
+    winRate,
+    profitRatio,
+    expectancy,
+    // 资金概况
+    initialCapital,
+    currentNav: navHistory && navHistory.length > 0 ? navHistory[navHistory.length - 1].nav : portfolio.cash,
     totalPnl,
-    avgPnlPct,
-    avgHoldDays,
-    maxWin: Math.max(...pnlPcts),
-    maxLoss: Math.min(...pnlPcts),
-    reasonBreakdown,
+    todayPnl: navHistory && navHistory.length > 0 ? navHistory[navHistory.length - 1].daily_pnl : 0,
+    totalTrades: (closed || []).length,
+    // 日历
+    calendar,
+    // 个股
+    perStock,
   })
 }
 

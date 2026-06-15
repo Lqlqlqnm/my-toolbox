@@ -7,6 +7,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
+      injectRegister: false, // We handle registration manually in main.tsx
       workbox: {
         skipWaiting: true,
         clientsClaim: true,
