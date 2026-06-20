@@ -114,6 +114,67 @@ export async function analyzeArticles(articles: string[], images: ImageInput[] =
 分析用户提供的文章（文字和/或图片截图），判断市场方向和推荐的ETF品种。
 注意：你只负责判断"买什么"和"为什么买"，具体买入价格由系统根据技术面自动计算，你不需要给出价格。
 
+## ETF代码对照表（必须从此表中选取，不得自行编造代码）
+
+### 宽基指数
+510050 上证50ETF | 510300 沪深300ETF | 510500 中证500ETF | 512100 中证1000ETF
+159915 创业板ETF | 159949 创业板50ETF | 588000 科创50ETF | 588060 科创100ETF
+159852 中证A50ETF | 563000 中证2000ETF | 512050 A500ETF
+
+### 金融
+510230 金融ETF | 512800 银行ETF | 512880 证券ETF | 512070 保险ETF
+159841 证券ETF | 515020 券商ETF
+
+### 科技/半导体
+159995 芯片ETF | 512480 半导体ETF | 561980 半导体设备ETF
+512720 计算机ETF | 515230 软件ETF | 515880 通信ETF | 515050 5GETF
+516520 智能驾驶ETF
+
+### AI/数字经济
+515070 人工智能ETF | 159819 人工智能ETF | 562800 数据ETF | 159786 云计算ETF
+516010 算力ETF | 588790 科创AIETF | 515000 科技ETF
+
+### 新能源
+515030 新能源车ETF | 516160 新能源ETF | 515790 光伏ETF | 159812 光伏50ETF
+159625 绿色电力ETF | 159611 电力ETF | 516580 储能ETF
+
+### 医药/医疗
+512010 医药ETF | 512170 医疗ETF | 159992 创新药ETF | 515120 医药50ETF
+159828 中药ETF | 516820 生物科技ETF | 512290 生物医药ETF
+
+### 消费
+512690 酒ETF | 515170 食品饮料ETF | 159996 家电ETF | 510150 消费ETF
+515650 消费50ETF | 159928 消费ETF
+
+### 军工/航天
+512660 军工ETF | 512810 军工龙头ETF | 515760 航天军工ETF | 516110 军工ETF
+
+### 有色/贵金属
+512400 有色金属ETF | 516780 稀土ETF | 159880 有色60ETF
+518880 黄金ETF | 159934 黄金ETF | 517520 黄金股ETF | 518800 黄金基金ETF
+560860 工业有色ETF
+
+### 周期/资源
+515220 煤炭ETF | 515210 钢铁ETF | 159870 化工ETF | 159930 能源ETF
+516220 化工龙头ETF | 510410 资源ETF
+
+### 房地产/基建
+159768 房地产ETF | 512200 房地产ETF | 159707 地产ETF | 516950 基建ETF
+
+### 交通/物流
+516260 物流ETF | 159666 旅游ETF | 159766 旅游ETF
+
+### 农业
+159825 农业ETF
+
+### 红利/价值
+510880 红利ETF | 515180 红利ETF | 563020 央企红利ETF | 159581 中证红利ETF
+
+### 港股/跨境
+513060 恒生医疗ETF | 513180 恒生科技ETF | 513330 恒生互联网ETF
+159605 中概互联网ETF | 513050 中概互联ETF | 510900 恒生中国企业ETF
+513130 恒生科技30ETF | 159607 纳斯达克ETF | 513100 纳指ETF | 159941 标普500ETF
+
 ## 输出格式（纯JSON，不要markdown代码块）
 {
   "market_view": "看多/震荡/看空 + 一句话理由",
@@ -123,8 +184,8 @@ export async function analyzeArticles(articles: string[], images: ImageInput[] =
   "risk_reason": "风险评级理由",
   "etf_recommendations": [
     {
-      "code": "ETF代码(6位数字)",
-      "name": "ETF名称",
+      "code": "ETF代码(6位数字，必须从上表选取)",
+      "name": "ETF名称（必须与上表一致）",
       "position_pct": 15,
       "stop_loss_pct": 5,
       "trailing_pct": 4,
@@ -136,7 +197,7 @@ export async function analyzeArticles(articles: string[], images: ImageInput[] =
 }
 
 ## 参数说明
-- code: ETF代码为6位数字（如510300、159919、159995）
+- code: 必须从上方ETF代码对照表中选取，严禁编造不在表中的代码
 - position_pct: 建议仓位百分比（5-25），风险越高给越低
 - stop_loss_pct: 止损比例，宽基ETF给3-5%，行业ETF给5-8%
 - trailing_pct: 移动止盈回撤比例，宽基ETF给3%，行业ETF给4-5%
@@ -154,7 +215,8 @@ export async function analyzeArticles(articles: string[], images: ImageInput[] =
 - 如果文章没有明确交易信号，etf_recommendations 可以为空数组
 - 请基于文章内容给出合理判断，不要编造
 - 如果文章有营销号/杀猪盘特征，risk_level设为high并在risk_reason中说明
-- 如果输入包含图片，请先识别图片中的文字内容再进行分析`
+- 如果输入包含图片，请先识别图片中的文字内容再进行分析
+- 如果文章提到的行业在表中没有精确对应的ETF，选最接近的或不推荐`
 
   // Build multimodal content array
   const userContent: any[] = []
@@ -213,8 +275,33 @@ export async function analyzeArticles(articles: string[], images: ImageInput[] =
     if (jsonStr.startsWith('```')) {
       jsonStr = jsonStr.replace(/^```(?:json)?\s*\n?/, '').replace(/\n?```\s*$/, '')
     }
-    return JSON.parse(jsonStr) as AnalysisResult
-  } catch {
+    const result = JSON.parse(jsonStr) as AnalysisResult
+
+    // 验证 ETF 代码：调东方财富 API 确认代码真实存在，用实际名称替换
+    if (result.etf_recommendations && result.etf_recommendations.length > 0) {
+      const { fetchQuote } = await import('./quotes')
+      const verified: typeof result.etf_recommendations = []
+      for (const rec of result.etf_recommendations) {
+        try {
+          const quote = await fetchQuote(rec.code)
+          if (quote && quote.name && quote.price > 0) {
+            // 代码有效，用 API 返回的真实名称覆盖
+            rec.name = quote.name
+            verified.push(rec)
+          }
+          // quote 为 null 或 price 为 0 说明代码无效，丢弃
+        } catch {
+          // API 查询失败（网络问题），保留但标记待验证
+          rec.name = `${rec.name}(待验证)`
+          verified.push(rec)
+        }
+      }
+      result.etf_recommendations = verified
+    }
+
+    return result
+  } catch (e) {
+    if (e instanceof Error && e.message.includes('AI')) throw e
     throw new Error('AI 返回格式错误')
   }
 }
