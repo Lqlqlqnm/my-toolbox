@@ -1,9 +1,8 @@
 import { Link } from 'react-router-dom'
 import { useState, useEffect } from 'react'
-import { ChevronLeft, ChevronUp, ChevronDown, Plus, Pencil, EyeOff, Eye, Trash2, ArrowUpDown } from 'lucide-react'
+import { ChevronUp, ChevronDown } from 'lucide-react'
 import { db, type Account, getPendingInstallmentSummary } from '../../lib/db'
 import CategoryIcon, { accountIconKeys } from '../../components/CategoryIcon'
-import { useModal } from '../../components/Modal'
 
 export default function Accounts() {
   const [accounts, setAccounts] = useState<Account[]>([])
@@ -11,8 +10,6 @@ export default function Accounts() {
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState<number | null>(null)
   const [form, setForm] = useState({ name: '', type: 'debit' as Account['type'], icon: 'debit', balance: '0', credit_limit: '', billing_day: '', payment_day: '' })
-  const [sortMode, setSortMode] = useState(false)
-  const { showConfirm } = useModal()
 
   useEffect(() => { loadAccounts() }, [])
 
@@ -75,11 +72,12 @@ export default function Accounts() {
   }
 
   async function deleteAccount(id: number) {
-    const confirmed = await showConfirm('删除账户', '删除账户后不会删除相关交易记录，确定删除？')
-    if (!confirmed) return
+    if (!confirm('删除账户后不会删除相关交易记录，确定？')) return
     await db.accounts.delete(id)
     loadAccounts()
   }
+
+  const [sortMode, setSortMode] = useState(false)
 
   async function moveAccount(id: number, dir: -1 | 1) {
     const idx = accounts.findIndex(a => a.id === id)
@@ -100,98 +98,96 @@ export default function Accounts() {
   const typeOptions: Account['type'][] = ['cash', 'debit', 'credit', 'ewallet']
 
   return (
-    <div className="min-h-screen bg-[#f4f4f5] dark:bg-[#0c0c0d]">
+    <main className="max-w-lg mx-auto px-4 py-4">
       {/* Header */}
-      <div className="bg-white dark:bg-[#141416] border-b border-gray-100 dark:border-white/[0.06] sticky top-0 z-10">
-        <div className="flex items-center justify-between px-4 py-3">
-          <Link to="/accounting" className="text-gray-400"><ChevronLeft size={20} /></Link>
-          <h1 className="text-base font-semibold text-gray-800 dark:text-white">账户管理</h1>
-          <div className="flex items-center gap-3">
-            <button onClick={() => setSortMode(!sortMode)} className={sortMode ? 'text-amber-500' : 'text-gray-400'}>
-              <ArrowUpDown size={18} />
-            </button>
-            <button onClick={openAdd} className="text-gray-600 dark:text-gray-300"><Plus size={20} /></button>
-          </div>
+      <div className="flex items-center justify-between mb-4">
+        <Link to="/accounting" className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
+          </svg>
+        </Link>
+        <h1 className="text-lg font-bold text-gray-800 dark:text-white">账户管理</h1>
+        <div className="flex items-center gap-2">
+          <button onClick={() => setSortMode(!sortMode)} className={`text-xs px-2 py-1 rounded ${sortMode ? 'bg-amber-100 text-amber-600' : 'text-gray-400 hover:text-amber-500'}`}>
+            {sortMode ? '完成' : '排序'}
+          </button>
+          <button onClick={openAdd} className="text-amber-500 hover:text-amber-600 text-sm font-medium">添加</button>
         </div>
       </div>
 
-      <div className="p-4 max-w-lg mx-auto">
-        {/* Net Worth */}
-        <div className="bg-white dark:bg-[#141416] rounded-xl p-4 mb-4 text-center">
-          <p className="text-[11px] text-gray-400 mb-1">净资产</p>
-          <p className={`text-2xl font-bold ${totalBalance >= 0 ? 'text-gray-800 dark:text-white' : 'text-red-500'}`}>
-            ¥{totalBalance.toFixed(2)}
-          </p>
-        </div>
+      {/* Net Worth */}
+      <div className="rounded-xl p-4 mb-4 shadow-sm text-center relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #1f2937, #111827)' }}>
+        <p className="text-xs text-gray-400 mb-1">净资产</p>
+        <p className={`text-2xl font-bold ${totalBalance >= 0 ? 'text-white' : 'text-red-400'}`}>
+          ¥{totalBalance.toFixed(2)}
+        </p>
+      </div>
 
-        {/* Account List */}
-        <div className="space-y-2">
-          {accounts.length === 0 ? (
-            <p className="text-gray-400 text-center py-8 text-sm">暂无账户</p>
-          ) : (
-            accounts.map((a, i) => (
-              <div
-                key={a.id}
-                className={`bg-white dark:bg-[#141416] rounded-xl p-3.5 ${a.is_hidden ? 'opacity-40' : ''}`}
-                onClick={() => !sortMode && openEdit(a)}
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-lg bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center">
-                    <CategoryIcon icon={a.icon} size={20} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-800 dark:text-gray-100 truncate">{a.name}</p>
-                    <p className="text-[11px] text-gray-400 truncate">
-                      {typeLabels[a.type]}
-                      {a.type === 'credit' && a.billing_day && a.payment_day && (
-                        <span> · 账单日{a.billing_day}号 · 还款日{a.payment_day}号</span>
-                      )}
-                    </p>
-                  </div>
-                  <div className="text-right flex-shrink-0">
-                    <p className={`text-sm font-semibold ${a.balance >= 0 ? 'text-gray-800 dark:text-gray-100' : 'text-red-500'}`}>
-                      ¥{a.balance.toFixed(2)}
-                    </p>
-                    {a.id && pendingMap.has(a.id) && (
-                      <p className="text-[10px] text-amber-500">
-                        待还 ¥{pendingMap.get(a.id)!.total.toFixed(2)} ({pendingMap.get(a.id)!.count}期)
-                      </p>
-                    )}
-                  </div>
-                  {sortMode && (
-                    <div className="flex flex-col gap-0.5 ml-2" onClick={e => e.stopPropagation()}>
-                      <button onClick={() => a.id && moveAccount(a.id, -1)} disabled={i === 0} className="p-1 text-gray-400 disabled:opacity-30">
-                        <ChevronUp size={14} />
-                      </button>
-                      <button onClick={() => a.id && moveAccount(a.id, 1)} disabled={i === accounts.length - 1} className="p-1 text-gray-400 disabled:opacity-30">
-                        <ChevronDown size={14} />
-                      </button>
-                    </div>
+      {/* Account List */}
+      <p className="text-[11px] text-gray-400 dark:text-gray-600 mb-2">账户列表</p>
+      <div className="space-y-3">
+        {accounts.length === 0 ? (
+          <p className="text-gray-400 text-center py-8 text-sm">暂无账户</p>
+        ) : (
+          accounts.map((a, i) => (
+            <div key={a.id} className={`relative overflow-hidden bg-white dark:bg-[#141416] rounded-xl shadow-sm border border-gray-100 dark:border-white/[0.06] flex items-center px-4 py-3 ${a.is_hidden ? 'opacity-40' : ''}`}>
+              <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-amber-400 dark:hidden" />
+              <span className="mr-3 text-gray-600 dark:text-gray-300"><CategoryIcon icon={a.icon} size={22} /></span>
+              <div className="flex-1">
+                <p className="text-sm text-gray-800 dark:text-white">{a.name}</p>
+                <p className="text-xs text-gray-400">
+                  {typeLabels[a.type]}
+                  {a.type === 'credit' && a.billing_day && a.payment_day && (
+                    <span className="ml-1">· 账单日{a.billing_day}号 · 还款日{a.payment_day}号</span>
                   )}
-                </div>
-                {!sortMode && (
-                  <div className="flex items-center gap-3 mt-2 pt-2 border-t border-gray-50 dark:border-white/[0.04]" onClick={e => e.stopPropagation()}>
-                    <button onClick={() => toggleHidden(a)} className="text-[11px] text-gray-400 flex items-center gap-1">
-                      {a.is_hidden ? <Eye size={12} /> : <EyeOff size={12} />}
-                      {a.is_hidden ? '显示' : '隐藏'}
-                    </button>
-                    <button onClick={() => a.id && deleteAccount(a.id)} className="text-[11px] text-gray-400 flex items-center gap-1 ml-auto">
-                      <Trash2 size={12} />
-                      删除
-                    </button>
-                  </div>
+                </p>
+              </div>
+              <div className="text-right mr-3">
+                <span className={`text-sm font-medium ${a.balance >= 0 ? 'text-gray-700 dark:text-gray-200' : 'text-red-500'}`}>
+                  ¥{a.balance.toFixed(2)}
+                </span>
+                {a.id && pendingMap.has(a.id) && (
+                  <p className="text-[10px] text-amber-500">
+                    待还 ¥{pendingMap.get(a.id)!.total.toFixed(2)} ({pendingMap.get(a.id)!.count}期)
+                  </p>
                 )}
               </div>
-            ))
-          )}
-        </div>
+              {sortMode ? (
+                <div className="flex items-center gap-1">
+                  <button onClick={() => a.id && moveAccount(a.id, -1)} disabled={i === 0} className="p-1 text-gray-400 hover:text-gray-600 disabled:opacity-30">
+                    <ChevronUp className="w-4 h-4" />
+                  </button>
+                  <button onClick={() => a.id && moveAccount(a.id, 1)} disabled={i === accounts.length - 1} className="p-1 text-gray-400 hover:text-gray-600 disabled:opacity-30">
+                    <ChevronDown className="w-4 h-4" />
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <button onClick={() => openEdit(a)} className="text-gray-300 hover:text-amber-500 mr-2">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                </svg>
+              </button>
+              <button onClick={() => toggleHidden(a)} className="text-gray-300 hover:text-gray-500 mr-2">
+                {a.is_hidden ? '👁' : '🙈'}
+              </button>
+              <button onClick={() => a.id && deleteAccount(a.id)} className="text-gray-300 hover:text-red-500">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </button>
+                </>
+              )}
+            </div>
+          ))
+        )}
       </div>
 
       {/* Add/Edit Form Modal */}
       {showForm && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-end justify-center z-50" onClick={() => setShowForm(false)}>
-          <div className="bg-white dark:bg-[#1a1a1a] w-full max-w-lg rounded-t-2xl p-5" onClick={e => e.stopPropagation()}>
-            <h3 className="text-base font-semibold text-gray-800 dark:text-white mb-4">
+        <div className="fixed inset-0 bg-black/50 flex items-end justify-center z-50" onClick={() => setShowForm(false)}>
+          <div className="bg-white dark:bg-[#141416] w-full max-w-lg rounded-t-2xl p-6" onClick={e => e.stopPropagation()}>
+            <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-4">
               {editingId ? '编辑账户' : '添加账户'}
             </h3>
 
@@ -202,7 +198,7 @@ export default function Accounts() {
                   type="text"
                   value={form.name}
                   onChange={e => setForm({ ...form, name: e.target.value })}
-                  className="w-full mt-1 px-3 py-2.5 bg-gray-50 dark:bg-gray-800 rounded-xl text-sm border border-gray-200 dark:border-gray-700 outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400"
+                  className="w-full mt-1 px-3 py-2 bg-gray-50 dark:bg-gray-700 rounded-lg text-sm border border-gray-200 dark:border-gray-600"
                   placeholder="如：招商银行"
                 />
               </div>
@@ -214,7 +210,7 @@ export default function Accounts() {
                     <button
                       key={t}
                       onClick={() => setForm({ ...form, type: t, icon: typeIcons[idx] })}
-                      className={`flex-1 py-2 text-xs rounded-lg flex items-center justify-center gap-1 ${form.type === t ? 'bg-amber-50 dark:bg-amber-900/30 ring-1 ring-amber-400' : 'bg-gray-50 dark:bg-gray-800'}`}
+                      className={`flex-1 py-2 text-xs rounded-lg flex items-center justify-center gap-1 ${form.type === t ? 'bg-amber-50 dark:bg-amber-900/30 ring-1 ring-amber-400' : 'bg-gray-50 dark:bg-gray-700'}`}
                     >
                       <CategoryIcon icon={typeIcons[idx]} size={14} /> {typeLabels[t]}
                     </button>
@@ -229,7 +225,7 @@ export default function Accounts() {
                   inputMode="decimal"
                   value={form.balance}
                   onChange={e => setForm({ ...form, balance: e.target.value })}
-                  className="w-full mt-1 px-3 py-2.5 bg-gray-50 dark:bg-gray-800 rounded-xl text-sm border border-gray-200 dark:border-gray-700 outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400"
+                  className="w-full mt-1 px-3 py-2 bg-gray-50 dark:bg-gray-700 rounded-lg text-sm border border-gray-200 dark:border-gray-600"
                 />
               </div>
 
@@ -238,38 +234,34 @@ export default function Accounts() {
                   <div>
                     <label className="text-xs text-gray-400">信用额度</label>
                     <input type="number" inputMode="decimal" value={form.credit_limit} onChange={e => setForm({ ...form, credit_limit: e.target.value })}
-                      placeholder="如 50000" className="w-full mt-1 px-3 py-2.5 bg-gray-50 dark:bg-gray-800 rounded-xl text-sm border border-gray-200 dark:border-gray-700 outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400" />
+                      placeholder="如 50000" className="w-full mt-1 px-3 py-2 bg-gray-50 dark:bg-gray-700 rounded-lg text-sm border border-gray-200 dark:border-gray-600" />
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <label className="text-xs text-gray-400">账单日（每月几号）</label>
                       <input type="number" min="1" max="28" value={form.billing_day} onChange={e => setForm({ ...form, billing_day: e.target.value })}
-                        placeholder="如 6" className="w-full mt-1 px-3 py-2.5 bg-gray-50 dark:bg-gray-800 rounded-xl text-sm border border-gray-200 dark:border-gray-700 outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400" />
+                        placeholder="如 6" className="w-full mt-1 px-3 py-2 bg-gray-50 dark:bg-gray-700 rounded-lg text-sm border border-gray-200 dark:border-gray-600" />
                     </div>
                     <div>
                       <label className="text-xs text-gray-400">还款日（每月几号）</label>
                       <input type="number" min="1" max="28" value={form.payment_day} onChange={e => setForm({ ...form, payment_day: e.target.value })}
-                        placeholder="如 25" className="w-full mt-1 px-3 py-2.5 bg-gray-50 dark:bg-gray-800 rounded-xl text-sm border border-gray-200 dark:border-gray-700 outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400" />
+                        placeholder="如 25" className="w-full mt-1 px-3 py-2 bg-gray-50 dark:bg-gray-700 rounded-lg text-sm border border-gray-200 dark:border-gray-600" />
                     </div>
                   </div>
                   <p className="text-[11px] text-gray-400">账单周期规则：上月账单日次日 ~ 本月账单日的消费计入本期账单，在还款日前还清。</p>
                 </>
               )}
 
-              <div className="flex gap-3 pt-2">
-                <button onClick={() => setShowForm(false)}
-                  className="flex-1 py-2.5 rounded-xl text-sm font-medium text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-700">
-                  取消
-                </button>
-                <button onClick={handleSave}
-                  className="flex-1 py-2.5 rounded-xl text-sm font-medium text-white bg-amber-500 hover:bg-amber-600">
-                  保存
-                </button>
-              </div>
+              <button
+                onClick={handleSave}
+                className="w-full py-3 bg-amber-500 hover:bg-amber-600 text-white font-medium rounded-xl"
+              >
+                保存
+              </button>
             </div>
           </div>
         </div>
       )}
-    </div>
+    </main>
   )
 }
